@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension type="component" version="3.4" method="upgrade" >
+    <name>Jeproshop</name>
+    <creationDate>September 2014</creationDate>
+    <author>Jeprodev</author>
+    <authorEmail>development@jeprodev.net</authorEmail>
+    <authorUrl>http://www.jeprodev.net</authorUrl>
+    <copyright>GPL</copyright>
+    <license>GNU LICENSE</license>
+    <version>0.0.1.1</version>
+    <description>COM_JEPROSHOP_XML_DESCRIPTION</description>
+
+    <!-- Runs on install on uninstall/update  -->
+    <scriptfile >script.php</scriptfile>
+
+    <install ><!-- runs on install -->
+        <sql>
+            <file driver="mysql" charset="utf8" >sql/install.mysql.utf8.sql</file>
+        </sql>
+    </install>
+
+    <uninstall>
+        <sql>
+            <file driver="mysql" charset="utf8" >sql/uninstall.mysql.utf8.sql</file>
+        </sql>
+    </uninstall>
+
+    <update>
+        <schemas>
+            <schemapath type="mysql" >sql/updates/mysql</schemapath>
+        </schemas>
+    </update>
+
+    <files folder="site" >
+        <filename>index.html</filename>
+        <filename>jeproshop.php</filename>
+        <filename>controller.php</filename>
+        <folder>controllers</folder>
+        <folder>models</folder>
+        <folder>views</folder>
+    </files>
+
+    <languages folder="site/languages" >
+        <language tag="en-GB" >en-GB.com_jeproshop.in</language>
+        <language tag="en-GB" >en-GB.com_jeproshop.sys.in</language>
+    </languages>
+
+    <media destination="com_jeproshop" folder="media" >
+        <filename>index.html</filename>
+        <folder>images</folder>
+    </media>
+
+    <administration >
+        <menu link="index.php?option=com_jeproshop" img="../media/com_jeproshop/images/jeproshop16x16.png" >COM_JEPROSHOP_MENU_LABEL</menu>
+        <files folder="admin">
+            <filename>index.html</filename>
+            <filename>access.xml</filename>
+            <filename>config.xml</filename>
+            <filename>jeproshop.php</filename>
+            <filename>jeproshop.xml</filename>
+            <filename>controller.php</filename>
+            <folder>data</folder>
+            <folder>sql</folder>
+            <folder>tables</folder>
+            <folder>models</folder>
+            <folder>views</folder>
+            <folder>controllers</folder>
+            <!-- language folder -->
+            <folder>language</folder>
+        </files>
+
+        <languages folder="admin" >
+            <language tag="en-GB" >language/en-GB.com_jeproshop.ini</language>
+            <language tag="en-GB" >language/en-GB.com_jeproshop.sys.ini</language>
+        </languages>
+    </administration>
+</extension>
