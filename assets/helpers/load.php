@@ -25,7 +25,56 @@
 defined('_JEXEC') or die('Restricted access');
 
 
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'cache.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'context.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'cookie.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'customization.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'defines.inc.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tools.php';
+require_once 'render' . DIRECTORY_SEPARATOR. 'helper.php';
+require_once 'render' . DIRECTORY_SEPARATOR. 'calendar.php';
+require_once 'render'. DIRECTORY_SEPARATOR . 'tree' . DIRECTORY_SEPARATOR. 'category.php';
+require_once 'render'. DIRECTORY_SEPARATOR . 'uploader' . DIRECTORY_SEPARATOR. 'image.php';
+
+$modelsPath =  dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR;
+
+require_once $modelsPath . 'legacy.php';
+require_once $modelsPath . 'attribute.php';
+require_once $modelsPath . 'address.php';
+require_once $modelsPath . 'category.php';
+require_once $modelsPath . 'carrier.php';
+require_once $modelsPath . 'combination.php';
+require_once $modelsPath . 'attachment.php';
+require_once $modelsPath . 'country.php';
+//require_once $modelsPath . '.php';
+require_once $modelsPath . 'currency.php';
+//require_once $modelsPath . '.php';
+require_once $modelsPath . 'employee.php';
+require_once $modelsPath . 'group.php';
+//require_once $modelsPath . '.php';
+require_once $modelsPath . 'image.php';
+require_once $modelsPath . 'image_type.php';
+require_once $modelsPath . 'language.php';
+//require_once $modelsPath . '.php';
+//require_once $modelsPath . '.php';
+require_once $modelsPath . 'manufacturer.php';
+require_once $modelsPath . 'feature.php';
+require_once $modelsPath . 'product.php';
+require_once $modelsPath . 'product_download.php';
+require_once $modelsPath . 'product_supplier.php';
+require_once $modelsPath . 'pack.php';
+require_once $modelsPath . 'setting.php';
+require_once $modelsPath . 'supplier.php';
+require_once $modelsPath . 'specific_price.php';
+//require_once $modelsPath . '.php';
+require_once $modelsPath . 'shop.php';
+require_once $modelsPath . 'shop_group.php';
+//require_once $modelsPath . '.php';
+//require_once $modelsPath . '.php';
+require_once $modelsPath . 'tag.php';
+require_once $modelsPath . 'tax.php';
+require_once $modelsPath . 'tax_factory.php';
+require_once $modelsPath . 'stock.php';
+require_once $modelsPath . 'stock_mvt_reason.php';
 
 require_once  dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'JeproshopViewLegacy.php';

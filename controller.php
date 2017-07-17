@@ -26,6 +26,18 @@ defined('_JEXEC') or die('Restricted access');
 
 class JeproshopController extends JControllerLegacy
 {
+    public $use_ajax = true;
+
+    public $default_form_language;
+
+    public $allow_employee_form_language;
+
+    public $shop_link_type = "";
+
+    public $multi_shop_context = -1;
+
+    public $multi_shop_context_group = true;
+
     /**
      * check if the controller is available for the current user/visitor
      */
@@ -44,7 +56,39 @@ class JeproshopController extends JControllerLegacy
         if(!defined('JEPROSHOP_BASE_SSL_URL')){ defined('JEPROSHOP_BASE_SSL_URL', JeproshopTools::getShopSslDomain(true)); }
     }
 
-    public function display($cachable = FALSE, $urlParams = FALSE){
+    public function initContent(){
+        if(!$this->viewAccess()){
+            JError::raiseWarning(500, JText::_('COM_JEPROSHOP_YOU_DO_NOT_HAVE_PERMISSION_TO_VIEW_THIS_PAGE_MESSAGE'));
+        }
+
+        $this->getLanguages();
+        $app = JFactory::getApplication();
+
+        $task = $app->input->get('task');
+        $view = $app->input->get('view');
+        $viewClass = $this->getView($view, JFactory::getDocument()->getType());
+
+        if($task == 'edit'){
+            if(!$viewClass->loadObject(true)){ return false; }
+            $viewClass->setLayout('edit');
+            $viewClass->renderEditForm();
+        }elseif($task == 'add'){
+            $viewClass->setLayout('edit');
+            $viewClass->renderAddForm();
+        }elseif($task == 'view'){
+            if(!$viewClass->loadObject(true)){ return false; }
+            $viewClass->setLayout('view');
+            $viewClass->renderView();
+        }elseif($task == 'display' || $task  == ''){
+            $viewClass->renderDetails();
+        }elseif(!$this->use_ajax){
+
+        }else{
+            $this->execute($task);
+        }
+    }
+
+    public function display($cache = FALSE, $urlParams = FALSE){
         //$this->initContent();
         $view = $this->input->get('view', 'dashboard');
         $layout = $this->input->get('layout', 'default');
@@ -52,6 +96,74 @@ class JeproshopController extends JControllerLegacy
         $viewClass->setLayout($layout);
         $viewClass->display();
     }
+
+    public function catalog(){
+        $app = JFactory::getApplication();
+        $app->input->set('category_id', null);
+        $app->input->set('parent_id', null);
+        $app->redirect('index.php?option=com_jeproshop&view=product');
+    }
+
+    public function orders(){
+        $app = JFactory::getApplication();
+        $app->redirect('index.php?option=com_jeproshop&view=order');
+    }
+
+    public function customers(){
+        $app = JFactory::getApplication();
+        $app->redirect('index.php?option=com_jeproshop&view=customer');
+    }
+
+    public function price_rules(){
+        $app = JFactory::getApplication();
+        $app->redirect('index.php?option=com_jeproshop&view=cart&task=rules');
+    }
+
+    public function shipping(){
+        $app = JFactory::getApplication();
+        $app->redirect('index.php?option=com_jeproshop&view=carrier');
+    }
+
+    public function localization(){
+        $app = JFactory::getApplication();
+        $app->redirect('index.php?option=com_jeproshop&view=country');
+    }
+
+    public function settings(){
+        $app = JFactory::getApplication();
+        $app->redirect('index.php?option=com_jeproshop&view=setting');
+    }
+
+    public function administration(){
+        $app = JFactory::getApplication();
+        $app->redirect('index.php?option=com_jeproshop&view=administration');
+    }
+
+    public function stats(){
+        $app = JFactory::getApplication();
+        $app->redirect('index.php?option=com_jeproshop&view=stats');
+    }
+
+    public function getLanguages(){
+        $cookie = JeproshopContext::getContext()->cookie;
+        $this->allow_employee_form_language = (int)JeproshopSettingModelSetting::getValue('allow_employee_form_lang');
+        if($this->allow_employee_form_language && !$cookie->employee_form_lang){
+            $cookie->employee_form_lang = (int)JeproshopSettingModelSetting::getValue('default_lang');
+        }
+
+        $lang_exists = false;
+        $languages = JeproshopLanguageModelLanguage::getLanguages(false);
+        foreach($languages as $language){
+            if(isset($cookie->employee_form_language) && $cookie->employee_form_language == $language->lang_id){
+                $lang_exists = true;
+            }
+        }
+
+        $this->default_form_language = $lang_exists ? (int)$cookie->employee_form_language : (int)JeproshopSettingModelSetting::getValue('default_lang');
+
+        return $languages;
+    }
+
 
 }
 

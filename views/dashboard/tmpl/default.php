@@ -23,13 +23,17 @@
  */
 // no direct access
 defined('_JEXEC') or die('Restricted access');
-
+JHtml::_('bootstrap.tooltip');
+JHtml::_('behavior.multiselect');
+JHtml::_('formbehavior.chosen', 'select');
 ?>
-
-<div id="jeproshop-dashboard" >
+<?php if(!empty($this->side_bar)){ ?>
+    <div id="j-sidebar-container" class="span2" ><?php echo $this->side_bar; ?></div>
+<?php } ?>
+<div id="j-main-container" <?php if(!empty($this->side_bar)){ echo 'class="span10"'; }?> >
     <div class="row" >
         <div class="col-lg-12">
-            <div id="jeproshop-calendar" class="panel" >
+            <div id="jeproshop-calendar" class="panel-content "  >
                 <form action="<?php echo JRoute::_('index.php?option=com_jeproshop') ?>" id="jeproshop-calendar-form" name="jeproshop-calendar-form" class="form-inline" >
                     <div class="btn-group" >
                         <button type="button" name="jeproshop_submit_date_day" class="btn btn-default" ><?php echo JText::_('COM_JEPROSHOP_DAY_LABEL'); ?></button>
@@ -57,9 +61,9 @@ defined('_JEXEC') or die('Restricted access');
         </div>
     </div>
     <div class="row" >
-        <div class="col-md-4 col-lg-3" id="jeproshop-dashboard-zone-one" ><?php echo $this->dashbord_zone_one; ?></div>
+        <div class="col-md-4 col-lg-3" id="jeproshop-dashboard-zone-one" ><?php echo $this->dashboard_zone_one; ?></div>
         <div class="col-md-8 col-lg-7" id="jeproshop-dashboard-zone-two" >
-            <?php echo $this->dashbord_zone_two; ?>
+            <?php echo $this->dashboard_zone_two; ?>
             <div id="jeproshop-dashboard-addons"></div>
         </div>
         <div class="col-md-12 col-lg-2" >
@@ -69,7 +73,7 @@ defined('_JEXEC') or die('Restricted access');
                 <div class="text-center"><h4><a href="http://www.jeprodev.net" ><?php echo JText::_('COM_JEPROSHOP_MORE_NEWS_LABEL'); ?></h4></div>
             </section>
             <section class="jeproshop-dash-links panel">
-            <h3><i class="icon-link"></i> {l s="Useful links"}</h3>
+            <!--h3><i class="icon-link"></i> {l s="Useful links"}</h3>
             <dl>
                 <dt><a href="http://www.jeprodev.net/index.php?option=com_jeproshop&view=productdisplay/PS16?utm_source=back-office&amp;utm_medium=dashboard&amp;utm_campaign=back-office-{$lang_iso|upper}&amp;utm_content={if $host_mode}cloud{else}download{/if}" class="_blank">{l s="Official Documentation"}</a></dt>
                 <dd>{l s="User, Developer and Designer Guides"}</dd>
@@ -85,11 +89,11 @@ defined('_JEXEC') or die('Restricted access');
             <dl>
                 <dt><a href="http://forge.prestashop.com?utm_source=back-office&amp;utm_medium=dashboard&amp;utm_campaign=back-office-{$lang_iso|upper}&amp;utm_content={if $host_mode}cloud{else}download{/if}" class="_blank">{l s="The Forge"}</a></dt>
                 <dd>{l s="Report issues in the Bug Tracker"}</dd>
-            </dl>
-            <dl>
-                <dt><a href="http://www.jeprodev.net/en/contact-us?utm_source=back-office&amp;utm_medium=dashboard&amp;utm_campaign=back-office-{$lang_iso|upper}&amp;utm_content={if $host_mode}cloud{else}download{/if}" class="_blank"><?php echo JText::_('COM_JEPROSHOP_CONTACT_US_LABEL'); ?></a></dt>
-                <dd></dd>
-            </dl>
+            </dl -->
+                <dl>
+                    <dt><a href="http://www.jeprodev.net/en/contact-us?utm_source=back-office&amp;utm_medium=dashboard&amp;utm_campaign=back-office-{$lang_iso|upper}&amp;utm_content={if $host_mode}cloud{else}download{/if}" class="_blank"><?php echo JText::_('COM_JEPROSHOP_CONTACT_US_LABEL'); ?></a></dt>
+                    <dd></dd>
+                </dl>
             </section>
         </div>
     </div>

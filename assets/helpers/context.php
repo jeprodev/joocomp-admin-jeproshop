@@ -30,6 +30,36 @@ class JeproshopContext {
 
     public $controller;
 
+    public $cookie;
+    
+
+    /** @var JeproshopCartModelCart Description **/
+    public $cart;
+
+    /** @var JeproshopCustomerModelCustomer Description **/
+    public $customer;
+
+    /** @var JeproshopCountryModelCountry Description **/
+    public $country;
+
+    /** @var JeproshopEmployeeModelEmployee Description **/
+    public $employee;
+
+    /** @var JeproshopLanguageModelLanguage Description **/
+    public $language;
+
+    /** @var JeproshopCurrencyModelCurrency Description **/
+    public $currency;
+
+    /** @var JeproshopShopModelShop Description **/
+    public $shop;
+
+    /** @var JeproshopMobile Description **/
+    public $mobile_detect;
+
+    /** @var boolean Description **/
+    public $mobile_device;
+
     /**
      * Get a singleton JeproshopContext
      * @return JeproshopContext
@@ -39,5 +69,14 @@ class JeproshopContext {
             self::$instance = new JeproshopContext();
         }
         return self::$instance;
+    }
+
+    /**
+     * Clone current context
+     *
+     * @return JeproshopContext
+     */
+    public function cloneContext(){
+        return clone($this);
     }
 }
