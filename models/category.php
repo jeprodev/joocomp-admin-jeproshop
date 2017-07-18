@@ -74,6 +74,88 @@ class JeproshopCategoryModelCategory extends JeproshopModel {
 
     protected static $_links = array();
 
+    public function __construct($categoryId = NULL, $langId = NULL, $shopId = NULL)
+    {
+        if($langId !== null){
+            $this->lang_id = (JeproshopLanguageModelLanguage::getLanguage($langId) !== FALSE) ? $langId : JeproshopSettingModelSetting::getValue('default_lang');
+        }
+
+        if($shopId && $this->isMultiShop('category', $this->multiLangShop)){
+            $this->shop_id = (int)$shopId;
+            $this->getShopFromContext = FALSE;
+        }
+
+        if($this->isMultiShop('category', $this->multiLangShop) && !$this->shop_id){
+            $this->shop_id = JeproshopContext::getContext()->shop->shop_id;
+        }
+        $db = JFactory::getDBO();
+
+        if($categoryId){
+            /** load category from data base if id provided **/
+            $cacheKey = 'jeproshop_model_category_'. (int)$categoryId . '_' . $langId . '_' . $shopId;
+            if(!JeproshopCache::isStored($cacheKey)){
+                $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_category') . " AS category ";
+                $where = "";
+                if($langId){
+                    $query .= " LEFT JOIN " . $db->quoteName('#__jeproshop_category_lang') . " AS category_lang ON (";
+                    $query .= "category.category_id = category_lang.category_id AND category_lang.lang_id = " . (int)$langId . ")";
+                    if($this->shop_id && !empty($this->multiLangShop)){
+                        $where .= " AND category_lang.shop_id = " . (int)  $this->shop_id;
+                    }
+                }
+                /** Get Shop information **/
+                if(JeproshopShopModelShop::isTableAssociated('category')){
+                    $query .= " LEFT JOIN " . $db->quoteName('#__jeproshop_category_shop') . " AS shop ON ( category.";
+                    $query .= "category_id = shop.category_id AND shop.shop_id = " . (int)$this->shop_id . ")";
+                }
+                $query .= " WHERE category.category_id = " . (int)$categoryId . $where;
+
+                $db->setQuery($query);
+                $categoryData = $db->loadObject();
+                if($categoryData){
+                    if(!$langId && isset($this->multiLang) && $this->multiLang){
+                        $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_category_lang') . " WHERE " . $db->quoteName('category_id') . " = " . (int)$categoryId;
+                        $query .= (($this->shop_id && $this->isLangMultiShop()) ? " AND " . $db->quoteName('shop_id') . " = " . $this->shop_id : "");
+
+                        $db->setQuery($query);
+                        $category_lang_data = $db->loadObjectList();
+                        if($category_lang_data){
+                            foreach($category_lang_data as $row){
+                                foreach ($row as $key => $value){
+                                    if(array_key_exists($key, $this) && $key != 'category_id'){
+                                        if(!isset($categoryData->{$key}) || !is_array($categoryData->{$key})){
+                                            $categoryData->{$key} = array();
+                                        }
+                                        $categoryData->{$key}[$row->lang_id] = $value;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    JeproshopCache::store($cacheKey, $categoryData);
+                }
+            }else{
+                $categoryData = JeproshopCache::retrieve($cacheKey);
+            }
+
+            if($categoryData){
+                $this->category_id = $categoryId;
+                foreach($categoryData as $key =>$value){
+                    if(array_key_exists($key, $this)){
+                        $this->{$key} = $value;
+                    }
+                }
+            }
+        }
+
+        $this->image_id = (file_exists(COM_JEPROSHOP_CATEGORY_IMAGE_DIR . (int)  $this->category_id . '.jpg')) ? (int)$this->category_id : FALSE;
+        $this->image_dir = COM_JEPROSHOP_CATEGORY_IMAGE_DIR;
+    }
+
+    public function isLangMultiShop(){
+        return !empty($this->multiLang) && !empty($this->multiLangShop);
+    }
+
     public static function getCategories(JeproshopContext $context = NULL, $sqlSort = ''){
         $app = JFactory::getApplication();
         $db = JFactory::getDBO();
@@ -421,6 +503,56 @@ class JeproshopCategoryModelCategory extends JeproshopModel {
 
         $this->pagination = new JPagination($total, $limitstart, $limit);
         return $categories;
+    }
+
+    /**
+     *
+     * @param int $parentId
+     * @param int $langId
+     * @param bool $published
+     * @param bool $shopId
+     * @return array
+     */
+    public static function getChildren($parentId, $langId, $published = true, $shopId = false){
+        if (!JeproshopTools::isBool($published)){
+            die(JError::raiseError(JText::_('COM_JEPROSHOP_WRONG_PARAMETER_SUPPLIED_MESSAGE')));
+        }
+
+        $cacheKey = 'jeproshop_category_get_children_'.(int)$parentId.'_'.(int)$langId.'_'.(bool)$published.'_'.(int)$shopId;
+        if (!JeproshopCache::isStored($cacheKey)){
+            $db = JFactory::getDBO();
+            $query = "SELECT category." . $db->quoteName('category_id') . ", category_lang." . $db->quoteName('name') . ", category_lang." . $db->quoteName('link_rewrite') . ", category_shop." . $db->quoteName('shop_id');
+            $query .= " FROM " . $db->quoteName('#__jeproshop_category') . " AS category LEFT JOIN " . $db->quoteName('#__jeproshop_category_lang') . " AS category_lang ON (category." . $db->quoteName('category_id') ;
+            $query .= " = category_lang." . $db->quoteName('category_id') . JeproshopShopModelShop::addSqlRestrictionOnLang('category_lang').") " . JeproshopShopModelShop::addSqlAssociation('category') . " WHERE ";
+            $query .= $db->quoteName('lang_id') . " = " . (int)$langId . " AND category." . $db->quoteName('parent_id') . " = " .(int)$parentId . ($published ? " AND " . $db->quoteName('published') . " = 1" : "");
+            $query .= " GROUP BY category." . $db->quoteName('category_id') . "	ORDER BY category_shop." . $db->quoteName('position') . " ASC ";
+
+            $db->setQuery($query);
+            $result = $db->loadObjectList();
+            JeproshopCache::store($cacheKey, $result);
+        }
+        return JeproshopCache::retrieve($cacheKey);
+    }
+
+    /**
+     * Check if current object is associated to a shop
+     *
+     * @param int $shop_id
+     * @return bool
+     */
+    public function isAssociatedToShop($shop_id = null){
+        if ($shop_id === null){
+            $shop_id = JeproshopContext::getContext()->shop->shop_id;
+        }
+        $cache_id = 'jeproshop_category_model_shop_' . (int)$this->category_id . '_' . (int)$shop_id;
+        if (!JeproshopCache::isStored($cache_id)){
+            $db = JFactory::getDBO();
+            $query = "SELECT shop_id FROM " . $db->quoteName('#__jeproshop_category_shop') . " WHERE " . $db->quoteName('category_id') . " = ";
+            $query .= (int)$this->category_id . " AND shop_id = " . (int)$shop_id;
+            $db->setQuery($query);
+            JeproshopCache::store($cache_id, (bool)$db->loadResult());
+        }
+        return JeproshopCache::retrieve($cache_id);
     }
 
 }

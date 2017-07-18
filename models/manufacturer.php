@@ -70,10 +70,10 @@ class JeproshopManufacturerModelManufacturer extends JeproshopModel {
      * @param bool $published
      * @param int $p
      * @param int $n
-     * @param bool $all_group
+     * @param bool $allGroup
      * @return array Manufacturers
      */
-    public static function getManufacturers($getNumberOfProducts = false, $langId = 0, $published = true, $p = false, $n = false, $allGroup = false, $groupBy = false){
+    public static function getManufacturers($getNumberOfProducts = false, $langId = 0, $published = true, $p = 0, $n = 0, $allGroup = false, $groupBy = false){
         if (!$langId){
             $langId = (int)JeproshopSettingModelSetting::getValue('default_lang');
         }
@@ -147,6 +147,115 @@ class JeproshopManufacturerModelManufacturer extends JeproshopModel {
             self::$_cache_name[$manufacturer_id] = $db->loadResult();
         }
         return self::$_cache_name[$manufacturer_id];
+    }
+
+    public function getManufacturerList($explicitSelect = TRUE){
+        jimport('joomla.html.pagination');
+        $db = JFactory::getDBO();
+        $app = JFactory::getApplication();
+        $option = $app->input->get('option');
+        $view = $app->input->get('view');
+
+        $context = JeproshopContext::getContext();
+
+        $limit = $app->getUserStateFromRequest('global.list.limit', 'limit', $app->getCfg('list_limit'), 'int');
+        $limitstart = $app->getUserStateFromRequest($option. $view. '.limit_start', 'limit_start', 0, 'int');
+        $lang_id = $app->getUserStateFromRequest($option. $view. '.lang_id', 'lang_id', $context->language->lang_id, 'int');
+        $shop_id = $app->getUserStateFromRequest($option. $view. '.shop_id', 'shop_id', $context->shop->shop_id, 'int');
+        $shop_group_id = $app->getUserStateFromRequest($option. $view. '.shop_group_id', 'shop_group_id', $context->shop->shop_group_id, 'int');
+        $category_id = $app->getUserStateFromRequest($option. $view. '.category_id', 'category_id', 0, 'int');
+        $order_by = $app->getUserStateFromRequest($option. $view. '.order_by', 'order_by', 'manufacturer_id', 'string');
+        $order_way = $app->getUserStateFromRequest($option. $view. '.order_way', 'order_way', 'ASC', 'string');
+        $published = $app->getUserStateFromRequest($option. $view. '.published', 'published', 0, 'string');
+
+        /* Manage default params values */
+        $use_limit = true;
+        if ($limit === false)
+            $use_limit = false;
+
+        $select = " COUNT(" . $db->quoteName('product_id') . ") AS " . $db->quoteName('products') . ", (SELECT ";
+        $select .= "COUNT(address." . $db->quoteName('manufacturer_id') . ") AS " . $db->quoteName('addresses') ;
+        $select .= " FROM " . $db->quoteName('#__jeproshop_address'). " AS address WHERE address.";
+        $select .= $db->quoteName('manufacturer_id') . " = manufacturer." . $db->quoteName('manufacturer_id');
+        $select .= " AND address." . $db->quoteName('deleted') . " = 0 GROUP BY address." . $db->quoteName('manufacturer_id');
+        $select .= ") AS " . $db->quoteName('addresses');
+
+        $join = "LEFT JOIN " . $db->quoteName('#__jeproshop_product') . " AS product ON (manufacturer.";
+        $join .= $db->quoteName('manufacturer_id') . " = product." . $db->quoteName('manufacturer_id') . ") ";
+        $group = " GROUP BY manufacturer." . $db->quoteName('manufacturer_id');
+
+        if ($context->controller->multishop_context && JeproshopShopModelShop::isTableAssociated('manufacturer')){
+            if(JeproshopShopModelShop::getShopContext() != JeproshopShopMoelShop::CONTEXT_ALL || !$context->employee->isSuperAdmin()){
+                $test_join = !preg_match('#`?'.preg_quote('#__jeproshop_manufacturer_shop').'`? *manufacturer-shop#', $join);
+                if(JeproshopShopModelShop::isFeaturePublished() && $test_join && JeproshopModelShopShop::isTableAssociated('manufacturer')){
+                    $where .= ' AND a.'.$this->identifier.' IN (
+						SELECT sa.'.$this->identifier.'
+						FROM `'._DB_PREFIX_.$this->table.'_shop` sa
+						WHERE sa.id_shop IN ('.implode(', ', JeproshopShopModelShop::getContextListShopIds()). ") )";
+                }
+            }
+        }
+
+        /* Query in order to get results with all fields */
+        $lang_join = '';
+        if ($context->language->lang_id){
+            $lang_join = "LEFT JOIN " . $db->quoteName('#__jeproshop_manufacturer_lang') . " AS manufacturer_lang ";
+            $lang_join .= " ON (manufacturer_lang." . $db->quoteName('manufacturer_id') . " = manufacturer.";
+            $lang_join .=  $db->quoteName('manufacturer_id') . " AND manufacturer_lang." . $db->quoteName('lang_id');
+            $lang_join .= " = " .(int)$lang_id . ") ";
+        }
+
+        $having_clause = '';
+        if (isset($this->_filterHaving) || isset($this->_having))
+        {
+            $having_clause = ' HAVING ';
+            if (isset($this->_filterHaving))
+                $having_clause .= ltrim($this->_filterHaving, ' AND ');
+            if (isset($this->_having))
+                $having_clause .= $this->_having.' ';
+        }
+
+        do{
+            $query = "SELECT SQL_CALC_FOUND_ROWS " ;
+            if(!$explicitSelect){
+                $query .= " manufacturer.name, manufacturer.published, "; //logo,
+
+                /*
+                    foreach($fields_list as $key => $value){
+                        if(isset($select) && preg_match('/[\s]`?' . preg_quote($key, '/') . '`?\S*,/', $select)){
+                            continue;
+                        }
+
+                        if (isset($value['filter_key'])){
+                            $query .= str_replace('!', '.', $value['filter_key']) . " AS " . $key . ", ";
+                        }elseif ($key == 'manufacturer_id'){
+                            $query .= "manufacture." . $db->quoteName($db->escape($key)) . ", ";
+                        }elseif ($key != 'image' && !preg_match('/'. preg_quote($key, '/').'/i', $select)){
+                            $query .= $db->quoteName($db->escape($key)) .", ";
+                        }
+                    }
+                    $query = rtrim($query, ',') */;
+            }else{
+                $query .= ($lang_id ? "manufacturer_lang.*, " : "") . "manufacturer.*, ";
+            }
+            $query .= (isset($select) ? rtrim($select, ", ") : "") .  " FROM " . $db->quoteName('#__jeproshop_manufacturer');
+            $query .= " AS manufacturer " . $lang_join . (isset($join) ? $join . " " : "") . " WHERE 1 " .(isset($where) ? $where . " " : "");
+            $query .= (isset($filter) ? $filter : "" ) .(isset($group) ? $group ." " : "");
+            $query .= $having_clause . " ORDER BY " .((str_replace('`', '', $order_by) == 'manufacturer_id') ? "manufacturer.manufacturer_id " : "") ;//. " manufacturer." . $db->quoteName($order_by) . " ";
+            $query .= $db->escape($order_way) . (($use_limit === true) ? " LIMIT " .(int)$limitstart . ", " .(int)$limit : "");
+
+            $db->setQuery($query);
+            $manufacturers = $db->loadObjectList();
+
+            if($use_limit == true){
+                $limitstart = (int)$limitstart - (int)$limit;
+                if($limitstart < 0){ break; }
+            }else{ break; }
+        }while(empty($manufacturers));
+        $total = count($manufacturers);
+
+        $this->pagination = new JPagination($total, $limitstart, $limit);
+        return $manufacturers;
     }
 
 }

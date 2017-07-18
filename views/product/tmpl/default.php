@@ -31,7 +31,7 @@ defined('_JEXEC') or die('Restricted access');
     <div id="j-sidebar-container" class="span2" ><?php echo $this->side_bar; ?></div>
 <?php } ?>
 <div id="j-main-container" <?php if(!empty($this->side_bar)){ echo 'class="span10"'; }?> >
-    <?php echo  $this->setProductSubMenu('product'); ?>
+    <?php echo  $this->setCatalogSubMenu('product'); ?>
     <div class="separation" ></div>
     <div class="panel" >
         <div class="panel-content" >

@@ -47,4 +47,45 @@ class JeproshopTagModelTag extends JeproshopModel {
 
         return $tags;
     }
+
+    public function getTagsList(JeproshopContext $context = null){
+        jimport('joomla.html.pagination');
+        $db = JFactory::getDBO();
+        $app = JFactory::getApplication();
+        $option = $app->input->get('option');
+        $view = $app->input->get('view');
+
+        if(!isset($context) || $context == null){ $context = JeproshopContext::getContext(); }
+
+        $limit = $app->getUserStateFromRequest('global.list.limit', 'limit', $app->getCfg('list_limit'), 'int');
+        $limit_start = $app->getUserStateFromRequest($option. $view. '.limitstart', 'limitstart', 0, 'int');
+        // v$lang_id = $app->getUserStateFromRequest($option. $view. '.lang_id', 'lang_id', $context->language->lang_id, 'int');
+        $order_by = $app->getUserStateFromRequest($option. $view. '.order_by', 'order_by', 'tag_id', 'string');
+        $order_way = $app->getUserStateFromRequest($option. $view. '.order_way', 'order_way', 'ASC', 'string');
+
+        $select = ", lang." . $db->quoteName('title') . " AS lang_name, COUNT(product_tag." . $db->quoteName('product_id') . ") AS products";
+        $join = " LEFT JOIN " . $db->quoteName('#__jeproshop_product_tag') . " AS product_tag ON(tag." . $db->quoteName('tag_id') . " = product_tag.";
+        $join .= $db->quoteName('tag_id') . ") LEFT JOIN " . $db->quoteName('#__languages') . " AS lang ON(lang." . $db->quoteName('lang_id') . " = tag.";
+        $join .=  $db->quoteName('lang_id') . ") ";
+        $group = " GROUP BY tag." . $db->quoteName('name') . ", tag." . $db->quoteName('lang_id');
+
+        $use_limit = true;
+        if ($limit === false)
+            $use_limit = false;
+
+        do{
+            $query = "SELECT SQL_CALC_FOUND_ROWS tag." .  $db->quoteName('tag_id') .", tag." . $db->quoteName('name') . $select ;
+            $query .= " FROM " . $db->quoteName('#__jeproshop_tag') . " AS tag " . $join . " WHERE 1 " . $group . " ORDER BY ";
+            $query .= ((str_replace('`', '', $order_by) == 'tag_id') ? " tag." : "") . $order_by . " " . $order_way;
+            $query .= (($use_limit === true) ? " LIMIT " .(int)$limit_start . ", " .(int)$limit : "");
+            $db->setQuery($query);
+            $tags = $db->loadObjectList();
+
+            if($use_limit == true){
+                $limit_start = (int)$limit_start -(int)$limit;
+                if($limit_start < 0){ break; }
+            }else{ break; }
+        }while(empty($tags));
+        return $tags;
+    }
 }

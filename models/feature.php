@@ -38,6 +38,75 @@ class JeproshopFeatureModelFeature extends JeproshopModel{
     public $multiLang = true;
     public $multiLangShop = false;
 
+    public function getFeatureList($explicitSelect = TRUE){
+        jimport('joomla.html.pagination');
+        $db = JFactory::getDBO();
+        $app = JFactory::getApplication();
+        $option = $app->input->get('option');
+        $view = $app->input->get('view');
+
+        $context = JeproshopContext::getContext();
+
+        $limit = $app->getUserStateFromRequest('global.list.limit', 'limit', $app->getCfg('list_limit'), 'int');
+        $limitstart = $app->getUserStateFromRequest($option. $view. '.limit_start', 'limit_start', 0, 'int');
+        $lang_id = $app->getUserStateFromRequest($option. $view. '.lang_id', 'lang_id', $context->language->lang_id, 'int');
+        $shop_id = $app->getUserStateFromRequest($option. $view. '.shop_id', 'shop_id', $context->shop->shop_id, 'int');
+        $shop_group_id = $app->getUserStateFromRequest($option. $view. '.shop_group_id', 'shop_group_id', $context->shop->shop_group_id, 'int');
+        $category_id = $app->getUserStateFromRequest($option. $view. '.category_id', 'category_id', 0, 'int');
+        $order_by = $app->getUserStateFromRequest($option. $view. '.order_by', 'order_by', 'position', 'string');
+        $order_way = $app->getUserStateFromRequest($option. $view. '.order_way', 'order_way', 'ASC', 'string');
+        $published = $app->getUserStateFromRequest($option. $view. '.published', 'published', 0, 'string');
+
+        /* Manage default params values */
+        $use_limit = true;
+        if ($limit === false)
+            $use_limit = false;
+
+        /* Query in order to get results with all fields */
+        $lang_join = '';
+        if ($lang_id){
+            $lang_join = " LEFT JOIN " . $db->quoteName('#__jeproshop_feature_lang') . " AS feature_lang ON (";
+            $lang_join .= "feature_lang." . $db->quoteName('feature_id') . " = feature." . $db->quoteName('feature_id');
+            $lang_join .= " AND feature_lang." . $db->quoteName('lang_id') . " = " .(int)$lang_id .") ";
+        }
+
+        do{
+            $query = "SELECT SQL_CALC_FOUND_ROWS ";
+            if($explicitSelect){
+                $query .= "feature." . $db->quoteName('feature_id') . ", feature_lang.";
+                $query .= $db->quoteName('name') . ", feature." . $db->quoteName('position');
+            }
+
+            $query .= " FROM " . $db->quoteName('#__jeproshop_feature') . " AS feature " . $lang_join;
+
+            $query .= " ORDER BY " . ((str_replace('`', '', $order_by) == 'feature_id') ? "feature." : ""). " feature." ;
+            $query .= $order_by ." " . $db->escape($order_way) . (($use_limit === true) ? " LIMIT " . (int)$limitstart.", ".(int)$limit : "" );
+
+
+            $db->setQuery($query);
+            $features = $db->loadObjectList();
+
+            if ($use_limit === true){
+                $limitstart = (int)$limitstart - (int)$limit;
+                if ($limitstart < 0){ break; }
+            }else{ break; }
+        }while(empty($features));
+
+        foreach($features as $feature){
+            $query = "SELECT feature_value.feature_value_id AS count_values FROM " . $db->quoteName('#__jeproshop_feature_value');
+            $query .= " AS feature_value WHERE feature_value.feature_id = " . $feature->feature_id . " AND (feature_value.custom";
+            $query .= " = 0 OR feature_value.custom IS NULL)";
+
+            $db->setQuery($query);
+            $feature->count_values = count($db->loadObjectList());
+        }
+
+        $total = count($features);
+
+        $this->pagination = new JPagination($total, $limitstart, $limit);
+        return $features;
+    }
+
     /**
      * This method is allow to know if a feature is used or active
      * @since 1.5.0.1

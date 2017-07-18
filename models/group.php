@@ -67,4 +67,32 @@ class JeproshopGroupModelGroup extends  JeproshopModel {
         $db->setQuery($query);
         return $db->loadObjectList();
     }
+
+    public static function getGroups($shopId = FALSE){
+        $app = JFactory::getApplication();
+        $db = JFactory::getDBO();
+        $option = $app->input->get('option');
+        $view = $app->input->get('view');
+
+        $context = JeproshopContext::getContext();
+        $shop_criteria = '';
+        if ($shopId){
+            $shop_criteria = JeproshopShopModelShop::addSqlAssociation('group');
+        }
+
+        $langId = $app->getUserStateFromRequest($option. $view. '.lang_id', 'lang_id', $context->language->lang_id, 'int');
+        /*$limit = $app->getUserStateFromRequest('global.list.limit', 'limit', $app->getCfg('list_limit'), 'int');
+        $limitstart = $app->getUserStateFromRequest($option. $view. '.limit_start', 'limit_start', 0, 'int'); */
+
+        $query = "SELECT DISTINCT grp." . $db->quoteName('group_id') . ", grp." . $db->quoteName('reduction') . ", grp.";
+        $query .= $db->quoteName('price_display_method') . ", group_lang." . $db->quoteName('name') . " FROM " ;
+        $query .= $db->quoteName('#__jeproshop_group') . " AS grp LEFT JOIN " . $db->quoteName('#__jeproshop_group_lang');
+        $query .= " AS group_lang ON (grp." . $db->quoteName('group_id') . " = group_lang." . $db->quoteName('group_id');
+        $query .= " AND group_lang." . $db->quoteName('lang_id') . " = " .(int)$langId . ") " . $shop_criteria ;
+        $query .= " ORDER BY grp." . $db->quoteName('group_id') . " ASC";
+
+        $db->setQuery($query);
+        $groups = $db->loadObjectList();
+        return $groups;
+    }
 }

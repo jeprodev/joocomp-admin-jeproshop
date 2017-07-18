@@ -51,4 +51,28 @@ class JeproshopHelper {
         ob_end_clean();
         return $var;
     }
+
+    public function radioButton($fieldName, $layout = 'add', $state = 1){
+        ob_start();
+        include (__DIR__ . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'radio.php');
+        $var=ob_get_contents();
+        ob_end_clean();
+        return $var;
+    }
+    
+    public function imageFileChooser(){
+        ob_start();
+        include(__DIR__ . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'file_chooser.php');
+        $var=ob_get_contents();
+        ob_end_clean();
+        return $var;
+    }
+
+    public function inputFileUploader(){
+        ob_start();
+        include(__DIR__ . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'file_uploader.php');
+        $var=ob_get_contents();
+        ob_end_clean();
+        return $var;
+    }
 }

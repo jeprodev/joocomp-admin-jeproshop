@@ -30,12 +30,11 @@ $app = JFactory::getApplication();
         <div id="j-sidebar-container" class="span2" ><?php echo $this->side_bar; ?></div>
     <?php } ?>
     <div id="j-main-container"  <?php if(!empty($this->side_bar)){ echo 'class="span10"'; }?> >
-        <?php echo  $this->setProductSubMenu('product'); ?>
+        <?php echo  $this->setCatalogSubMenu('product'); ?>
         <div class="separation" ></div>
         <div id="jform_product_edit_form" style="width: 100%;">
             <?php
-            //echo JHtml::_('bootstrap.startTabSet', 'product_form', array('active' =>'information'));
-            echo JHtml::_('bootstrap.startTabSet', 'product_form', array('active' =>'quantities'));
+            echo JHtml::_('bootstrap.startTabSet', 'product_form', array('active' =>'information'));
             echo JHtml::_('bootstrap.addTab', 'product_form', 'information', JText::_('COM_JEPROSHOP_INFORMATION_LABEL')) . $this->loadTemplate('information') . JHtml::_('bootstrap.endTab');
             if($this->product->product_id) {
                 echo JHtml::_('bootstrap.addTab', 'product_form', 'price', JText::_('COM_JEPROSHOP_PRICE_LABEL')) . $this->loadTemplate('price') . JHtml::_('bootstrap.endTab');

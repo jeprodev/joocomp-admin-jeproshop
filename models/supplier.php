@@ -116,8 +116,52 @@ class JeproshopSupplierModelSupplier extends JeproshopModel {
         $nb_suppliers = count($suppliers);
         $rewrite_settings = (int)JeproshopSettingModelSetting::getValue('rewrite_settings');
         for ($i = 0; $i < $nb_suppliers; $i++){
-            $suppliers[$i]->link_rewrite = ($rewrite_settings ? JeproshopValidator::link_rewrite($suppliers[$i]->name) : 0);
+            $suppliers[$i]->link_rewrite = ($rewrite_settings ? JeproshopTools::linkRewrite($suppliers[$i]->name) : 0);
         }
+        return $suppliers;
+    }
+
+    public function getSuppliersList(JeproshopContext $context = null){
+        jimport('joomla.html.pagination');
+        $db = JFactory::getDBO();
+        $app = JFactory::getApplication();
+        $option = $app->input->get('option');
+        $view = $app->input->get('view');
+
+        if(!isset($context) || $context == null){ $context = JeproshopContext::getContext(); }
+
+        $limit = $app->getUserStateFromRequest('global.list.limit', 'limit', $app->getCfg('list_limit'), 'int');
+        $limit_start = $app->getUserStateFromRequest($option. $view. '.limitstart', 'limitstart', 0, 'int');
+        $lang_id = $app->getUserStateFromRequest($option. $view. '.lang_id', 'lang_id', $context->language->lang_id, 'int');
+        $order_by = $app->getUserStateFromRequest($option. $view. '.order_by', 'order_by', 'supplier_id', 'string');
+        $order_way = $app->getUserStateFromRequest($option. $view. '.order_way', 'order_way', 'ASC', 'string');
+
+        $use_limit = true;
+        if ($limit === false)
+            $use_limit = false;
+
+        do{//", supplier." . $db->quoteName('logo') .
+            $query = "SELECT SQL_CALC_FOUND_ROWS supplier." . $db->quoteName('supplier_id') . ", supplier."  .$db->quoteName('name');
+            $query .= ", COUNT(DISTINCT product_supplier." . $db->quoteName('product_id') . ") AS products, supplier." . $db->quoteName('published') . " FROM ";
+            $query .= $db->quoteName('#__jeproshop_supplier') . " AS supplier LEFT JOIN " . $db->quoteName('#__jeproshop_product_supplier') . " AS product_supplier ON (supplier.";
+            $query .= $db->quoteName('supplier_id') . " = product_supplier." . $db->quoteName('supplier_id') . ") GROUP BY supplier." . $db->quoteName('supplier_id') . " ORDER BY ";
+            $query .= ((str_replace('`', '', $order_by) == 'supplier_id') ? "supplier." : "") . $order_by . " " . $order_way;
+
+            $db->setQuery($query);
+            $total = count($db->loadObjectList());
+
+            $query .= (($use_limit === true) ? " LIMIT " .(int)$limit_start . ", " .(int)$limit : "");
+
+            $db->setQuery($query);
+            $suppliers = $db->loadObjectList();
+
+            if($use_limit == true){
+                $limit_start = (int)$limit_start -(int)$limit;
+                if($limit_start < 0){ break; }
+            }else{ break; }
+        }while(empty($suppliers));
+
+        $this->pagination = new JPagination($total, $limit_start, $limit);
         return $suppliers;
     }
 

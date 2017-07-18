@@ -71,4 +71,36 @@ class JeproshopViewLegacy extends JViewLegacy{
 
         $this->side_bar = JHtmlSideBar::render();
     }
+
+    public function setCatalogSubMenu($active){
+
+        $product = $category = $tracking = $attribute = $feature = $manufacturer = $supplier = $tag = $attachment = "";
+
+        switch($active){
+            case 'category' : $category = "btn-success"; break;
+            case 'tracking' : $tracking = "btn-success"; break;
+            case 'attribute' : $attribute = "btn-success"; break;
+            case 'feature' : $feature = "btn-success"; break;
+            case 'manufacturer' : $manufacturer = "btn-success"; break;
+            case 'supplier' : $supplier = "btn-success"; break;
+            case 'tag' : $tag = "btn-success"; break;
+            case 'attachment' : $attachment = "btn-success"; break;
+            default : $product = "btn-success"; break;
+        }
+
+        $html = '<div class="box_wrapper jeproshop_sub_menu_wrapper">' .
+            '<fieldset class="btn-group">' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=product') . '" class="btn jeproshop_sub_menu ' . $product . '" ><i class="icon-product" ></i>' . JText::_('COM_JEPROSHOP_PRODUCTS_LABEL') . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=category') . '" class="btn jeproshop_sub_menu ' . $category . '" ><i class="icon-category" ></i>' . JText::_('COM_JEPROSHOP_CATEGORIES_LABEL') . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=tracking') . '" class="btn jeproshop_sub_menu ' . $tracking . '" ><i class="icon-monitoring" ></i>' . JText::_('COM_JEPROSHOP_TRACKING_LABEL') . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=attribute') . '" class="btn jeproshop_sub_menu ' . $attribute . '" ><i class="icon-attribute" ></i>' . JText::_('COM_JEPROSHOP_ATTRIBUTES_LABEL') . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=feature') . '" class="btn jeproshop_sub_menu ' . $feature . '" ><i class="icon-feature" ></i>' . JText::_('COM_JEPROSHOP_FEATURES_LABEL') . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=manufacturer') . '" class="btn jeproshop_sub_menu ' . $manufacturer . '" ><i class="icon-manufacturer" ></i>' . JText::_('COM_JEPROSHOP_MANUFACTURERS_LABEL') . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=supplier') . '" class="btn jeproshop_sub_menu ' . $supplier . '" ><i class="icon-supplier" ></i>' . JText::_('COM_JEPROSHOP_SUPPLIERS_LABEL') . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=tag') . '" class="btn jeproshop_sub_menu ' . $tag . '" ><i class="icon-tag" ></i>' . JText::_('COM_JEPROSHOP_TAGS_LABEL') . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=attachment') . '" class="btn jeproshop_sub_menu ' . $attachment . '" ><i class="icon-attachment" ></i>' . JText::_('COM_JEPROSHOP_ATTACHMENTS_LABEL') . '</a>' .
+            '</fieldset>' .
+            '</div>';
+        return $html;
+    }
 }

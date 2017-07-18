@@ -23,14 +23,3 @@
  */
 // no direct access
 defined('_JEXEC') or die('Restricted access');
-
-class JeproshopFeatureController extends JeproshopController{
-    public function add_value(){
-        $view = $this->input->get('view', 'feature');
-        $layout = $this->input->get('layout', 'add_value');
-
-        $viewClass = $this->getView($view, JFactory::getDocument()->getType());
-        $viewClass->setLayout($layout);
-        $viewClass->addFeatureValue();
-    }
-}
