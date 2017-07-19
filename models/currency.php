@@ -152,4 +152,15 @@ class JeproshopCurrencyModelCurrency extends JeproshopModel
         }
         return $tab;
     }
+
+    public static function getCurrenciesByShopId($shop_id = 0){
+        $db = JFactory::getDBO();
+
+        $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_currency') . " AS currency LEFT JOIN " . $db->quoteName('#__jeproshop_currency_shop');
+        $query .= " AS currency_shop ON (currency_shop." . $db->quoteName('currency_id') . " = currency." . $db->quoteName('currency_id') . ") ";
+        $query .= ($shop_id ? " WHERE currency_shop." . $db->quoteName('shop_id') . " = " .(int)$shop_id : "") . "	ORDER BY " . $db->quoteName('name') . " ASC";
+
+        $db->setQuery($query);
+        return $db->loadObjectList();
+    }
 }

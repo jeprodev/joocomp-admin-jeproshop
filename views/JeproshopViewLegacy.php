@@ -88,7 +88,7 @@ class JeproshopViewLegacy extends JViewLegacy{
             default : $product = "btn-success"; break;
         }
 
-        $html = '<div class="box_wrapper jeproshop_sub_menu_wrapper">' .
+        $html = '<div class="box_wrapper jeproshop_sub_menu_wrapper" >' .
             '<fieldset class="btn-group">' .
             '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=product') . '" class="btn jeproshop_sub_menu ' . $product . '" ><i class="icon-product" ></i>' . JText::_('COM_JEPROSHOP_PRODUCTS_LABEL') . '</a>' .
             '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=category') . '" class="btn jeproshop_sub_menu ' . $category . '" ><i class="icon-category" ></i>' . JText::_('COM_JEPROSHOP_CATEGORIES_LABEL') . '</a>' .
@@ -101,6 +101,33 @@ class JeproshopViewLegacy extends JViewLegacy{
             '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=attachment') . '" class="btn jeproshop_sub_menu ' . $attachment . '" ><i class="icon-attachment" ></i>' . JText::_('COM_JEPROSHOP_ATTACHMENTS_LABEL') . '</a>' .
             '</fieldset>' .
             '</div>';
+        return $html;
+    }
+
+    public function setOrdersSubMenu($active){
+        $order = $invoices = $returns = $delivery = $refund = $status = $messages = "";
+
+        switch($active){
+            case 'invoices' : $invoices = "btn-success"; break;
+            case 'returns' : $returns = "btn-success"; break;
+            case 'delivery' : $delivery = "btn-success"; break;
+            case 'refund' : $refund = "btn-success"; break;
+            case 'status' : $status = "btn-success"; break;
+            case 'messages' : $messages = "btn-success"; break;
+            default : $order = "btn-success"; break;
+        }
+
+        $html = '<div class="box-wrapper jeproshop_sub_menu_wrapper" >' .
+            '<fieldset class="btn-group">' .
+                '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=order') . '" class="btn jeproshop_sub_menu ' . $order . '" ><i class="icon-order" ></i> ' . JText::_('COM_JEPROSHOP_ORDERS_LABEL'). '</a>'  .
+                '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=order&render=invoices') . '" class="btn jeproshop_sub_menu ' . $invoices . '" ><i class="icon-bill" ></i> ' .  JText::_('COM_JEPROSHOP_INVOICES_LABEL'). '</a>' .
+                '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=order&render=returns') . '" class="btn jeproshop_sub_menu ' . $returns . '" ><i class="icon-returns" ></i> ' .  JText::_('COM_JEPROSHOP_RETURNS_LABEL'). '</a>' .
+                '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=order&render=delivery') . '" class="btn jeproshop_sub_menu ' . $delivery . '" ><i class="icon-delivery" ></i> ' . JText::_('COM_JEPROSHOP_DELIVERY_LABEL'). '</a>' .
+                '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=order&render=refund'). '" class="btn jeproshop_sub_menu ' . $refund . '" ><i class="icon-refund" ></i> ' .  JText::_('COM_JEPROSHOP_REFUNDS_LABEL'). '</a>' .
+                '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=order&render=status') . '" class="btn jeproshop_sub_menu ' . $status . '" ><i class="icon-order-status" ></i> ' .  JText::_('COM_JEPROSHOP_STATUS_LABEL'). '</a>' .
+                '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=order&render=messages') . '" class="btn jeproshop_sub_menu ' . $messages . '" ><i class="icon-messages" ></i> ' .  JText::_('COM_JEPROSHOP_MESSAGES_LABEL'). '</a>' .
+            '</fieldset>' .
+        '</div>';
         return $html;
     }
 }

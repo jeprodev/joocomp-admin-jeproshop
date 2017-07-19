@@ -177,4 +177,44 @@ class JeproshopCountryModelCountry extends JeproshopModel
         }
         return $countries;
     }
+
+    /**
+     * This method is allow to know if a entity is currently used
+     * @since 1.5.0.1
+     * @param string $table name of table linked to entity
+     * @param bool $hasActiveColumn true if the table has an active column
+     * @return bool
+     */
+    public static function isCurrentlyUsed($table = null, $hasActiveColumn = false) {
+        $db = JFactory::getDBO();
+
+        $query = "SELECT " . $db->quoteName('country_id') . " FROM " . $db->quoteName('#__jeproshop_country') ;
+        $query .= " WHERE " . $db->quoteName('published') . " = 1";
+        $db->setQuery($query);
+
+        return $db->loadResult();
+    }
+
+    /**
+     * Get a country name with its ID
+     *
+     * @param $langId
+     * @param $countryId
+     * @return string Country name
+     */
+    public static function getCountryNameByCountryId($langId, $countryId){
+        $key = 'jeproshop_country_get_name_by_id_' . $countryId .'_' . $langId;
+        if (!JeproshopCache::isStored($key)){
+            $db = JFactory::getDBO();
+
+            $query = "SELECT " . $db->quoteName('name') . " FROM " . $db->quoteName('#__jeproshop_country_lang') . " WHERE ";
+            $query .= $db->quoteName('lang_id') . " = " . (int)$langId . " AND " . $db->quoteName('country_id') . " = ".(int)$countryId;
+
+            $db->setQuery($query);
+
+            JeproshopCache::store($key, $db->loadResult());
+        }
+        return JeproshopCache::retrieve($key);
+    }
+
 }

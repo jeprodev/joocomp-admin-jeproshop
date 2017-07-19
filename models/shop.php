@@ -587,4 +587,40 @@ class JeproshopShopModelShop extends JeproshopModel{
         }
         return 'http://';
     }
+
+    /**
+     * Add an sql restriction for shops fields
+     *
+     * @param boolean $share If false, do not check share data from group. Else can take a Shop::SHARE_* constant value
+     * @param string $alias
+     * @return string
+     */
+    public static function addSqlRestriction($share = false, $alias = null){
+        if ($alias){
+            $alias .= '.';
+        }
+
+        $group = JeproshopShopModelShop::getShopGroupFromShop(JeproshopShopModelShop::getContextShopId(), false);
+        if ($share == JeproshopShopModelShop::SHARE_CUSTOMER && JeproshopShopModelShop::getShopContext() == JeproshopShopModelShop::CONTEXT_SHOP && $group['share_customer']){
+            $restriction = " AND ".$alias."shop_group_id = ".(int)  JeproshopShopModelShop::getContextShopGroupId();
+        }else{
+            $restriction = " AND ".$alias."shop_id IN (".implode(', ', JeproshopShopModelShop::getContextListShopIds($share)).") ";
+        }
+        return $restriction;
+    }
+
+    /**
+     * Retrieve group ID of a shop
+     *
+     * @param int $shop_id Shop ID
+     * @param bool $as_id
+     * @return int Group ID
+     */
+    public static function getShopGroupFromShop($shop_id, $as_id = true){
+        JeproshopShopModelShop::cacheShops();
+        foreach (self::$shops as $group_id => $group_data)
+            if (array_key_exists($shop_id, $group_data['shops']))
+                return ($as_id) ? $group_id : $group_data;
+        return false;
+    }
 }

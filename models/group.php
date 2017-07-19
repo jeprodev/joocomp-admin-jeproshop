@@ -95,4 +95,22 @@ class JeproshopGroupModelGroup extends  JeproshopModel {
         $groups = $db->loadObjectList();
         return $groups;
     }
+
+
+    public static function getDefaultPriceDisplayMethod(){
+        return JeproshopGroupModelGroup::getPriceDisplayMethod((int)  JeproshopSettingModelSetting::getValue('customer_group'));
+    }
+
+    public static function getPriceDisplayMethod($group_id){
+        if(!isset(JeproshopGroupModelGroup::$group_price_display_method[$group_id])){
+            $db = JFactory::getDbO();
+
+            $query = "SELECT " . $db->quoteName('price_display_method') . " FROM " . $db->quoteName('#__jeproshop_group');
+            $query .= " WHERE " . $db->quoteName('group_id') . " = " . (int)$group_id;
+
+            $db->setQuery($query);
+            self::$group_price_display_method[$group_id] = $db->loadResult();
+        }
+        return self::$group_price_display_method[$group_id];
+    }
 }

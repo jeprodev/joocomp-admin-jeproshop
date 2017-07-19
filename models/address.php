@@ -80,6 +80,44 @@ class JeproshopAddressModelAddress extends JeproshopModel{
     protected static $_zonesIds = array();
     protected static $_countriesIds = array();
 
+    public function __construct($addressId = NULL, $langId = NULL) {
+        if($langId !== NULL){
+            $this->lang_id = JeproshopLanguageModelLanguage::getLanguage($langId) !== FALSE ? (int)$langId : JeproshopSettingModelSetting::getValue('default_lang');
+        }
+
+        if($addressId){
+            //Load address from database if address id is provided
+            $cacheKey = 'jeproshop_address_model_' . $addressId . '_' . $langId;
+            if(!JeproshopCache::isStored($cacheKey)){
+                $db = JFactory::getDBO();
+
+                $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_address') . " AS address ";
+                $query .= " WHERE address.address_id = " . (int)$addressId;
+
+                $db->setQuery($query);
+                $address_data = $db->loadObject();
+                if($address_data){
+                    JeproshopCache::store($cacheKey, $address_data);
+                }
+            }  else {
+                $address_data = JeproshopCache::retrieve($cacheKey);
+            }
+
+            if($address_data){
+                $address_data->address_id = $addressId;
+                foreach($address_data as $key => $value){
+                    if(array_key_exists($key, $this)){
+                        $this->{$key} = $value;
+                    }
+                }
+            }
+        }
+
+        if($this->address_id){
+            $this->country = JeproshopCountryModelCountry::getCountryNameByCountryId($langId, $this->country_id);
+        }
+    }
+
 
     /**
      * Initialize an address corresponding to the specified id address or if empty to the

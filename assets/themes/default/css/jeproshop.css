@@ -3,7 +3,7 @@
 .left{ float:left; }
 .half-wrapper{width:49%; }
 .half-wrapper-left{width:55%; float:left;}
-.half_wrapper-right{width:44%; float: right; }
+.half-wrapper-right{width:44%; float: right; }
 .one-third{ width:32%; }
 .half-wrapper .control-label{width:30%; }
 .half-wrapper .controls{ width:68%; margin-right: 3px; }
@@ -13,7 +13,8 @@
 .fixed-width-sm, .medium-select{ width:160px; }
 .payment-method{width:130px;}
 .input-date-box{ width:70px; }
-.currency-sign, .quantity-box{ width:45px;}
+.currency-sign{ width: 65px; }
+.quantity-box{ width:45px;}
 
 .day-wrapper{ width:60px; }
 .month-wrapper{ width:120px; }

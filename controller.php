@@ -76,9 +76,9 @@ class JeproshopController extends JControllerLegacy
             $viewClass->setLayout('edit');
             $viewClass->renderAddForm();
         }elseif($task == 'view'){
-            if(!$viewClass->loadObject(true)){ return false; }
+            if(!$viewClass->loadObject(true)){  return false; }
             $viewClass->setLayout('view');
-            $viewClass->renderView();
+            $viewClass->renderViewForm();
         }elseif($task == 'display' || $task  == ''){
             $viewClass->renderDetails();
         }elseif(!$this->use_ajax){

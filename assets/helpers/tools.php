@@ -34,6 +34,95 @@ class JeproshopTools {
 
     protected static $_cache_nb_media_servers = null;
 
+    /**
+     * Check for date validity
+     *
+     * @param string $date Date to validate
+     * @return boolean Validity is ok or not
+     */
+    public static function isDate($date){
+        $matches = NULL;
+        if (!preg_match('/^([0-9]{4})-((?:0?[0-9])|(?:1[0-2]))-((?:0?[0-9])|(?:[1-2][0-9])|(?:3[01]))( [0-9]{2}:[0-9]{2}:[0-9]{2})?$/', $date, $matches)){
+            return false;
+        }
+        return checkdate((int)$matches[2], (int)$matches[3], (int)$matches[1]);
+    }
+
+    /**
+     * Check for e-mail validity
+     *
+     * @param string $email e-mail address to validate
+     * @return boolean Validity is ok or not
+     */
+    public static function isEmail($email){
+        return !empty($email) && preg_match(JeproshopTools::cleanNonUnicodeSupport('/^[a-z\p{L}0-9!#$%&\'*+\/=?^`{}|~_-]+[.a-z\p{L}0-9!#$%&\'*+\/=?^`{}|~_-]*@[a-z\p{L}0-9]+[._a-z\p{L}0-9-]*\.[a-z\p{L}0-9]+$/ui'), $email);
+    }
+
+    /**
+     * Display date regarding to language preferences
+     *
+     * @param $date
+     * @param null $full
+     * @return string Date
+     * @throws JException
+     */
+    public static function dateFormat($date, $full = NULL){
+        return JeproshopTools::displayDate($date, $full);
+    }
+
+    /**
+     * Display date regarding to language preferences
+     *
+     * @param string $date Date to display format UNIX
+     * @param boolean $full With time or not (optional)
+     * @return string Date
+     * @throws JException
+     */
+    public static function displayDate($date, $full = false){
+        if(!$date || !($time = strtotime($date))){
+            return $date;
+        }
+
+        if ($date == '0000-00-00 00:00:00' || $date == '0000-00-00'){
+            return '';
+        }
+
+        if (!JeproshopTools::isDate($date) || !JeproshopTools::isBool($full)){
+            throw new JException('Invalid date');
+        }
+        $context = JeproshopContext::getContext();
+        $date_format = ($full ? $context->language->date_format_full : $context->language->date_format_lite);
+        return date($date_format, $time);
+    }
+
+    public static function dateDays()
+    {
+        $tab = array();
+        for ($i = 1; $i != 32; $i++)
+            $tab[] = $i;
+        return $tab;
+    }
+
+    public static function dateMonths()
+    {
+        $tab = array();
+        for ($i = 1; $i != 13; $i++)
+            $tab[$i] = date('F', mktime(0, 0, 0, $i, date('m'), date('Y')));
+        return $tab;
+    }
+
+    public static function dateYears(){
+        $tab = array();
+        for ($i = date('Y'); $i >= 1900; $i--)
+            $tab[] = $i;
+        return $tab;
+    }
+
+    public static function displayAddressDetail($address, $new_line = ''){
+
+    }
+
+
     public static function escape($text){
         return $text;
     }
@@ -49,6 +138,7 @@ class JeproshopTools {
     public static function displayWarning($message){
         JError::raiseWarning($message);
     }
+
     /**
      * Check for configuration key validity
      *
@@ -457,4 +547,8 @@ class JeproshopTools {
     public static function checkTaxToken(){
         return true;
     }
+    
+    public static function getDocumentToken(){ return 'a'; }
+
+    public static function checkDocumentToken(){ return true; }
 }
