@@ -25,12 +25,12 @@
 defined('_JEXEC') or die('Restricted access');
 
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'cache.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'context.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'cookie.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'customization.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'defines.inc.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tools.php';
+require_once 'cache.php';
+require_once 'context.php';
+require_once 'cookie.php';
+require_once 'customization.php';
+require_once 'defines.inc.php';
+require_once 'tools.php';
 require_once 'render' . DIRECTORY_SEPARATOR. 'helper.php';
 require_once 'render' . DIRECTORY_SEPARATOR. 'calendar.php';
 require_once 'render'. DIRECTORY_SEPARATOR . 'tree' . DIRECTORY_SEPARATOR. 'category.php';
@@ -71,8 +71,10 @@ require_once $modelsPath . 'specific_price.php';
 //require_once $modelsPath . '.php';
 require_once $modelsPath . 'shop.php';
 require_once $modelsPath . 'shop_group.php';
-//require_once $modelsPath . '.php';
-//require_once $modelsPath . '.php';
+require_once $modelsPath . 'shop_url.php';
+require_once $modelsPath . 'theme.php';
+require_once $modelsPath . 'zone.php';
+require_once $modelsPath . 'state.php';
 require_once $modelsPath . 'tag.php';
 require_once $modelsPath . 'tax.php';
 require_once $modelsPath . 'tax_factory.php';

@@ -38,6 +38,8 @@ class JeproshopController extends JControllerLegacy
 
     public $multi_shop_context_group = true;
 
+    public $has_errors;
+
     /**
      * check if the controller is available for the current user/visitor
      */
@@ -52,8 +54,8 @@ class JeproshopController extends JControllerLegacy
      * initialize jeproshop
      */
     public function initialize(){
-        if(!defined('JEPROSHOP_BASE_URL')){ defined('JEPROSHOP_BASE_URL', JeproshopTools::getShopDomain(true)); }
-        if(!defined('JEPROSHOP_BASE_SSL_URL')){ defined('JEPROSHOP_BASE_SSL_URL', JeproshopTools::getShopSslDomain(true)); }
+        if(!defined('JEPROSHOP_BASE_URL')){ define('JEPROSHOP_BASE_URL', JeproshopTools::getShopDomain(true)); }
+        if(!defined('JEPROSHOP_BASE_SSL_URL')){ define('JEPROSHOP_BASE_SSL_URL', JeproshopTools::getShopSslDomain(true)); }
     }
 
     public function initContent(){
@@ -68,11 +70,11 @@ class JeproshopController extends JControllerLegacy
         $view = $app->input->get('view');
         $viewClass = $this->getView($view, JFactory::getDocument()->getType());
 
-        if($task == 'edit'){
+        if($task == 'edit' || $task == 'add'){
             if(!$viewClass->loadObject(true)){ return false; }
             $viewClass->setLayout('edit');
             $viewClass->renderEditForm();
-        }elseif($task == 'add'){
+        }elseif($task == 'added'){
             $viewClass->setLayout('edit');
             $viewClass->renderAddForm();
         }elseif($task == 'view'){

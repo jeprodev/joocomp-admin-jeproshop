@@ -13,6 +13,7 @@
 .fixed-width-sm, .medium-select{ width:160px; }
 .payment-method{width:130px;}
 .input-date-box{ width:70px; }
+.input-date{ width:100px; }
 .currency-sign{ width: 65px; }
 .quantity-box{ width:45px;}
 
@@ -20,14 +21,14 @@
 .month-wrapper{ width:120px; }
 .year-wrapper{ width: 80px;}
 
-.translatable{}
-.translatable .input_lang{ float:left; margin-right:5px;}
-.translatable .input_lang input[type="text"]{width:180px;}
+.translatable{ }
+.translatable .input-lang{ float:left; margin-right:5px; }
+.translatable .input-lang input[type="text"]{width:180px;}
 .translatable .btn-group-action{}
 .jeproshop_sub_menu_wrapper{ margin-bottom:20px;}
 .list-inline{ display:inline;}
-.info_left{width:49%; float:left;}
-.info_right{width:49%; float:right;}
+.info-left{width:49%; float:left;}
+.info-right{width:49%; float:right;}
 .icon-shopping-cart{}
 .label{}
 .label-success{}
@@ -81,7 +82,7 @@ ul.tree{ list-style: none;}
 
 #customer-form .control-label label{ text-align:right; }
 #logo-wrapper{ width:150px; margin-right: 10px; }
-
+#info-wrapper{ width: 600px; }
 
 .jeproshop-block-title{
     width:98%; padding: 4px;

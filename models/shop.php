@@ -156,6 +156,7 @@ class JeproshopShopModelShop extends JeproshopModel{
             $db->setQuery($query);
             $results = $db->loadObjectList();
             $through = false;
+            $isMainUri = false;
             foreach($results as $result){
                 if(preg_match('#^' . preg_quote($result->uri, '#') . '#i', $requestUri)){
                     $through = true;
@@ -307,6 +308,7 @@ class JeproshopShopModelShop extends JeproshopModel{
         $db->setQuery($query);
         if (!$row = $db->loadObject()){ return; }
 
+        $this->theme = new JeproshopThemeModelTheme();
         $this->theme->theme_id = $row->theme_id;
         $this->theme->name = $row->name;
         $this->theme_directory = $row->directory;

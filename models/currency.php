@@ -134,15 +134,15 @@ class JeproshopCurrencyModelCurrency extends JeproshopModel
      *
      * @param bool $object
      * @param bool $published
-     * @param bool $group_by
+     * @param bool $groupBy
      * @return array Currencies
      */
-    public static function getStaticCurrencies($object = false, $published = true, $group_by = false) {
+    public static function getStaticCurrencies($object = false, $published = true, $groupBy = false) {
         $db = JFactory::getDBO();
 
         $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_currency') . " AS currency " . JeproshopShopModelShop::addSqlAssociation('currency');
         $query .= " WHERE " . $db->quoteName('deleted') . " = 0" . ($published ? " AND currency." . $db->quoteName('published') . " = 1" : "");
-        $query .= ($group_by ? " GROUP BY currency." . $db->quoteName('currency_id') : ""). " ORDER BY " . $db->quoteName('name') . " ASC";
+        $query .= ($groupBy ? " GROUP BY currency." . $db->quoteName('currency_id') : ""). " ORDER BY " . $db->quoteName('name') . " ASC";
 
         $db->setQuery($query);
         $tab = $db->loadObjectList();
@@ -162,5 +162,46 @@ class JeproshopCurrencyModelCurrency extends JeproshopModel
 
         $db->setQuery($query);
         return $db->loadObjectList();
+    }
+
+    public function getCurrenciesList(JeproshopContext $context = NULL){
+        jimport('joomla.html.pagination');
+        $db = JFactory::getDBO();
+        $app = JFactory::getApplication();
+        $option = $app->input->get('option');
+        $view = $app->input->get('view');
+
+        if(!isset($context)){ $context = JeproshopContext::getContext(); }
+
+
+        $limit = $app->getUserStateFromRequest('global.list.limit', 'limit', $app->getCfg('list_limit'), 'int');
+        $limitStart = $app->getUserStateFromRequest($option. $view. '.limitstart', 'limitstart', 0, 'int');
+        $langId = $app->getUserStateFromRequest($option. $view. '.lang_id', 'lang_id', $context->language->lang_id, 'int');
+
+        $useLimit = true;
+        if ($limit === false)
+            $useLimit = false;
+
+        do{
+            $query = "SELECT currency." . $db->quoteName('currency_id') . ", currency." . $db->quoteName('name') . ", currency." . $db->quoteName('iso_code') . ", currency." . $db->quoteName('iso_code_num') . ", currency.";
+            $query .= $db->quoteName('sign') . ", currency_shop." . $db->quoteName('conversion_rate') . ", currency." . $db->quoteName('published') . " FROM " . $db->quoteName('#__jeproshop_currency') . " AS currency ";
+            $query .= JeproshopShopModelShop::addSqlAssociation('currency') . " WHERE currency." . $db->quoteName('deleted') . " = 0 GROUP BY currency." . $db->quoteName('currency_id');
+
+            $db->setQuery($query);
+            $total = count($db->loadObjectList());
+
+            $query .= (($useLimit === true) ? " LIMIT " .(int)$limitStart . ", " .(int)$limit : "");
+
+            $db->setQuery($query);
+            $currencies = $db->loadObjectList();
+
+            if($useLimit == true){
+                $limitStart = (int)$limitStart -(int)$limit;
+                if($limitStart < 0){ break; }
+            }else{ break; }
+        }while(empty($currencies));
+
+        $this->pagination = new JPagination($total, $limitStart, $limit);
+        return $currencies;
     }
 }

@@ -190,26 +190,26 @@ defined('_JEXEC') or die('Restricted access');
                         <?php if(!$this->multi_shop){ ?>
                             <input type="hidden" name="price_field[sp_shop_id]" value="" />
                         <?php }else{ ?>
-                            <select name="price_field[sp_shop_id]" id="jform_sp_shop_id" class="medium_select" >
+                            <select name="price_field[sp_shop_id]" id="jform_specific_price_shop_id" class="medium_select" >
                                 <?php if(!$this->admin_one_shop){ ?><option value="0"><?php echo JText::_('COM_JEPROSHOP_ALL_SHOPS_LABEL'); ?></option><?php } ?>
                                 <?php foreach($this->shops as $shop){ ?>
                                     <option value="<?php echo $shop->shop_id; ?>"><?php echo htmlentities($shop->name); ?></option>
                                 <?php } ?>
                             </select>&nbsp;&gt;&nbsp;
                         <?php } ?>
-                        <select name="price_field[sp_currency_id]" id="jform_sp_currency_0" class="medium_select" >
+                        <select name="price_field[sp_currency_id]" id="jform_specific_price_currency_0" class="medium_select" >
                             <option value="0"><?php echo JText::_('COM_JEPROSHOP_ALL_CURRENCIES_LABEL'); ?></option>
                             <?php foreach($this->currencies as $currency){ ?>
                                 <option value="<?php echo $currency->currency_id; ?>"><?php echo htmlentities($currency->name); ?></option>
                             <?php } ?>
                         </select>&nbsp;&gt;&nbsp;
-                        <select name="price_field[sp_country_id]" id="jform_sp_country_id" class="medium_select" >
+                        <select name="price_field[sp_country_id]" id="jform_specific_price_country_id" class="medium_select" >
                             <option value="0"><?php echo JText::_('COM_JEPROSHOP_ALL_COUNTRIES_LABEL'); ?></option>
                             <?php foreach($this->countries as $country){ ?>
                                 <option value="<?php echo $country->country_id; ?>"><?php echo htmlentities($country->name); ?></option>
                             <?php } ?>
                         </select>&nbsp;&gt;&nbsp;
-                        <select name="price_field[sp_group_id]" id="jform_sp_group_id" class="medium_select" >
+                        <select name="price_field[sp_group_id]" id="jform_specific_price_group_id" class="medium_select" >
                             <option value="0"><?php echo JText::_('COM_JEPROSHOP_ALL_GROUPS_LABEL'); ?></option>
                             <?php foreach($this->groups as $group){ ?>
                                 <option value="<?php echo $group->group_id; ?>"><?php echo htmlentities($group->name); ?></option>
@@ -230,7 +230,7 @@ defined('_JEXEC') or die('Restricted access');
                     <div class="control-group">
                         <div class="control-label"><label><?php echo JText::_('COM_JEPROSHOP_SPECIFIC_PRICE_COMBINATION_LABEL'); ?></label></div>
                         <div class="controls">
-                            <select id="jform_sp_product_attribute_id" name="price_field[sp_product_attribute_id]" >
+                            <select id="jform_specific_price_product_attribute_id" name="price_field[sp_product_attribute_id]" >
                                 <option value="0"><?php echo JText::_('COM_JEPROSHOP_APPLY_TO_ALL_COMBINATIONS_LABEL'); ?></option>
                                 <?php foreach($this->combinations as $combination) { ?>
                                     <option value="<?php echo $combination->product_attribute_id; ?>"><?php echo $combination->attributes; ?></option>
@@ -242,14 +242,14 @@ defined('_JEXEC') or die('Restricted access');
                 <div class="control-group">
                     <div class="control-label"><label title="<?php echo JText::_('COM_JEPROSHOP_SPECIFIC_PRICE_AVAILABLE_FROM_TITLE_DESC'); ?>"><?php echo JText::_('COM_JEPROSHOP_SPECIFIC_PRICE_AVAILABLE_FROM_LABEL') ; ?></label></div>
                     <div class="controls">
-                        <input class="date_picker" type="text" name="price_field[sp_from]" value="" style="text-align: center" id="jform_sp_from" /><span style="font-weight:bold; color:#000000; font-size:12px"><?php echo " ". JText::_('COM_JEPROSHOP_TO_LABEL') . " "; ?></span>
-                        <input class="date_picker" type="text" name="price_field[sp_to]" value="" style="text-align: center" id="jform_sp_to" />
+                        <input class="datepicker input-date" type="text" name="price_field[specific_price_from]" value="" style="text-align: center" id="jform_specific_price_from"  /><span style="font-weight:bold; color:#000000; font-size:12px; padding: 5px;"><?php echo " ". JText::_('COM_JEPROSHOP_TO_LABEL') . " "; ?></span>
+                        <input class="datepicker input-date" type="text" name="price_field[specific_price_to]" value="" style="text-align: center" id="jform_specific_price_to" />
                     </div>
                 </div>
                 <div class="control-group">
                     <div class="control-label"><label><?php echo JText::_('COM_JEPROSHOP_STARTING_AT_LABEL'); ?></label></div>
                     <div class="controls">
-                        <input type="text" name="price_field[sp_from_quantity]" value="1" size="3" /> <span style="font-weight:bold; color:#000000; font-size:12px"><?php echo JText::_('COM_JEPROSHOP_UNIT_LABEL'); ?></span>
+                        <input type="text" name="price_field[specific_price_from_quantity]" value="1" size="3" class="quantity-box"/> <span style="font-weight:bold; color:#000000; font-size:12px"><?php echo JText::_('COM_JEPROSHOP_UNIT_LABEL'); ?></span>
                     </div>
                 </div>
                 <div class="control-group">
@@ -261,7 +261,7 @@ defined('_JEXEC') or die('Restricted access');
                     </div>
                     <div class="controls" ><div class="input-append">
                             <?php if($this->currency->prefix != ""){ ?><button type="button" class="btn" id="jform_img" ><?php echo $this->currency->prefix; ?></button><?php } ?>
-                            <input type="text" disabled="disabled" name="price_field[sp_price]" id="jform_sp_price" value="<?php echo $this->product->price; ?>" class="price-box" />
+                            <input type="text" disabled="disabled" name="price_field[specific_price_price]" id="jform_specific_price_price" value="<?php echo $this->product->price; ?>" class="price-box" />
                             <?php if($this->currency->suffix != ""){ ?><button type="button" class="btn" id="jform_img" ><?php echo $this->currency->suffix; ?></button><?php } ?>
                         </div>
                     </div>
@@ -273,8 +273,8 @@ defined('_JEXEC') or die('Restricted access');
                 <div class="control-group">
                     <div class="control-label"><label><?php echo JText::_('COM_JEPROSHOP_APPLY_DISCOUNT_OF_LABEL'); ?></label></div>
                     <div class="controls">
-                        <input type="text" name="price_field[sp_reduction]" value="0.00" class="price-box" />&nbsp;
-                        <select name="price_field[sp_reduction_type]" id="jform_reduction" class="medium-select" >
+                        <input type="text" name="price_field[specific_price_reduction]" value="0.00" class="price-box" />&nbsp;
+                        <select name="price_field[specific_price_reduction_type]" id="jform_reduction" class="medium-select" >
                             <option selected="selected" >---</option>
                             <option value="amount"><?php echo JText::_('COM_JEPROSHOP_AMOUNT_LABEL'); ?></option>
                             <option value="percentage"><?php echo JText::_('COM_JEPROSHOP_PERCENTAGE_LABEL'); ?></option>
@@ -383,10 +383,10 @@ defined('_JEXEC') or die('Restricted access');
                             } ?>
                         </tbody>
                     </table>
-                    <?php  // Not use id_customer
+                    <?php // Not use id_customer
                     if ($this->specific_price_priorities[0] == 'customer_id'){ unset($this->specific_price_priorities[0]); }
                     // Reindex array starting from 0
-                    $specificPricePriorities = array_values($this->specific_price_priorities); ?>
+                    $specificPricePriorities = array_values($this->specific_price_priorities);  ?>
                     <div class="panel">
                         <div class="panel-title" ><?php echo JText::_('CIM_JEPROSHOP_PRIORITY_MANAGEMENT_LABEL'); ?></div>
                         <div class="panel-content" >

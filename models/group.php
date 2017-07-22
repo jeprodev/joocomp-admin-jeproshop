@@ -29,6 +29,8 @@ class JeproshopGroupModelGroup extends  JeproshopModel {
 
     public $shop_id;
 
+    public $lang_id;
+
     public $name;
 
     public $reduction;
@@ -42,6 +44,86 @@ class JeproshopGroupModelGroup extends  JeproshopModel {
 
     protected static $cache_reduction = array();
     protected static $group_price_display_method;
+
+    public function __construct($groupId = null, $langId = null, $shopId = null){
+        if($langId !== NULL){
+            $this->lang_id = (JeproshopLanguageModelLanguage::getLanguage($langId) ? (int)$langId : JeproshopSettingModelSetting::getValue('default_lang'));
+        }
+
+        if($shopId && $this->isMultiShop('cart', false)){
+            $this->shop_id = (int)$shopId;
+            $this->getShopFromContext = FALSE;
+        }
+
+        if($this->isMultiShop('cart', false) && !$this->shop_id){
+            $this->shop_id = JeproshopContext::getContext()->shop->shop_id;
+        }
+
+        if($groupId){
+            $cacheKey = 'jeproshop_group_model_' . $groupId . '_' . $langId . '_' . $shopId;
+            if(!JeproshopCache::isStored($cacheKey)){
+                $db = JFactory::getDBO();
+                $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_group') . " AS j_group ";
+                $where = "";
+                /** get language information **/
+                if($langId){
+                    $query .= "LEFT JOIN " . $db->quoteName('#__jeproshop_group_lang') . " AS group_lang ";
+                    $query .= "ON (j_group.group_id = group_lang.group_id AND group_lang.lang_id = " . (int)$langId . ") ";
+                    if($this->shop_id && !(empty($this->multiLangShop))){
+                        $where = " AND group_lang.shop_id = " . $this->shop_id;
+                    }
+                }
+
+                /** Get shop information **/
+                if(JeproshopShopModelShop::isTableAssociated('group')){
+                    $query .= " LEFT JOIN " . $db->quoteName('#__jeproshop_group_shop') . " AS group_shop ON (";
+                    $query .= "j_group.group_id = group_shop.group_id AND group_shop.shop_id = " . (int)  $this->shop_id . ")";
+                }
+                $query .= " WHERE j_group.group_id = " . (int)$groupId . $where;
+
+                $db->setQuery($query);
+                $groupData = $db->loadObject();
+
+                if($groupData){
+                    if(!$langId && isset($this->multiLang) && $this->multiLang){
+                        $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_group_lang');
+                        $query .= " WHERE group_id = " . (int)$groupId;
+
+                        $db->setQuery($query);
+                        $groupLangData = $db->loadObjectList();
+                        if($groupLangData){
+                            foreach ($groupLangData as $row){
+                                foreach($row as $key => $value){
+                                    if(array_key_exists($key, $this) && $key != 'group_id'){
+                                        if(!isset($groupData->{$key}) || !is_array($groupData->{$key})){
+                                            $groupData->{$key} = array();
+                                        }
+                                        $groupData->{$key}[$row->lang_id] = $value;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    JeproshopCache::store($cacheKey, $groupData);
+                }
+            }else{
+                $groupData = JeproshopCache::retrieve($cacheKey);
+            }
+
+            if($groupData){
+                $this->group_id = $groupId;
+                foreach($groupData as $key => $value){
+                    if(property_exists($key, $this)){
+                        $this->{$key} = $value;
+                    }
+                }
+            }
+        }
+
+        if($this->group_id && !isset(JeproshopGroupModelGroup::$group_price_display_method[$this->group_id])){
+            self::$group_price_display_method[$this->group_id] = $this->price_display_method;
+        }
+    }
 
     /**
      * This method is allow to know if a feature is used or active
@@ -113,4 +195,53 @@ class JeproshopGroupModelGroup extends  JeproshopModel {
         }
         return self::$group_price_display_method[$group_id];
     }
+
+    /**
+     * Return current group object
+     * Use context
+     * @static
+     * @return JeproshopGroupModelGroup Group object
+     */
+    public static function getCurrent()	{
+        static $groups = array();
+
+        $customer = JeproshopContext::getContext()->customer;
+        if (JeproshopTools::isLoadedObject($customer, 'customer_id')){
+            $group_id = (int)$customer->default_group_id;
+        }else{
+            $group_id = (int)  JeproshopSettingModelSetting::getValue('unidentified_group');
+        }
+
+        if (!isset($groups[$group_id])){
+            $groups[$group_id] = new JeproshopGroupModelGroup($group_id);
+        }
+
+        if (!$groups[$group_id]->isAssociatedToShop(JeproshopContext::getContext()->shop->shop_id)){
+            $group_id = (int)  JeproshopSettingModelSetting::getValue('customer_group');
+            if (!isset($groups[$group_id])){
+                $groups[$group_id] = new JeproshopGroupModelGroup($group_id);
+            }
+        }
+        return $groups[$group_id];
+    }
+
+    public function isAssociatedToShop($shopId = NULL){
+        if($shopId === NULL){
+            $shopId = (int)JeproshopContext::getContext()->shop->shop_id;
+        }
+
+        $cacheKey = 'jeproshop_shop_model_group_' . (int)$this->group_id . '_' . (int)$shopId;
+        if(!JeproshopCache::isStored($cacheKey)){
+            $db = JFactory::getDBO();
+            $query = "SELECT shop_id FROM " . $db->quoteName('#__jeproshop_group_shop') . " WHERE " . $db->quoteName('group_id') . " = " . (int)$this->group_id;
+            $query .= " AND shop_id = " . (int)$shopId;
+
+            $db->setQuery($query);
+            $result = (bool)$db->loadResult();
+            JeproshopCache::store($cacheKey, $result);
+        }
+        return JeproshopCache::retrieve($cacheKey);
+    }
+
+
 }

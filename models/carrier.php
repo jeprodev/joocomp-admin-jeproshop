@@ -48,6 +48,8 @@ class JeproshopCarrierModelCarrier extends JeproshopModel{
 
     public $carrier_id;
 
+    public $lang_id;
+
     public $shop_id;
     /** @var int common id for carrier historization */
     public $reference_id;
@@ -111,6 +113,93 @@ class JeproshopCarrierModelCarrier extends JeproshopModel{
     /** @var int grade of the shipping delay (0 for longest, 9 for shortest) */
     public $grade;
 
+    public function __construct($carrierId = null, $langId = null){
+        $db = JFactory::getDBO();
+
+        if($langId !== NULL){
+            $this->lang_id = (JeproshopLanguageModelLanguage::getLanguage($langId) ? (int)$langId : JeproshopSettingModelSetting::getValue('default_lang'));
+        }
+
+        if($carrierId){
+            $cacheKey = 'jeproshop_carrier_model_' . $carrierId . '_' . $langId;
+            if(!JeproshopCache::isStored($cacheKey)){
+                $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_carrier') . " AS carrier ";
+                $where = "";
+                /** get language information **/
+                if($langId){
+                    $query .= "LEFT JOIN " . $db->quoteName('#__jeproshop_carrier_lang') . " AS carrier_lang ON (carrier.";
+                    $query .= "carrier_id = carrier_lang.carrier_id AND carrier_lang.lang_id = " . (int)$langId . ") ";
+                    /*if($this->shop_id && !(empty($this->multiLangShop))){
+                        $where = " AND carrier_lang.shop_id = " . $this->shop_id;
+                    }*/
+                }
+
+                /** Get shop information **/
+                if(JeproshopShopModelShop::isTableAssociated('carrier')){
+                    $query .= " LEFT JOIN " . $db->quoteName('#__jeproshop_carrier_shop') . " AS carrier_shop ON (carrier.";
+                    $query .= "carrier_id = carrier_shop.carrier_id AND carrier_shop.shop_id = " . (int)  $this->shop_id . ")";
+                }
+                $query .= " WHERE carrier.carrier_id = " . (int)$carrierId . $where;
+
+                $db->setQuery($query);
+                $carrierData = $db->loadObject();
+
+                if($carrierData){
+                    if(!$langId && isset($this->multiLang) && $this->multiLang){
+                        $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_carrier_lang');
+                        $query .= " WHERE carrier_id = " . (int)$carrierId;
+
+                        $db->setQuery($query);
+                        $carrierLangData = $db->loadObjectList();
+                        if($carrierLangData){
+                            foreach ($carrierLangData as $row){
+                                foreach($row as $key => $value){
+                                    if(array_key_exists($key, $this) && $key != 'carrier_id'){
+                                        if(!isset($carrierData->{$key}) || !is_array($carrierData->{$key})){
+                                            $carrierData->{$key} = array();
+                                        }
+                                        $carrierData->{$key}[$row->lang_id] = $value;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    JeproshopCache::store($cacheKey, $carrierData);
+                }
+            }else{
+                $carrierData = JeproshopCache::retrieve($cacheKey);
+            }
+
+            if($carrierData) {
+                $carrierData->carrier_id = $carrierId;
+                foreach ($carrierData as $key => $value) {
+                    if (array_key_exists($key, $this)) {
+                        $this->{$key} = $value;
+                    }
+                }
+            }
+        }
+
+        /**
+         * keep retro-compatibility SHIPPING_METHOD_DEFAULT
+         * @deprecated 1.5.5
+         */
+        if ($this->shipping_method == JeproshopCarrierModelCarrier::DEFAULT_SHIPPING_METHOD){
+            $this->shipping_method = ((int)JeproshopSettingModelSetting::getValue('shipping_method') ? JeproshopCarrierModelCarrier::WEIGHT_SHIPPING_METHOD : JeproshopCarrierModelCarrier::PRICE_SHIPPING_METHOD);
+        }
+        /**
+         * keep retro-compatibility id_tax_rules_group
+         * @deprecated 1.5.0
+         */
+        if ($this->carrier_id){
+            $this->tax_rules_group_id = $this->getTaxRulesGroupId(JeproshopContext::getContext());
+        }
+        if ($this->name == '0'){
+            $this->name = JeproshopSettingModelSetting::getValue('shop_name');
+        }
+        $this->image_dir = COM_JEPROSHOP_CARRIER_IMAGE_DIR;
+    }
+
     /**
      * Get all carriers in a given language
      *
@@ -144,7 +233,7 @@ class JeproshopCarrierModelCarrier extends JeproshopModel{
         $query .= JeproshopShopModelShop::addSqlAssociation('carrier') . " WHERE carrier." . $db->quoteName('deleted') . " = ";
         $query .= ($delete ? "1" : "0") . ($published ? " AND carrier." . $db->quoteName('published') . " = 1 " : "");
         if ($zoneId){
-            $query .= " AND carrier_zone." . $db->quoteName('zone_id') . " = " . (int)$zone_id . " AND zone." . $db->quoteName('published') . " = 1 ";
+            $query .= " AND carrier_zone." . $db->quoteName('zone_id') . " = " . (int)$zoneId . " AND zone." . $db->quoteName('published') . " = 1 ";
         }
         if ($groupIds){
             $query .= ' AND c.id_carrier IN (SELECT id_carrier FROM '._DB_PREFIX_.'carrier_group WHERE id_group IN ('.implode(',', array_map('intval', $groupIds)).')) ';
@@ -178,6 +267,74 @@ class JeproshopCarrierModelCarrier extends JeproshopModel{
                 $carriers[$key]->name = JeproshopSettingModelSetting::getValue('shop_name');
             }
         }
+        return $carriers;
+    }
+
+    /**
+     * Get all zones
+     *
+     * @return array Zones
+     */
+    public function getZones(){
+        $db = JFactory::getDBO();
+        $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_carrier_zone') . " AS carrier_zone LEFT JOIN " . $db->quoteName('#__jeproshop_zone');
+        $query .= " AS zone ON carrier_zone." . $db->quoteName('zone_id') . " = zone." . $db->quoteName('zone_id') . " WHERE carrier_zone.";
+        $query .= $db->quoteName('carrier_id') . " = " .(int)$this->carrier_id;
+
+        $db->setQuery($query);
+        return $db->loadObjectList();
+    }
+
+    public function getCarriersList(JeproshopContext $context = null){
+        jimport('joomla.html.pagination');
+        $db = JFactory::getDBO();
+        $app = JFactory::getApplication();
+        $option = $app->input->get('option');
+        $view = $app->input->get('view');
+
+        if(!$context){ $context = JeproshopContext::getContext(); }
+
+        $limit = $app->getUserStateFromRequest('global.list.limit', 'limit', $app->getCfg('list_limit'), 'int');
+        $limitStart = $app->getUserStateFromRequest($option. $view. '.limitstart', 'limitstart', 0, 'int');
+        $lang_id = $app->getUserStateFromRequest($option. $view. '.lang_id', 'lang_id', $context->language->lang_id, 'int');
+        $orderBy = $app->getUserStateFromRequest($option. $view. '.order_by', 'order_by', 'position', 'string');
+        $orderWay = $app->getUserStateFromRequest($option. $view. '.order_way', 'order_way', 'ASC', 'string');
+
+        $useLimit = true;
+        if ($limit === false)
+            $useLimit = false;
+
+        do{
+            $query = "SELECT SQL_CALC_FOUND_ROWS carrier." . $db->quoteName('carrier_id') . ", carrier." . $db->quoteName('name') . ", carrier.";
+            $query .= $db->quoteName('published') . ", carrier." . $db->quoteName('is_free') . ", carrier." . $db->quoteName('position');
+            $query .= ", carrier_lang.* FROM " . $db->quoteName('#__jeproshop_carrier') . " AS carrier LEFT JOIN " . $db->quoteName('#__jeproshop_carrier_lang');
+            $query .= " AS carrier_lang ON(carrier." . $db->quoteName('carrier_id') . " = carrier_lang." . $db->quoteName('carrier_id') ;
+            $query .= JeproshopShopModelShop::addSqlRestrictionOnLang('carrier_lang') . " AND carrier_lang." . $db->quoteName('lang_id') . " = " ;
+            $query .= (int)$lang_id . ") LEFT JOIN " . $db->quoteName('#__jeproshop_carrier_tax_rules_group_shop') . " AS carrier_tax_rules_group_shop ON (carrier.";
+            $query .= $db->quoteName('carrier_id') . " = carrier_tax_rules_group_shop." . $db->quoteName('carrier_id'). " AND carrier_tax_rules_group_shop.";
+            $query .= $db->quoteName('shop_id') . " = " . (int)$context->shop->shop_id . ") ORDER BY ";
+            $query .= ((str_replace('`', '', $orderBy) == 'carrier_id') ? "carrier." : "") . $orderBy . " " . $orderWay ;
+            $db->setQuery($query);
+            $total = count($db->loadObjectList());
+
+            $query .= (($useLimit === true) ? " LIMIT " .(int)$limitStart . ", " .(int)$limit : "");
+
+            $db->setQuery($query);
+            $carriers = $db->loadObjectList();
+
+            if($useLimit == true){
+                $limitStart = (int)$limitStart -(int)$limit;
+                if($limitStart < 0){ break; }
+            }else{ break; }
+        }while(empty($carriers));
+
+        foreach ($carriers as $key => $carrier) {
+            if($carrier->name == '0'){
+                $carrier->name = JeproshopSettingModelSetting::getCurrentShopName();
+            }
+        }
+
+        $this->pagination = new JPagination($total, $limitStart, $limit);
         return $carriers;
     }
 

@@ -25,22 +25,81 @@
 defined('_JEXEC') or die('Restricted access');
 
 class JeproshopCustomerViewCustomer extends JeproshopViewLegacy {
+    protected $customer;
+
+    protected $helper;
+
+    protected $customers;
+
     public function renderDetails($tpl = null){
+        $customerModel = new JeproshopCustomerModelCustomer();
+        $this->customers = $customerModel->getCustomerList();
+        $this->pagination = $customerModel->getPagination();
         $this->addToolBar();
         parent::display($tpl);
     }
 
     public function renderAddForm($tpl = null){
+        if($this->context == null){ $this->context = JeproshopContext::getContext(); }
+        $groups = JeproshopGroupModelGroup::getStaticGroups($this->context->language->lang_id, true);
+
+        $this->assignRef('groups', $groups);
+        $this->helper = new JeproshopHelper();
+
         $this->addToolBar();
         parent::display($tpl);
     }
 
     public function renderEditForm($tpl = null){
+        if($this->context == null){ $this->context = JeproshopContext::getContext(); }
+        $groups = JeproshopGroupModelGroup::getStaticGroups($this->context->language->lang_id, true);
+
+        $this->assignRef('groups', $groups); 
+        $this->helper = new JeproshopHelper();
+        
         $this->addToolBar();
         parent::display($tpl);
     }
 
     private function addToolBar(){
         $task = JFactory::getApplication()->input->get('task');
+        switch($task){
+            case 'add' : break;
+            case 'edit' :
+                if(!$this->context->controller->can_add_customer){ }
+                break;
+            default : break;
+        }
+
+        $this->addSideBar('customers');
+    }
+
+    /**
+     * Load class object using identifier in $_GET (if possible)
+     * otherwise return an empty object, or die
+     *
+     * @param boolean $opt Return an empty object if load fail
+     * @return object|boolean
+     */
+    public function loadObject($opt = false){
+        $app = JFactory::getApplication();
+        $customerId = (int)$app->input->get('customer_id');
+        if ($customerId && JeproshopTools::isUnsignedInt($customerId)){
+            if (!$this->customer)
+                $this->customer = new JeproshopCustomerModelCustomer($customerId);
+            if (JeproshopTools::isLoadedObject($this->customer, 'customer_id')){
+                return $this->customer;
+            }
+            // throw exception
+            //$this->errors[] = Tools::displayError('The object cannot be loaded (or found)');
+            return false;
+        }elseif ($opt){
+            if (!$this->customer)
+                $this->customer = new JeproshopCustomerModelCustomer();
+            return $this->customer;
+        }else{
+            JeproshopTools::displayError('The object cannot be loaded (the identifier is missing or invalid)');
+            return false;
+        }
     }
 }

@@ -85,6 +85,44 @@ class JeproshopCustomerModelCustomer extends JeproshopModel {
     protected static $_customer_groups = array();
     protected static $_customer_has_address = array();
 
+    public function __construct($customerId = NULL){
+        if($customerId){
+            $cacheKey = 'jeproshop_customer_model_' . $customerId . ( $this->shop_id ? '_' . $this->shop_id : '');
+            if(!JeproshopCache::isStored($cacheKey)){
+                $db = JFactory::getDBO();
+
+                $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_customer') . " AS customer ";
+
+
+                /** Get shop information **/
+                if(JeproshopShopModelShop::isTableAssociated('order')){
+                    $query .= " LEFT JOIN " . $db->quoteName('#__jeproshop_order_shop') . " AS order_shop ON (";
+                    $query .= "ord.order_id = order_shop.order_id AND order_shop.shop_id = " . (int)  $this->shop_id . ")";
+                }
+                $query .= " WHERE customer.customer_id = " . (int)$customerId ;
+
+                $db->setQuery($query);
+                $customerData = $db->loadObject();
+
+                if($customerData){
+                    JeproshopCache::store($cacheKey, $customerData);
+                }
+            }else{
+                $customerData = JeproshopCache::retrieve($cacheKey);
+            }
+
+            if($customerData){
+                $customerData->customer_id = $customerId;
+                foreach($customerData as $key => $value){
+                    if(array_key_exists($key, $this)){
+                        $this->{$key} = $value;
+                    }
+                }
+            }
+        }
+        $this->default_group_id = JeproshopSettingModelSetting::getValue('customer_group');
+    }
+
     /**
      * Return customer addresses
      *
@@ -92,8 +130,8 @@ class JeproshopCustomerModelCustomer extends JeproshopModel {
      * @return array Addresses
      */
     public function getAddresses($langId){
-        $share_order = (bool)JeproshopContext::getContext()->shop->getShopGroup()->share_order;
-        $cacheKey = 'jeproshop_customer_getAddresses_'.(int)$this->customer_id.'-'.(int)$langId . '_' . $share_order;
+        $shareOrder = (bool)JeproshopContext::getContext()->shop->getShopGroup()->share_order;
+        $cacheKey = 'jeproshop_customer_getAddresses_'.(int)$this->customer_id.'-'.(int)$langId . '_' . $shareOrder;
         if (!JeproshopCache::isStored($cacheKey)){
             $db = JFactory::getDBO();
             $query = "SELECT DISTINCT address.*, country_lang." . $db->quoteName('name') . " AS country, stat.name AS ";
@@ -103,7 +141,7 @@ class JeproshopCustomerModelCustomer extends JeproshopModel {
             $query .= $db->quoteName('#__jeproshop_country_lang') . " AS country_lang ON (country." . $db->quoteName('country_id');
             $query .= " = country_lang." . $db->quoteName('country_id') . ") LEFT JOIN " . $db->quoteName('#__jeproshop_state');
             $query .= " AS stat ON (stat." . $db->quoteName('state_id') . " = address." . $db->quoteName('state_id') . ") ";
-            $query .= ($share_order ? "" : JeproshopShopModelShop::addSqlAssociation('country')) . " WHERE " . $db->quoteName('lang_id');
+            $query .= ($shareOrder ? "" : JeproshopShopModelShop::addSqlAssociation('country')) . " WHERE " . $db->quoteName('lang_id');
             $query .= " = " .(int)$langId . " AND " . $db->quoteName('customer_id') . " = " .(int)$this->customer_id . " AND address.";
             $query .= $db->quoteName('deleted') . " = 0";
 
@@ -146,6 +184,63 @@ class JeproshopCustomerModelCustomer extends JeproshopModel {
         $result->last_visit =  isset($result2) ? $result2->last_visit : '';
         $result->age = (isset($result3) &&($result3->age != date('Y')) ? $result3->age : '--');
         return $result;
+    }
+
+    public function getCustomerList(){
+        jimport('joomla.html.pagination');
+        $context = JeproshopContext::getContext();
+
+        $db = JFactory::getDBO();
+        $app = JFactory::getApplication();
+        $option = $app->input->get('option');
+        $view = $app->input->get('view');
+        $context->controller->default_form_language = $context->language->lang_id;
+
+        $deleted = $app->getUserStateFromRequest($option. $view. '.deleted', 'deleted', 0, 'int');
+        $limit = $app->getUserStateFromRequest('global.list.limit', 'limit', $app->getCfg('list_limit'), 'int');
+        $limitstart = $app->getUserStateFromRequest($option. $view. '.limit_start', 'limit_start', 0, 'int');
+
+        /* Manage default params values */
+        $use_limit = true;
+        if ($limit === false)
+            $use_limit = false;
+
+        do {
+            $query = "SELECT SQL_CALC_FOUND_ROWS customer."  .  $db->quoteName('lastname'). ", customer." . $db->quoteName('firstname');
+            $query .= ", customer." . $db->quoteName('customer_id') .  ", customer."  . $db->quoteName('email') . ", customer.published AS ";
+            $query .= "published, customer." . $db->quoteName('newsletter')  . ", customer." . $db->quoteName('optin') . ", customer.";
+            $query .= $db->quoteName('date_add') . ", customer." . $db->quoteName('title') . ", shop.shop_name AS shop_name, ( SELECT SUM(";
+            $query .= "total_paid_tax_excl / conversion_rate) FROM "  . $db->quoteName('#__jeproshop_orders')  . " AS ord WHERE ord.customer_id";
+            $query .= " = customer.customer_id AND ord.shop_id IN (" . implode(',', JeproshopShopModelShop::getContextListShopIds()) . ") AND ";
+            $query .= "customer.published  = 1 ) AS total_spent, ( SELECT connection." . $db->quoteName('date_add') . " FROM " . $db->quoteName('#__jeproshop_guest');
+            $query .= " AS guest LEFT JOIN " . $db->quoteName('#__jeproshop_connection') . " AS connection ON (connection." . $db->quoteName('guest_id') . " = guest.";
+            $query .= $db->quoteName('guest_id') . ") WHERE guest." . $db->quoteName('customer_id') . " = customer." . $db->quoteName('customer_id') ;
+            $query .= " ORDER BY connection." . $db->quoteName('date_add') . " DESC LIMIT 1) AS connect ";
+            if (JeproshopSettingModelSetting::getValue('enable_b2b_mode')) {
+                $query .= ", customer." . $db->quoteName('company') . ", customer." . $db->quoteName('website');
+            }
+            $query .= "  FROM " . $db->quoteName('#__jeproshop_customer') . " AS customer LEFT JOIN " . $db->quoteName('#__jeproshop_shop');
+            $query .= " AS shop ON(customer." . $db->quoteName('shop_id') . " = shop." . $db->quoteName('shop_id') . ") WHERE 1 ";
+            $query .= JeproshopShopModelShop::addSqlRestriction(JeproshopShopModelShop::SHARE_CUSTOMER, 'customer');
+            $query .= ($deleted ? " AND customer." . $db->quoteName('deleted') . " = 0 " : " ");
+
+
+            $db->setQuery($query);
+            $total = count($db->loadObjectList());
+
+            $query .= ( $use_limit ? "LIMIT " . $limitstart . ", " . $limit : "");
+            $db->setQuery($query);
+            $customers = $db->loadObjectList();
+
+            if($use_limit == true){
+                $limitstart = (int)$limitstart -(int)$limit;
+                if($limitstart < 0){ break; }
+            }else{ break; }
+        }while(empty($customers));
+
+        $this->pagination = new JPagination($total, $limitstart, $limit);
+
+        return $customers;
     }
 
 }

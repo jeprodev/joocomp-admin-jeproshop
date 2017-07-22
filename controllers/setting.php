@@ -25,5 +25,48 @@
 defined('_JEXEC') or die('Restricted access');
 
 class JeproshopSettingController extends JeproshopController{
+    public function product(){
+        $view = $this->input->get('view', 'setting');
+        $layout = $this->input->get('layout', 'product');
 
+        $viewClass = $this->getView($view, JFactory::getDocument()->getType());
+        $viewClass->setLayout($layout);
+        $viewClass->renderProductSettingsForm();
+    }
+
+    public function customer(){
+        $view = $this->input->get('view', 'setting');
+        $layout = $this->input->get('layout', 'customer');
+
+        $viewClass = $this->getView($view, JFactory::getDocument()->getType());
+        $viewClass->setLayout($layout);
+        $viewClass->renderCustomerSettingsForm();
+    }
+
+    public function order(){
+        $view = $this->input->get('view', 'setting');
+        $layout = $this->input->get('layout', 'order');
+
+        $viewClass = $this->getView($view, JFactory::getDocument()->getType());
+        $viewClass->setLayout($layout);
+        $viewClass->renderOrderSettingForm();
+    }
+
+    public function general(){
+        $view = $this->input->get('view', 'setting');
+        $layout = $this->input->get('layout', 'general');
+
+        $viewClass = $this->getView($view, JFactory::getDocument()->getType());
+        $viewClass->setLayout($layout);
+        $viewClass->editGeneralSettings();
+    }
+
+    public function geolocation(){
+        $view = $this->input->get('view', 'setting');
+        $layout = $this->input->get('layout', 'geolocation');
+
+        $viewClass = $this->getView($view, JFactory::getDocument()->getType());
+        $viewClass->setLayout($layout);
+        $viewClass->renderGeolocationSettingsForm();
+    }
 }

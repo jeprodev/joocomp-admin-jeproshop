@@ -239,7 +239,7 @@ class JeproshopOrderViewOrder extends JeproshopViewLegacy {
         $display_warehouse = (int)JeproshopSettingModelSetting::getValue('advanced_stock_management');
         $this->assignRef('display_warehouse', $display_warehouse);
         $stockManagement = JeproshopSettingModelSetting::getValue('stock_management');
-        $this->assignRef('stock_management', $stockManagement);
+        $this->assignRef('stock_management', $stockManagement);  
     }
 
     public function addToolBar(){
@@ -252,7 +252,18 @@ class JeproshopOrderViewOrder extends JeproshopViewLegacy {
                 if($render == 'invoices'){}elseif ($render == 'returns'){} elseif ($render == 'delivery'){}elseif ($render == 'refund'){}elseif ($render == 'status'){}elseif ($render == 'messages'){}else{}
                 break;
             case 'edit' :
-                if($render == 'invoices'){}elseif ($render == 'returns'){} elseif ($render == 'delivery'){}elseif ($render == 'refund'){}elseif ($render == 'status'){}elseif ($render == 'messages'){}else{}
+                if($render == 'invoices'){}elseif ($render == 'returns'){} elseif ($render == 'delivery'){}elseif ($render == 'refund'){}elseif ($render == 'status'){}elseif ($render == 'messages'){
+
+                }else{
+
+                }
+                break;
+            case 'view' :
+                if($render == 'invoices'){}elseif ($render == 'returns'){} elseif ($render == 'delivery'){}elseif ($render == 'refund'){}elseif ($render == 'status'){}elseif ($render == 'messages'){
+
+                }else{
+                    JToolBarHelper::title(JText::_('COM_JEPROSHOP_VIEW_ORDER_TITLE'), 'jeproshop-order');
+                }
                 break;
             default :
                 if($render == 'invoices'){}elseif ($render == 'returns'){} elseif ($render == 'delivery'){}elseif ($render == 'refund'){}elseif ($render == 'status'){}elseif ($render == 'messages'){}else{}

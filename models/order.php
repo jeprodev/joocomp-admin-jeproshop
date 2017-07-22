@@ -177,29 +177,29 @@ class JeproshopOrderModelOrder extends JeproshopModel{
 
         if(!$context){ $context = JeproshopContext::getContext(); }
 
-        $select = " ord.currency_id, ord.order_id AS pdf_id, CONCAT(LEFT(customer." . $db->quoteName('firstname') . ", 1), '. ',";
-        $select .= " customer." . $db->quoteName('lastname') . ") AS " . $db->quoteName('customer_name') . ", order_status_lang.";
-        $select .= $db->quoteName('name') . " AS " . $db->quoteName('order_status_name') . ", order_status." . $db->quoteName('color');
-        $select .= ", IF((SELECT COUNT(orders.order_id) FROM " . $db->quoteName('#__jeproshop_orders') . " AS orders WHERE orders.customer_id ";
-        $select.= "= ord.customer_id) > 1, 0, 1) AS new, country_lang.name as country_name, IF(ord.valid, 1, 0) badge_success ";
+        //$select = ;
+        //$select .= ;
+        //$select =  .  ;
+        //$select .= "";
+        //$select.= "=";
 
-        $join = " LEFT JOIN " . $db->quoteName('#__jeproshop_customer') . " AS customer ON (customer." . $db->quoteName('customer_id');
-        $join .= " = ord." .  $db->quoteName('customer_id') . ") INNER JOIN " . $db->quoteName('#__jeproshop_address') . " AS address ";
-        $join .= " ON address.address_id = ord.address_delivery_id INNER JOIN " . $db->quoteName('#__jeproshop_country') . " AS country ";
-        $join .= " ON address.country_id = country.country_id INNER JOIN " . $db->quoteName('#__jeproshop_country_lang') . " AS country_lang";
-        $join .= " ON (country." . $db->quoteName('country_id'). " = country_lang." . $db->quoteName('country_id') . " AND country_lang.";
-        $join .= $db->quoteName('lang_id') . " = " .(int)$context->language->lang_id . ") LEFT JOIN " . $db->quoteName('#__jeproshop_order_status');
-        $join .= " AS order_status ON (order_status." . $db->quoteName('order_status_id') . " = ord." . $db->quoteName('current_status') . ") LEFT JOIN ";
-        $join .= $db->quoteName('#__jeproshop_order_status_lang') . " order_status_lang ON (order_status." . $db->quoteName('order_status_id') . " = ";
-        $join .= " order_status_lang." . $db->quoteName('order_status_id') . " AND order_status_lang." . $db->quoteName('lang_id') . " = ";
-        $join .= (int)$context->language->lang_id. ") ";
+        //$join = ;
+       // $join .= " = ") ;
+        //$join  ;
+        //$join .= " ";
+        /*$join = "";
+        $join .=  LEFT JOIN " . $db->quoteName('#__jeproshop_order_status');
+        /*$join .=  ")";
+        $join .=;
+        $join .= ;
+        $join .= "; */
 
 
         $limit = $app->getUserStateFromRequest('global.list.limit', 'limit', $app->getCfg('list_limit'), 'int');
         $limit_start = $app->getUserStateFromRequest($option. $view. '.limit_start', 'limit_start', 0, 'int');
         $order_by = $app->getUserStateFromRequest($option. $view. '.order_by', 'order_by', 'order_id', 'string');
         $order_way = $app->getUserStateFromRequest($option. $view. '.order_way', 'order_way', 'DESC', 'string');
-        $lang_id = $app->getUserStateFromRequest($option. $view. '.lang_id', 'lang_id', $context->language->lang_id, 'int');
+        $langId = $app->getUserStateFromRequest($option. $view. '.lang_id', 'lang_id', $context->language->lang_id, 'int');
         $deleted = false;
         /* Manage default params values */
 
@@ -209,13 +209,12 @@ class JeproshopOrderModelOrder extends JeproshopModel{
 
         $testJoin = true;
 
-        $select_shop = ", shop.shop_name AS shop_name ";
-        $join_shop = " LEFT JOIN " . $db->quoteName('#__jeproshop_shop') . " AS shop ON ord.shop_id = shop.shop_id ";
-        $where_shop = JeproshopShopModelShop::addSqlRestriction(JeproshopShopModelShop::SHARE_ORDER, 'ord', 'shop');
+        $select_shop = "";
+        $join_shop = " ";
 
-        if(JeproshopCountryModelCountry::isCurrentlyUsed()){
+        /*if(JeproshopCountryModelCountry::isCurrentlyUsed()){
             $query = "SELECT DISTINCT country.country_id, country_lang." . $db->quoteName('name') . " FROM " . $db->quoteName('#__jeproshop_orders') . " AS ord ";
-            $query .= " INNER JOIN " . $db->quoteName('#__jeproshop_address') . " AS address ON address.address_id = ord.address_delivery_id INNER JOIN " . $db->quoteName('#__jeproshop_country');
+            $query .= " INNER JOIN " . $db->quoteName('#__jeproshop_address') . " AS address ON address.address_id = ord.delivery_address_id INNER JOIN " . $db->quoteName('#__jeproshop_country');
             $query .= " AS country ON address.country_id = country.country_id INNER JOIN " . $db->quoteName('#__jeproshop_country_lang') . " AS country_lang ON (country." . $db->quoteName('country_id');
             $query.= " = country_lang." . $db->quoteName('country_id') . " AND country_lang." . $db->quoteName('lang_id') . " = " . (int)$lang_id . ") ORDER BY country_lang.name ASC";
 
@@ -223,7 +222,7 @@ class JeproshopOrderModelOrder extends JeproshopModel{
             $result = $db->loadObjectList();
 
             $shopLinkType = 'shop';
-        }
+        }*/
 
         $where = "";
         if($this->multishop_context && JeproshopShopModelShop::isTableAssociated('order')){
@@ -240,12 +239,27 @@ class JeproshopOrderModelOrder extends JeproshopModel{
         } */
 
         do{
-            $query = "SELECT SQL_CALC_FOUND_ROWS ord." . $db->quoteName('order_id') . " AS pdf_id, ord." .  $db->quoteName('reference'). ", ord." . $db->quoteName('customer_id');
+            $query = "SELECT SQL_CALC_FOUND_ROWS ord." . $db->quoteName('order_id') . ", ord." .  $db->quoteName('reference');
             if(JeproshopSettingModelSetting::getValue('enable_b2b_mode')){ $query .= ", customer." .  $db->quoteName('company'); }
-            $query .= ", " . $db->quoteName('total_paid_tax_incl') . ", " .  $db->quoteName('payment') . ", ord." . $db->quoteName('date_add') . " AS date_add, ord.";
-            $query .= $db->quoteName('currency_id') . ", order_status." . $db->quoteName('order_status_id') . ", " . $select . $select_shop;
-            $query .= " FROM " . $db->quoteName('#__jeproshop_orders') . " AS ord ". $lang_join . $join . $join_shop . " WHERE 1 " . $where ;
-            $query .= ($deleted ? " AND ord." . $db->quoteName('deleted') . " = 0 " : "") . (isset($filter) ? $filter : "") . $where_shop;
+            $query .= ", ord." . $db->quoteName('customer_id') . ", ord." . $db->quoteName('total_paid_tax_incl') . ", ord.";
+            $query .=  $db->quoteName('payment') . ", ord." . $db->quoteName('date_add') . ", CONCAT(LEFT(customer.";
+            $query .= $db->quoteName('firstname') . ", 1), '. ',customer." . $db->quoteName('lastname') . ") AS " . $db->quoteName('customer_name');
+            $query .= ", order_status_lang." . $db->quoteName('name') . " AS " . $db->quoteName('order_status_name') . ", order_status.";
+            $query .= $db->quoteName('color') . ", ord." . $db->quoteName('currency_id') . ", order_status." . $db->quoteName('order_status_id');
+            $query .= ", IF((SELECT COUNT(orders.order_id) FROM " . $db->quoteName('#__jeproshop_orders') . " AS orders WHERE orders.customer_id";
+            $query .= " =  ord.customer_id) > 1, 0, 1) AS new, country_lang.name as country_name, IF(ord.valid, 1, 0) badge_success, shop.shop_name";
+            $query .= " AS shop_name FROM " . $db->quoteName('#__jeproshop_orders') . " AS ord " . " LEFT JOIN " . $db->quoteName('#__jeproshop_order_status');
+            $query .= " AS order_status ON (order_status." . $db->quoteName('order_status_id') . " = ord." . $db->quoteName('current_status') . ")  LEFT JOIN ";
+            $query .= $db->quoteName('#__jeproshop_order_status_lang') . " order_status_lang ON (order_status." . $db->quoteName('order_status_id') . " = ";
+            $query .= " order_status_lang." . $db->quoteName('order_status_id') . " AND order_status_lang." . $db->quoteName('lang_id') . " = " . $langId;
+            $query .= ") LEFT JOIN " . $db->quoteName('#__jeproshop_customer') . " AS customer ON (customer." . $db->quoteName('customer_id') . " = ord.";
+            $query .=  $db->quoteName('customer_id') . ") INNER JOIN " . $db->quoteName('#__jeproshop_address') . " AS address ON (address.address_id = ord.";
+            $query .= "delivery_address_id) INNER JOIN " . $db->quoteName('#__jeproshop_country') . " AS country ON (address.country_id = country.country_id) INNER JOIN ";
+            $query .= $db->quoteName('#__jeproshop_country_lang') . " AS country_lang  ON (country." . $db->quoteName('country_id'). " = country_lang.";
+            $query .= $db->quoteName('country_id') . " AND country_lang." . $db->quoteName('lang_id') . " = " . $langId . ") LEFT JOIN " . $db->quoteName('#__jeproshop_shop');
+            $query .= " AS shop ON (ord.shop_id = shop.shop_id) " ;
+            $query .= " WHERE 1 = 1 " . JeproshopShopModelShop::addSqlRestriction(JeproshopShopModelShop::SHARE_ORDER, 'ord', 'shop');
+            $query .= ($deleted ? " AND ord." . $db->quoteName('deleted') . " = 0 " : "") . (isset($filter) ? $filter : "");
             $query .= (isset($group) ? $group : "") . " ORDER BY " . ((str_replace('`', '', $order_by) == 'order_id') ? "ord." : "");
             $query .= $order_by . " " . $order_way ;
 
@@ -256,12 +270,14 @@ class JeproshopOrderModelOrder extends JeproshopModel{
 
             $db->setQuery($query);
             $orders = $db->loadObjectList();
-
+         
             if($use_limit == true){
                 $limit_start = (int)$limit_start -(int)$limit;
                 if($limit_start < 0){ break; }
             }else{ break; }
         }while(empty($orders));
+
+
 
         $this->pagination = new JPagination($total, $limit_start, $limit);
         return  $orders;

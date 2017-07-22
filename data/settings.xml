@@ -69,7 +69,7 @@
     <setting name="gift_wrapping_tax" value="0" group="order" />
     <setting name="offer_recycled_wrapping" value="1" group="order" />
     <setting name="specific_price_priorities" value="shop_id;currency_id;country_id;group_id" group="price" />
-    <setting name="" value="" group="price" />
+    <setting name="ssl_enabled" value="1" group="system" />
     <setting name="price_round_mode" value="1" group="price" />
     <setting name="qty_discount_on_combination" value="0" group="price" />
     <setting name="display_discount_price" value="1" group="price" />

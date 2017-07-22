@@ -130,4 +130,55 @@ class JeproshopViewLegacy extends JViewLegacy{
         '</div>';
         return $html;
     }
+
+
+    public function renderCustomerSubMenu($current = 'customer'){
+        $html = '<div class="box_wrapper jeproshop_sub_menu_wrapper">' .
+            '<fieldset class="btn-group" >' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=customer') . '" class="btn jeproshop_sub_menu ' . (($current == 'customer' ) ? 'btn-success' : '') . '" ><i class="icon-customer" ></i> ' . ucfirst(JText::_('COM_JEPROSHOP_CUSTOMERS_LABEL')) . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=address') . '" class="btn jeproshop_sub_menu ' . (($current == 'address' ) ? 'btn-success' : '') . '" ><i class="icon-address" ></i> '. ucfirst(JText::_('COM_JEPROSHOP_ADDRESSES_LABEL')) . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=group') . '" class="btn jeproshop_sub_menu ' . (($current == 'group' ) ? 'btn-success' : '') . '" ><i class="icon-group" ></i> ' . ucfirst(JText::_('COM_JEPROSHOP_GROUPS_LABEL')) . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=cart') . '" class="btn jeproshop_sub_menu ' . (($current == 'cart' ) ? 'btn-success' : '') . '" ><i class="icon-cart" ></i> ' . ucfirst(JText::_('COM_JEPROSHOP_SHOPPING_CARTS_LABEL')) . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=customer&task=threads') . '" class="btn jeproshop_sub_menu ' . (($current == 'threads' ) ? 'btn-success' : '') . '" ><i class="icon-thread" ></i> ' .  ucfirst(JText::_('COM_JEPROSHOP_CUSTOMER_THREADS_LABEL')) . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=contact') . '" class="btn jeproshop_sub_menu ' . (($current == 'contact' ) ? 'btn-success' : '') . '" ><i class="icon-contact" ></i> ' . ucfirst(JText::_('COM_JEPROSHOP_CONTACTS_LABEL')) . '</a>' .
+            '</fieldset></div>';
+        return $html;
+    }
+
+    public function renderShippingSubMenu($active){
+
+    }
+
+    public function renderLocalisationSubMenu($current = 'country'){
+        $html = '<fieldset class="btn-group" >' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=country') . '" class="btn jeproshop_sub_menu' . (($current == 'country') ? ' btn-success' : '') . '" >' . ucfirst(JText::_('COM_JEPROSHOP_COUNTRIES_LABEL')) . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=country&task=zone') . '" class="btn jeproshop_sub_menu' . (($current == 'zones') ? ' btn-success' : '') . '" >' . ucfirst(JText::_('COM_JEPROSHOP_ZONES_LABEL')) . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=country&task=states') . '" class="btn jeproshop_sub_menu' . (($current == 'states') ? ' btn-success' : '') . '" >' . ucfirst(JText::_('COM_JEPROSHOP_STATES_LABEL')) . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_languages') . '" class="btn jeproshop_sub_menu' . (($current == 'languages') ? ' btn-success' : '') . '" >' . ucfirst(JText::_('COM_JEPROSHOP_LANGUAGES_LABEL')) . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=currency') . '" class="btn jeproshop_sub_menu' . (($current == 'currency') ? ' btn-success' : '') . '" >' . ucfirst(JText::_('COM_JEPROSHOP_CURRENCIES_LABEL')) . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=tax') . '" class="btn jeproshop_sub_menu' . (($current == 'tax') ? ' btn-success' : '') . '" >' . ucfirst(JText::_('COM_JEPROSHOP_TAXES_LABEL')) . '</a>' .
+        //$script .= '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=tax&task=rules') . '" class="btn jeproshop_sub_menu' . (($current == 'rules') ? ' btn-success' : '') . '" >' . ucfirst(JText::_('COM_JEPROSHOP_TAX_RULES_LABEL')) . '</a>';
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=tax&task=rule_group') . '" class="btn jeproshop_sub_menu' . (($current == 'rule_group') ? ' btn-success' : '') . '" >' . ucfirst(JText::_('COM_JEPROSHOP_TAX_RULES_GROUP_LABEL')) . '</a>' .
+            '</fieldset>';
+
+        return $html;
+    }
+
+    public function renderSettingSubMenu($current = 'general'){
+        $html = '<div class="form_box_wrapper jeproshop_sub_menu_wrapper">' .
+            '<fieldset class="btn-group">' .
+            	'<a href="' . JRoute::_('index.php?option=com_jeproshop&view=setting&task=general') . '" class="btn jeproshop_sub_menu' . (($current == '' || $current == 'general') ? ' btn-success' : '') . '" ><i class="icon-gears" ></i> '. JText::_('COM_JEPROSHOP_GENERAL_LABEL') . '</a>' .
+            	'<a href="' . JRoute::_('index.php?option=com_jeproshop&view=setting&task=order') . '" class="btn jeproshop_sub_menu' . (($current == 'order' ) ? ' btn-success' : '') . '" ><i class="icon-gears" ></i> ' . JText::_('COM_JEPROSHOP_ORDERS_LABEL') . '</a>' .
+            	'<a href="' . JRoute::_('index.php?option=com_jeproshop&view=setting&task=product') . '" class="btn jeproshop_sub_menu' . (($current == 'product' ) ? ' btn-success' : '') . '" ><i class="icon-gears" ></i> ' . JText::_('COM_JEPROSHOP_PRODUCTS_LABEL') . '</a>' .
+            	'<a href="' . JRoute::_('index.php?option=com_jeproshop&view=setting&task=customer') . '" class="btn jeproshop_sub_menu' . (($current == 'customer' ) ? ' btn-success' : '') . '" ><i class="icon-gears" ></i> ' . JText::_('COM_JEPROSHOP_CUSTOMERS_LABEL') . '</a>' .
+            	'<a href="' . JRoute::_('index.php?option=com_jeproshop&view=theme') . '" class="btn jeproshop_sub_menu' . (($current == 'theme' ) ? ' btn-success' : '') . '" ><i class="icon-themes' . (($current == '' ) ? ' btn-success' : '') . '" ></i> ' . JText::_('COM_JEPROSHOP_THEMES_LABEL') . '</a>' .
+            	'<a href="' . JRoute::_('index.php?option=com_jeproshop&view=image') . '" class="btn jeproshop_sub_menu' . (($current == 'image' ) ? ' btn-success' : '') . '" ><i class="icon-image" ></i> ' . JText::_('COM_JEPROSHOP_IMAGES_LABEL') . '</a>' .
+            	'<a href="' . JRoute::_('index.php?option=com_jeproshop&view=shop') . '" class="btn jeproshop_sub_menu' . (($current == 'shop' ) ? ' btn-success' : '') . '" ><i class="icon-shop" ></i> ' . JText::_('COM_JEPROSHOP_SHOP_STORE_LABEL') . '</a>' .
+            	'<a href="' . JRoute::_('index.php?option=com_jeproshop&view=setting&task=search') . '" class="btn jeproshop_sub_menu' . (($current == 'search' ) ? ' btn-success' : '') . '" ><i class="icon-search" ></i> ' . JText::_('COM_JEPROSHOP_SEARCH_LABEL'). '</a>' .
+            	'<a href="' . JRoute::_('index.php?option=com_jeproshop&view=setting&task=geolocation') . '" class="btn jeproshop_sub_menu' . (($current == 'geolocation' ) ? ' btn-success' : '') . '" ><i class="icon-globe" ></i> ' . JText::_('COM_JEPROSHOP_GEOLOCATION_LABEL') . '</a>' .
+            '</fieldset>' .
+        '</div>';
+
+        return $html;
+    }
 }

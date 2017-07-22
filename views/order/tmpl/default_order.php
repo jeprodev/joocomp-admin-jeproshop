@@ -55,12 +55,12 @@ defined('_JEXEC') or die('Restricted access');
                         <tr><td colspan="11" ><div class="alert alert-no-items" ><?php echo JText::_('JGLOBAL_NO_MATCHING_RESULTS'); ?></div></td></tr>
                     <?php } else {
                         foreach($this->orders as $index => $order){
-                            $order_link = JRoute::_('index.php?option=com_jeproshop&view=order&task=view&order_id=' . (int)$order->pdf_id . '&' . JSession::getFormToken() . '=1');
-                            $customer_link = JRoute::_('index.php?option=com_jeproshop&view=customer&task=view&customer_id=' . (int)$order->customer_id . '&' . JSession::getFormToken() . '=1');
+                            $order_link = JRoute::_('index.php?option=com_jeproshop&view=order&task=view&order_id=' . (int)$order->order_id . '&' . JeproshopTools::getOrderFormToken() . '=1');
+                            $customer_link = JRoute::_('index.php?option=com_jeproshop&view=customer&task=view&customer_id=' . (int)$order->customer_id . '&' . JeproshopTools::getCustomerToken() . '=1');
                             ?>
                             <tr class="row_<?php echo $index % 2; ?>" >
                                 <td width="1%" class="nowrap center hidden-phone"><?php echo $index + 1; ?></td>
-                                <td width="1%" class="nowrap center hidden-phone"><?php echo JHtml::_('grid.id', $index, $order->pdf_id); ?></td>
+                                <td width="1%" class="nowrap center hidden-phone"><?php echo JHtml::_('grid.id', $index, $order->order_id); ?></td>
                                 <td width="6%" class="nowrap "><a href="<?php echo $order_link ; ?>" ><?php echo $order->reference; ?></a></td>
                                 <td width="2%" class="nowrap center hidden-phone"><?php echo ($order->new ? '<i class="icon-publish" ></i>' : '<i class="icon-unpublish" ></i>'); ?></td>
                                 <td width="4%" class="nowrap hidden-phone"><?php echo $order->country_name; ?></td>

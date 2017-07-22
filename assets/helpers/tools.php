@@ -128,11 +128,49 @@ class JeproshopTools {
     }
 
     public static function getShopDomain($http = false, $entities = false){
-        
+        $domain = JeproshopShopUrlModelShopUrl::getMainShopDomain();
+        if(!$domain){
+            $domain = JeproshopTools::getHttpHost();
+        }
+
+        if($entities) {
+            $domain = htmlspecialchars($domain, ENT_COMPAT, 'UTF-8');
+        }
+
+        if($http){
+            $domain = 'http://' . $domain;
+        }
+        return $domain;
     }
     
     public static function getShopSslDomain($http = false, $entities = false){
-        
+        $domain = JeproshopShopUrlModelShopUrl::getMainShopSslDomain();
+        if(!$domain){
+            $domain = JeproshopTools::getHttpHost();
+        }
+
+        if($entities) {
+            $domain = htmlspecialchars($domain, ENT_COMPAT, 'UTF-8');
+        }
+
+        if($http){
+            $domain = (JeproshopSettingModelSetting::getValue('ssl_enabled') ? 'https://' : 'http://') . $domain;
+        } 
+        return $domain;
+    }
+
+    public static function getHttpHost($http = false, $entities = false, $ignorePort = false){
+        $host = (isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['HTTP_HOST']);
+        if ($ignorePort && $pos = strpos($host, ':')) {
+            $host = substr($host, 0, $pos);
+        }
+        if ($entities) {
+            $host = htmlspecialchars($host, ENT_COMPAT, 'UTF-8');
+        }
+        if ($http) {
+            $host = (JeproshopSettingModelSetting::getValue('ssl_enabled') ? 'https://' : 'http://') . $host;
+        }
+        return $host;
     }
 
     public static function displayWarning($message){
@@ -352,7 +390,6 @@ class JeproshopTools {
     /**
      * getOctet allow to gets the value of a configuration option in octet
      *
-     * @since 1.5.0
      * @param $option
      * @return int the value of a configuration option in octet
      */

@@ -217,4 +217,83 @@ class JeproshopCountryModelCountry extends JeproshopModel
         return JeproshopCache::retrieve($key);
     }
 
+    public function getCountries($lang_id, $published = FALSE, $contain_states = FALSE, $states_list = TRUE){
+        $app = JFactory::getApplication();
+        $db = JFactory::getDBO();
+        $option = $app->input->get('option');
+        $view = $app->input->get('view');
+
+        $limit = $app->getUserStateFromRequest('global.list.limit', 'limit', $app->getCfg('list_limit'), 'int');
+        $limitstart = $app->getUserStateFromRequest($option. $view. '.limit_start', 'limit_start', 0, 'int');
+
+        $query = "SELECT SQL_CALC_FOUND_ROWS country." . $db->quoteName('country_id') . ", country_lang." . $db->quoteName('name') . " AS name,";
+        $query .= $db->quoteName('iso_code') . ", " . $db->quoteName('call_prefix') . ",zone." . $db->quoteName('zone_id'). " AS zone,";
+        $query .= "country.published AS published, zone." . $db->quoteName('name') . " AS zone_name FROM " . $db->quoteName('#__jeproshop_country');
+        $query .= " AS country LEFT JOIN " . $db->quoteName('#__jeproshop_country_lang') . " AS country_lang ON (country_lang.";
+        $query .= $db->quoteName('country_id') . " = country." . $db->quoteName('country_id') . " AND country_lang." . $db->quoteName('lang_id');
+        $query .= " = " . $lang_id . ") LEFT JOIN " . $db->quoteName('#__jeproshop_zone') . " AS zone ON (zone." . $db->quoteName('zone_id');
+        $query .= " = country." . $db->quoteName('zone_id') .") WHERE 1 ORDER BY country." . $db->quoteName('country_id');
+        $query .= " ASC LIMIT " .$limitstart . ", " . $limit;
+
+        $db->setQuery($query);
+        $countries = $db->loadObjectList();
+
+        $total = count($countries);
+
+        $this->pagination = new JPagination($total, $limitstart, $limit);
+        return $countries;
+    }
+
+    public function getCountryList(JeproshopContext $context = NULL){
+        jimport('joomla.html.pagination');
+        $db = JFactory::getDBO();
+        $app = JFactory::getApplication();
+        $option = $app->input->get('option');
+        $view = $app->input->get('view');
+
+        if(!$context){ $context = JeproshopContext::getContext(); }
+
+        $limit = $app->getUserStateFromRequest('global.list.limit', 'limit', $app->getCfg('list_limit'), 'int');
+        $limitStart = $app->getUserStateFromRequest($option. $view. '.limit_start', 'limit_start', 0, 'int');
+        $langId = $app->getUserStateFromRequest($option. $view. '.lang_id', 'lang_id', $context->language->lang_id, 'int');
+        $shop_id = $app->getUserStateFromRequest($option. $view. '.shop_id', 'shop_id', $context->shop->shop_id, 'int');
+        $shop_group_id = $app->getUserStateFromRequest($option. $view. '.shop_group_id', 'shop_group_id', $context->shop->shop_group_id, 'int');
+        $category_id = $app->getUserStateFromRequest($option. $view. '.cat_id', 'cat_id', 0, 'int');
+        $order_by = $app->getUserStateFromRequest($option. $view. '.order_by', 'order_by', 'date_add', 'string');
+        $orderWay = $app->getUserStateFromRequest($option. $view. '.order_way', 'order_way', 'ASC', 'string');
+        $published = $app->getUserStateFromRequest($option. $view. '.published', 'published', 0, 'string');
+        $productAttribute_id = $app->getUserStateFromRequest($option. $view. '.product_attribute_id', 'product_attribute_id', 0, 'int');
+
+        $useLimit = true;
+        if ($limit === false)
+            $useLimit = false;
+
+        do{
+            $query = "SELECT SQL_CALC_FOUND_ROWS country." . $db->quoteName('country_id') . ", country_lang." . $db->quoteName('name');
+            $query .= " AS name, country." . $db->quoteName('iso_code') . ", country." . $db->quoteName('call_prefix') . ", country.";
+            $query .= $db->quoteName('published') . ",zone." . $db->quoteName('zone_id'). " AS zone, zone." . $db->quoteName('name');
+            $query .= " AS zone_name FROM " . $db->quoteName('#__jeproshop_country') . " AS country LEFT JOIN ";
+            $query .= $db->quoteName('#__jeproshop_country_lang') . " AS country_lang ON (country_lang." . $db->quoteName('country_id');
+            $query .= " = country." . $db->quoteName('country_id') . " AND country_lang." . $db->quoteName('lang_id') . " = " . $langId;
+            $query .= ") LEFT JOIN " . $db->quoteName('#__jeproshop_zone') . " AS zone ON (zone." . $db->quoteName('zone_id') . " = country.";
+            $query .= $db->quoteName('zone_id') .") WHERE 1 ORDER BY country." . $db->quoteName('country_id');
+
+            $db->setQuery($query);
+            $total = count($db->loadObjectList());
+
+            $query .= (($useLimit === true) ? " LIMIT " .(int)$limitStart . ", " .(int)$limit : "");
+
+            $db->setQuery($query);
+            $countries = $db->loadObjectList();
+
+            if($useLimit == true){
+                $limitStart = (int)$limitStart -(int)$limit;
+                if($limitStart < 0){ break; }
+            }else{ break; }
+        }while(empty($countries));
+
+        $this->pagination = new JPagination($total, $limitStart, $limit);
+        return $countries;
+    }
+
 }

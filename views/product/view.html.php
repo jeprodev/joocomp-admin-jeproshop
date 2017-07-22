@@ -318,7 +318,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
         $specificPricePriorities = JeproshopSpecificPriceModelSpecificPrice::getPriority((int)$this->product->product_id);
         $app = JFactory::getApplication();
         $taxRate = $this->product->getTaxesRate(JeproshopAddressModelAddress::initialize());
-
+      
         $this->assignRef('default_currency', $defaultCurrency);
         $this->assignRef('specific_prices', $specificPrices);
         $this->assignRef('specific_price_priorities', $specificPricePriorities);

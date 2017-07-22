@@ -95,7 +95,6 @@ class JeproshopSpecificPriceModelSpecificPrice extends JeproshopModel{
         }else{
             $priorities = $priorities->priority;
         }
-
         return preg_split('/;/', $priorities);
     }
 
