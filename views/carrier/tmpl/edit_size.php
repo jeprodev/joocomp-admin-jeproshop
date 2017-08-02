@@ -26,9 +26,9 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <div class="panel" id="jform_carrier_size_setting" >
     <div class="panel-title" ><?php echo JText::_('COM_JEPROSHOP_SIZE_SETTINGS_LABEL'); ?></div>
-    <div class="panel-content well" >
+    <div class="panel-content" >
         <div class="control-group" >
-            <div class="control-label" ><label title="<?php echo JText::_('COM_JEPROSHOP_MAX_WIDTH_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_MAX_WIDTH_LABEL'); ?></label></div>
+            <div class="control-label" ><label for="jform_max_width" title="<?php echo JText::_('COM_JEPROSHOP_MAX_WIDTH_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_MAX_WIDTH_LABEL'); ?></label></div>
             <div class="controls" >
                 <div class="input-append" >
                     <input type="text" id="jform_max_width" name="jform[max_width]" value="<?php echo $this->carrier->max_width; ?>" class="input-small" />
@@ -37,7 +37,7 @@ defined('_JEXEC') or die('Restricted access');
             </div>
         </div>
         <div class="control-group" >
-            <div class="control-label" ><label title="<?php echo JText::_('COM_JEPROSHOP_MAX_HEIGHT_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_MAX_HEIGHT_LABEL'); ?></label></div>
+            <div class="control-label" ><label for="jform_max_height" title="<?php echo JText::_('COM_JEPROSHOP_MAX_HEIGHT_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_MAX_HEIGHT_LABEL'); ?></label></div>
             <div class="controls" >
                 <div class="input-append" >
                     <input type="text" id="jform_max_height" name="jform[max_height]" value="<?php echo $this->carrier->max_height; ?>" class="input-small" />
@@ -46,7 +46,7 @@ defined('_JEXEC') or die('Restricted access');
             </div>
         </div>
         <div class="control-group" >
-            <div class="control-label" ><label title="<?php echo JText::_('COM_JEPROSHOP_MAX_DEPTH_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_MAX_DEPTH_LABEL'); ?></label></div>
+            <div class="control-label" ><label for="jform_max_depth" title="<?php echo JText::_('COM_JEPROSHOP_MAX_DEPTH_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_MAX_DEPTH_LABEL'); ?></label></div>
             <div class="controls" >
                 <div class="input-append" >
                     <input type="text" id="jform_max_depth" name="jform[max_depth]" value="<?php echo $this->carrier->max_depth; ?>" class="input-small" />
@@ -55,7 +55,7 @@ defined('_JEXEC') or die('Restricted access');
             </div>
         </div>
         <div class="control-group" >
-            <div class="control-label" ><label title="<?php echo JText::_('COM_JEPROSHOP_MAX_WEIGHT_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_MAX_WEIGHT_LABEL'); ?></label></div>
+            <div class="control-label" ><label for="jform_max_weight" title="<?php echo JText::_('COM_JEPROSHOP_MAX_WEIGHT_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_MAX_WEIGHT_LABEL'); ?></label></div>
             <div class="controls" >
                 <div class="input-append" >
                     <input type="text" id="jform_max_weight" name="jform[max_weight]" class="input-small" value="<?php echo $this->carrier->max_weight; ?>" />
@@ -66,7 +66,7 @@ defined('_JEXEC') or die('Restricted access');
         <div class="control-group" >
             <div class="control-label" ><label title="<?php echo JText::_('COM_JEPROSHOP_MARK_THE_GROUPS_THAT_ALLOWED_ACCESS_TO_THIS_CARRIER_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_ASSOCIATED_GROUPS_LABEL'); ?></label></div>
             <div class="controls" >
-                <table class="table table-bordered" style="width:500px;">
+                <table class="table table-bordered" style="width:90%;">
                     <thead>
                         <tr>
                             <th class="nowrap" width="1%" ><?php echo JHtml::_('grid.checkall'); ?></th>

@@ -25,5 +25,33 @@
 defined('_JEXEC') or die('Restricted access');
 
 class JeproshopAddressController extends JeproshopController{
+    public function search(){
+        $app = JFactory::getApplication();
+        $useAjax = $app->input->getInt('use_ajax');
+        $tab = $app->input->getWord('tab');
+        $jsonData = array("success" =>false, "found" => false);
 
+        if(isset($tab) && $tab != ''){
+            switch ($tab){
+                case 'names' :
+                    $email = $app->input->get('email');
+                    $customers = JeproshopCustomerModelCustomer::searchCustomerByValue($email);
+                    if(!empty($customers)){
+                        $customer = $customers[0];
+                        $jsonData = array(
+                            "success" => true, "found" => true,
+                            "info" => $customer->firstname . '_' . $customer->lastname . '_' . $customer->company . '_' . $customer->email
+                        );
+                    }
+                    break;
+            }
+        }
+
+        if($useAjax){
+            $document = JFactory::getDocument();
+            $document->setMimeEncoding('application/json');
+            echo json_encode($jsonData);
+            $app->close();
+        }
+    }
 }

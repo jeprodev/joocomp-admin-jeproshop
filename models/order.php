@@ -729,5 +729,62 @@ class JeproshopOrderModelOrder extends JeproshopModel{
         return $warehouse_list;
     }
 
+    /**
+     * Get customer orders
+     *
+     * @param integer $customerId Customer id
+     * @param boolean $showHiddenStatus Display or not hidden order statuses
+     * @param JeproshopContext $context
+     * @return array Customer orders
+     */
+    public static function getCustomerOrders($customerId, $showHiddenStatus = false, JeproshopContext $context = null){
+        if (!$context){ $context = JeproshopContext::getContext(); }
+        $db = JFactory::getDBO();
 
+        $query = "SELECT ord.*, (SELECT SUM(order_detail." . $db->quoteName('product_quantity') . ") FROM " . $db->quoteName('#__jeproshop_order_detail');
+        $query .= " AS order_detail WHERE order_detail." . $db->quoteName('order_id') . " = ord." . $db->quoteName('order_id') . ") nb_products FROM ";
+        $query .= $db->quoteName('#__jeproshop_orders') . " AS ord WHERE ord." . $db->quoteName('customer_id') . " = " .(int)$customerId . " GROUP BY ord.";
+        $query .= $db->quoteName('order_id') . " ORDER BY ord." . $db->quoteName('date_add') . " DESC";
+
+        $db->setQuery($query);
+        $res = $db->loadObjectList();
+        if (!$res)
+            return array();
+
+        foreach($res as $key => $val){
+            $query = "SELECT order_status." . $db->quoteName('order_status_id') . ", order_status_lang." . $db->quoteName('name') . " AS order_status, order_status.";
+            $query .= $db->quoteName('invoice') . ", order_status." . $db->quoteName('color') . " as order_status_color FROM ";
+            $query .= $db->quoteName('#__jeproshop_order_history') . " AS order_history LEFT JOIN " . $db->quoteName('#__jeproshop_order_status') . " AS order_status ";
+            $query .= "ON (order_status." . $db->quoteName('order_status_id') . " = order_history." . $db->quoteName('order_status_id') . ") INNER JOIN ";
+            $query .= $db->quoteName('#__jeproshop_order_status_lang') . " AS order_status_lang ON (order_status." . $db->quoteName('order_status_id') . " = order_status_lang.";
+            $query .= $db->quoteName('order_status_id') . " AND order_status_lang." . $db->quoteName('lang_id') . " = " . (int)$context->language->lang_id . ") WHERE order_history.";
+            $query .= $db->quoteName('order_id') . " = " . (int)($val->order_id).(!$showHiddenStatus ? " AND order_status." . $db->quoteName('hidden') . " != 1" : "");
+            $query .= " ORDER BY order_history." . $db->quoteName('date_add') . " DESC, order_history." . $db->quoteName('order_history_id') . " DESC LIMIT 1";
+
+            $db->setQuery($query);
+            $res2 = $db->loadObjectList();
+
+            if ($res2){
+                $res[$key] = array_merge($res[$key], $res2[0]);
+            }
+        }
+        return $res;
+    }
+
+    /**
+     * Get an order by its cart id
+     *
+     * @param integer $cartId JeproshopCartModelCart id
+     * @return array Order details
+     */
+    public static function getOrderIdByCartId($cartId){
+        $db = JFactory::getDBO();
+        $query = "SELECT " . $db->quoteName('order_id') . " FROM " . $db->quoteName('#__jeproshop_orders') . " WHERE " ;
+        $query .= $db->quoteName('cart_id') . " = " . (int)($cartId) . JeproshopShopModelShop::addSqlRestriction();
+
+        $db->setQuery($query);
+        $result = $db->loadOject();
+
+        return isset($result->order_id) ? $result->order_id : 0;
+    }
 }

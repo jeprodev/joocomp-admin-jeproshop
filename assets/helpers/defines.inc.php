@@ -116,7 +116,7 @@ if(!defined('COM_JEPROSHOP_SUPPLIER_IMAGE_DIR')){
 
 if(!defined('COM_JEPROSHOP_CARRIER_IMAGE_DIR')){
     jimport('joomla.filesystem.folder');
-    $shippingImageDirectory = JPATH_SITE . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR . 'com_jeproshop' . DIRECTORY_SEPARATOR;
+    $shippingImageDirectory = JPATH_SITE . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR . 'com_jeproshop' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'carriers' . DIRECTORY_SEPARATOR;
     if(!JFolder::exists($shippingImageDirectory)){
         JFolder::create($shippingImageDirectory);
     }
@@ -149,6 +149,16 @@ if(!defined('COM_JEPROSHOP_DEVELOPER_IMAGE_DIR')){
     }
     define('COM_JEPROSHOP_DEVELOPER_IMAGE_DIR', $developerImageDirectory);
 }
+
+if(!defined('COM_JEPROSHOP_TMP_IMAGE_DIR')){
+    jimport('joomla.filesystem.folder');
+    $tmpImageDirectory = JPATH_SITE . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'com_jeproshop' . DIRECTORY_SEPARATOR . 'images';
+    if(!JFolder::exists($tmpImageDirectory)){
+        JFolder::create($tmpImageDirectory);
+    }
+    define('COM_JEPROSHOP_TMP_IMAGE_DIR', $tmpImageDirectory);
+}
+
 define('COM_JEPROSHOP_THEME_GENDERS_DIR', '');
 define('COM_JEPROSHOP_MAGIC_QUOTES_GPC', get_magic_quotes_gpc());
 
@@ -169,3 +179,4 @@ define('COM_JEPROSHOP_ROUND_HALF_PRICE', 2);
 
 define('COM_JEPROSHOP_GEOLOCATION_NO_CATALOG', 1);
 define('COM_JEPROSHOP_GEOLOCATION_NO_ORDER', 3);
+

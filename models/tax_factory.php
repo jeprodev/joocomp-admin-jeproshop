@@ -34,15 +34,15 @@ class JeproshopTaxManagerFactory
      * @param int $type
      */
     public static function getManager(JeproshopAddressModelAddress $address, $type){
-        $cache_id = JeproshopTaxManagerFactory::getCacheKey($address);
-        if(!isset(JeproshopTaxManagerFactory::$cache_tax_manager[$cache_id])){
-            $tax_manager = JeproshopTaxManagerFactory::getTaxManager($address, $type);
-            if(!($tax_manager instanceof JeproshopTaxManagerInterface)){
-                $tax_manager = new JeproshopTaxRulesTaxManager($address, $type);
+        $cacheKey = JeproshopTaxManagerFactory::getCacheKey($address);
+        if(!isset(JeproshopTaxManagerFactory::$cache_tax_manager[$cacheKey])){
+            $taxManager = JeproshopTaxManagerFactory::getTaxManager($address, $type);
+            if(!($taxManager instanceof JeproshopTaxManagerInterface)){
+                $taxManager = new JeproshopTaxRulesTaxManager($address, $type);
             }
-            JeproshopTaxManagerFactory::$cache_tax_manager[$cache_id] = $tax_manager;
+            JeproshopTaxManagerFactory::$cache_tax_manager[$cacheKey] = $taxManager;
         }
-        return JeproshopTaxManagerFactory::$cache_tax_manager[$cache_id];
+        return JeproshopTaxManagerFactory::$cache_tax_manager[$cacheKey];
     }
 
     public static function getTaxManager(JeproshopAddressModelAddress $address, $type){
@@ -73,7 +73,7 @@ class JeproshopTaxRulesTaxManager  implements JeproshopTaxManagerInterface {
     /**
      *
      * @param JeproshopAddressModelAddress $address
-     * @param mixed An additional parameter for the tax manager (ex: tax rules id for JeproshopTaxRuleTaxManager)
+     * @param mixed an additional parameter for the tax manager (ex: tax rules id for JeproshopTaxRuleTaxManager)
      */
     public function __construct(JeproshopAddressModelAddress $address, $type) {
         $this->address = $address;
@@ -115,21 +115,23 @@ class JeproshopTaxRulesTaxManager  implements JeproshopTaxManagerInterface {
             $postcode = $this->address->postcode;
         }
 
-        $cache_id = (int)$this->address->country_id . '_' . (int)$this->address->state_id .'_' . $postcode . '_' . (int)$this->type;
-        if (!JeproshopCache::isStored($cache_id)){
+        $cacheKey = (int)$this->address->country_id . '_' . (int)$this->address->state_id .'_' . $postcode . '_' . (int)$this->type;
+        if (!JeproshopCache::isStored($cacheKey)){
             $db = JFactory::getDBO();
 
-            $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_tax_rule') . " WHERE " . $db->quoteName('country_id') . " = " . (int)$this->address->country_id;
-            $query .= " AND " . $db->quoteName('tax_rules_group_id') . " = " . (int)$this->type . " AND " . $db->quoteName('state_id') . " IN (0, " . (int)$this->address->state_id;
-            $query .= ") AND ( " . $db->quote($db->escape($postcode)) . " BETWEEN " . $db->quoteName('zipcode_from') . " AND " . $db->quoteName('zipcode_to') . " OR (";
-            $query .= $db->quote('zipcode_to') . " = 0 AND " . $db->quoteName('zipcode_from') . " IN(0, " . $db->quote($db->escape($postcode)) . "))) ORDER BY ";
-            $query .= $db->quoteName('zipcode_from') . " DESC, " . $db->quoteName('zipcode_to') . " DESC, " . $db->quoteName('state_id') . " DESC, " . $db->quoteName('country_id') . " DESC" ;
+            $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_tax_rule') . " WHERE " . $db->quoteName('country_id');
+            $query .= " = " . (int)$this->address->country_id . " AND " . $db->quoteName('tax_rules_group_id') . " = ";
+            $query .= (int)$this->type . " AND " . $db->quoteName('state_id') . " IN (0, " . (int)$this->address->state_id;
+            $query .= ") AND ( " . $db->quote($db->escape($postcode)) . " BETWEEN " . $db->quoteName('zipcode_from') . " AND ";
+            $query .= $db->quoteName('zipcode_to') . " OR (" . $db->quote('zipcode_to') . " = 0 AND " . $db->quoteName('zipcode_from');
+            $query .= " IN(0, " . $db->quote($db->escape($postcode)) . "))) ORDER BY " . $db->quoteName('zipcode_from') ;
+            $query .= " DESC, " . $db->quoteName('zipcode_to') . " DESC, " . $db->quoteName('state_id') . " DESC, " . $db->quoteName('country_id') . " DESC" ;
 
             $db->setQuery($query);
             $results = $db->loadObjectList();
 
             $behavior = 0;
-            $first_row = true;
+            $firstRow = true;
 
             foreach ($results as $result){
                 $tax = new JeproshopTaxModelTax((int)$result->tax_id);
@@ -137,21 +139,17 @@ class JeproshopTaxRulesTaxManager  implements JeproshopTaxManagerInterface {
                 $taxes[] = $tax;
 
                 // the applied behavior correspond to the most specific rules
-                if ($first_row){
+                if ($firstRow){
                     $behavior = $result->behavior;
-                    $first_row = false;
+                    $firstRow = false;
                 }
 
                 if ($result->behavior == 0){ break; }
             }
-            JeproshopCache::store($cache_id, new JeproshopTaxCalculator($taxes, $behavior));
+            JeproshopCache::store($cacheKey, new JeproshopTaxCalculator($taxes, $behavior));
         }
-        return JeproshopCache::retrieve($cache_id);
+        return JeproshopCache::retrieve($cacheKey);
     }
-
-    protected static $cache_tax_manager;
-
-    
 
     public static function getTaxManager(JeproshopAddressModelAddress $address, $type){
         return NULL;
@@ -181,15 +179,15 @@ class JeproshopTaxCalculator
 
     public $computation_method;
 
-    public function __construct(array $taxes = array(), $computation_method = JeproshopTaxCalculator::COMBINE_METHOD) {
-        // sanity check
+    public function __construct(array $taxes = array(), $computationMethod = JeproshopTaxCalculator::COMBINE_METHOD) {
+        /*/ sanity check
         foreach($taxes as $tax){
             if(!($tax instanceof JeproshopTaxModelTax)){
                 JError::raiseError(500, JText::_('COM_JEPROSHOP_INVALID_TAX_OBJECT_MESSAGE'));
             }
-        }
+        }*/
         $this->taxes = $taxes;
-        $this->computation_method = (int)$computation_method;
+        $this->computation_method = (int)$computationMethod;
     }
 
     public function getTotalRate(){
@@ -212,11 +210,32 @@ class JeproshopTaxCalculator
     /**
      * Compute and remove the taxes to the specified price
      *
-     * @param float $price_ti price tax inclusive
+     * @param float $priceTaxIncluded price tax inclusive
      * @return float price without taxes
      */
-    public function removeTaxes($price_ti){
-        return $price_ti / (1 + $this->getTotalRate() / 100);
+    public function removeTaxes($priceTaxIncluded){
+        return $priceTaxIncluded / (1 + $this->getTotalRate() / 100);
+    }
+
+    /**
+     * Compute and add the taxes to the specified price
+     *
+     * @param float $priceTaxExcluded price tax excluded
+     * @return float price with taxes
+     */
+    public function addTaxes($priceTaxExcluded){
+        return $priceTaxExcluded * (1 + ($this->getTotalRate() / 100));
+    }
+
+    public function getTaxesName(){
+        $name = '';
+        foreach ($this->taxes as $tax) {
+            $name .= $tax->name[(int)JeproshopContext::getContext()->language->lang_id].' - ';
+        }
+
+        $name = rtrim($name, ' - ');
+
+        return $name;
     }
 }
 

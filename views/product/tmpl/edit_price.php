@@ -23,7 +23,7 @@
  */
 // no direct access
 defined('_JEXEC') or die('Restricted access');
-
+$app = JFactory::getApplication();
 ?>
 <div class="form-box-wrapper"  id="product-price" >
     <div id="step-price" >
@@ -55,9 +55,9 @@ defined('_JEXEC') or die('Restricted access');
                     <div class="controls">
                         <input type="hidden" id="jform_real_price_tax_excluded" name="price_field[price]" value=""/>
                         <div class="input-append" >
-                            <?php if($this->currency->prefix != ""){ ?><button type="button" class="btn" id="jform_img" ><?php echo $this->currency->prefix; ?></button><?php } ?>
+                            <?php if($this->currency->prefix != ""){ ?><button type="button" class="btn"  ><?php echo $this->currency->prefix; ?></button><?php } ?>
                             <input type="text" maxlength="14" id="jform_price_tax_excluded" name="price_field[price_displayed]" value="" class="price-box" />
-                            <?php if($this->currency->suffix != ""){ ?><button type="button" class="btn" id="jform_img" ><?php echo $this->currency->suffix; ?></button><?php } ?>
+                            <?php if($this->currency->suffix != ""){ ?><button type="button" class="btn" ><?php echo $this->currency->suffix; ?></button><?php } ?>
                         </div>
                         <p class="small" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_PRE_TAX_RETAIL_PRICE_DESCRIPTION'); ?></p>
                     </div>
@@ -72,10 +72,10 @@ defined('_JEXEC') or die('Restricted access');
                             <select  name="price_field[tax_rules_group_id]" id="jform_tax_rules_group_id" <?php if($this->tax_exclude_tax_option){ ?> disabled="disabled" <?php } ?> >
                                 <option value="0"  ><?php echo JText::_('COM_JEPROSHOP_NO_TAX_LABEL'); ?></option>
                                 <?php foreach($this->tax_rules_groups as $tax_rules_group){ ?>
-                                    <option value="<?php echo $tax_rules_group->tax_rules_group_id; ?>" <?php if($this->product->getTaxRulesGroupId() == $tax_rules_group->tax_rules_group_id){ ?>selected="selected" <?php } ?> ><?php echo $tax_rules_group->name; ?></option>
-                                <?php } ?>
+                                    <option value="<?php echo $tax_rules_group->tax_rules_group_id; ?>" <?php if($this->product->getTaxRulesGroupId() == $tax_rules_group->tax_rules_group_id){ ?> selected="selected" <?php } ?> ><?php echo $tax_rules_group->name; ?></option>
+                                <?php }   ?>
                             </select>
-                            <a class="button btn confirm_leave" href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=tax&task=add_rules_group&product_id=' . $this->product->product_id); ?>" >
+                            <a class="button btn confirm_leave" href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=tax&task=add_rules_group&product_id=' . $this->product->product_id . '&' . JeproshopTools::getTaxToken() . '=1'); ?>" >
                                 <i class="icon-plus" ></i> &nbsp;<?php echo JText::_('COM_JEPROSHOP_CREATE_LABEL'); ?>
                             </a>
                             <?php if($this->tax_exclude_tax_option){ ?>
@@ -163,9 +163,11 @@ defined('_JEXEC') or die('Restricted access');
                         </span>
                     </div>
                 </div>
-                <div class="panel-footer">
+                <div class="control-group">
+                    <div class="controls" >
                     <a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=product'); ?>" class="btn btn-default"><i class="process-icon-cancel"></i> <?php echo JText::_('COM_JEPROSHOP_CANCEL_LABEL'); ?></a>
                     <button type="submit" name="save_price" class="btn btn-default pull-right"  onclick="Joomla.submitbutton('save_price'); " ><i class="process-icon-save"></i> <?php echo JText::_('COM_JEPROSHOP_SAVE_AND_STAY_LABEL'); ?></button>
+                    </div>
                 </div>
             </div>
         </div>

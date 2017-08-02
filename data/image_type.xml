@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<types>
+    <type name="default_large" width="450" heigth="450" product="1" category="1" manufacturer="1" supplier="1" developer="1" scene="1" store="1" />
+    <type name="default_cart" width="36" heigth="36" product="1" category="0" manufacturer="0" supplier="0" developer="0" scene="0" store="0" />
+    <type name="default_thick_box" width="800" heigth="800" product="1" category="0" manufacturer="0" supplier="0" developer="0" scene="" store="0" />
+    <type name="default_small" width="98" heigth="98" product="1" category="1" manufacturer="1" supplier="1" developer="1" scene="1" store="1" />
+    <type name="default_home" width="250" heigth="250" product="1" category="0" manufacturer="0" supplier="0" developer="0" scene="0" store="0" />
+</types>
+

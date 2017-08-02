@@ -35,7 +35,7 @@ class JeproshopCartRuleModelCartRule extends JeproshopModel
     const JEPROSHOP_FILTER_ACTION_GIFT = 4;
     const JEPROSHOP_FILTER_ACTION_ALL_NO_CAP = 5;
 
-    const BO_ORDER_CODE_PREFIX = 'BO_ORDER_';
+    const JEPROSHOP_BO_ORDER_CODE_PREFIX = 'BO_ORDER_';
 
     /* This variable controls that a free gift is offered only once, even when multi-shipping is activated and the same product is delivered in both addresses */
     protected static $only_one_gift = array();
@@ -85,5 +85,95 @@ class JeproshopCartRuleModelCartRule extends JeproshopModel
             $is_feature_active = (bool)JeproshopSettingModelSetting::getValue('cart_rule_feature_active');
         }
         return $is_feature_active;
+    }
+
+    /**
+     * @static
+     * @param $langId
+     * @param $customerId
+     * @param bool $published
+     * @param bool $includeGeneric
+     * @param bool $inStock
+     * @param JeproshopCartModelCart|null $cart
+     * @return array
+     */
+    public static function getCustomerCartRules($langId, $customerId, $published = false, $includeGeneric = true, $inStock = false, JeproshopCartModelCart $cart = null){
+        if (!JeproshopCartRuleModelCartRule::isFeaturePublished()){
+            return array();
+        }
+
+        $db = JFactory::getDBO();
+
+        $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_cart_rule') . " AS cart_rule LEFT JOIN " . $db->quoteName('#__jeproshop_cart_rule_lang');
+        $query .= " AS cart_rule_lang ON (cart_rule." .  $db->quoteName('cart_rule_id') . " = cart_rule_lang." . $db->quoteName('cart_rule_id') . " AND ";
+        $query .= "cart_rule_lang." . $db->quoteName('lang_id') . " = " . (int)$langId . ") WHERE ( cart_rule." . $db->quoteName('customer_id') . " = ";
+        $query .= (int)$customerId . " OR cart_rule.group_restriction = 1 " . ($includeGeneric ?  "OR cart_rule." . $db->quoteName('customer_id') . " = 0" : "");
+        $query .= ") AND cart_rule.date_from < '" . date('Y-m-d H:i:s') . "' AND cart_rule.date_to > '" . date('Y-m-d H:i:s') . "'";
+        $query .= ($published ? " AND cart_rule." . $db->quoteName('published') . " = 1" : ""). ($inStock ? " AND cart_rule." . $db->quoteName('quantity') . " > 0" :  "");
+
+        $db->setQuery($query);
+        $result = $db->loadObjectList();
+
+        // Remove cart rule that does not match the customer groups
+        $customerGroups = JeproshopCustomerModelCustomer::getStaticGroups($customerId);
+        foreach ($result as $key => $cart_rule){
+            if ($cart_rule->group_restriction){
+                $query = "SELECT " . $db->quoteName('group_id') . " FROM " . $db->quoteName('#__jeproshop_cart_rule_group');
+                $query .= " WHERE " . $db->quoteName('cart_rule_id') . " = " . (int)$cart_rule->cart_rule_id;
+                $db->setQuery($query);
+                $cartRuleGroups = $db->loadObjectList();
+                foreach ($cartRuleGroups as $cartRuleGroup){
+                    if (in_array($cartRuleGroup->group_id, $customerGroups)){
+                        continue 2;
+                    }
+                }
+                unset($result[$key]);
+            }
+        }
+
+        foreach ($result as &$cart_rule){
+            if ($cart_rule->quantity_per_user){
+                $quantity_used = JeproshopOrderModelOrder::getCustomerDiscounts((int)$customerId, (int)$cart_rule->cart_rule_id);
+                if (isset($cart) && isset($cart->cart_id)){
+                    $quantity_used += $cart->getDiscountsCustomer((int)$cart_rule->cart_rule_id);
+                }
+                $cart_rule->quantity_for_user = $cart_rule->quantity_per_user - $quantity_used;
+            }else{
+                $cart_rule->quantity_for_user = 0;
+            }
+        }
+        unset($cart_rule);
+
+        foreach ($result as $cart_rule){
+            if ($cart_rule->shop_restriction){
+                $query = "SELECT shop_id FROM " . $db->quoteName('#__jeproshop_cart_rule_shop') . " WHERE cart_rule_id = " . (int)$cart_rule->cart_rule_id;
+                $db->setQuery($query);
+                $cartRuleShops = $db->loadObjectList();
+                foreach ($cartRuleShops as $cartRuleShop){
+                    if (JeproshopShopModelShop::isFeatureActive() && ($cartRuleShop->shop_id == JeproshopContext::getContext()->shop->shop_id)){
+                        continue 2;
+                    }
+                }
+                unset($result[$key]);
+            }
+        }
+
+        // RetroCompatibility with 1.4 discounts
+        foreach ($result as &$cart_rule){
+            $cart_rule->value = 0;
+            $cart_rule->minimal = JeproshopTools::convertPriceFull($cart_rule->minimum_amount, new JeproshopCurrencyModelCurrency($cart_rule->minimum_amount_currency), JeproshopContext::getContext()->currency);
+            $cart_rule->cumulable = !$cart_rule->cart_rule_restriction;
+            $cart_rule->discount_type_id = false;
+            if ($cart_rule->free_shipping){
+                $cart_rule->discount_type_id = Discount::FREE_SHIPPING;
+            }elseif ($cart_rule->reduction_percent > 0){
+                $cart_rule->discount_type_id = Discount::PERCENT;
+                $cart_rule->value = $cart_rule->reduction_percent;
+            }elseif ($cart_rule->reduction_amount > 0){
+                $cart_rule->discount_type_id = Discount::AMOUNT;
+                $cart_rule->value = $cart_rule->reduction_amount;
+            }
+        }
+        return $result;
     }
 }

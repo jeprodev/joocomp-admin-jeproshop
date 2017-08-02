@@ -32,10 +32,10 @@ class JeproshopCategoryController extends JeproshopController{
         $context = JeproshopContext::getContext();
 
         parent::initialize();
-        $category_id = $app->input->get('category_id');
+        $categoryId = $app->input->get('category_id');
         $task = $app->input->get('task');
-        if($category_id && $task != 'delete'){
-            $this->category = new JeproshopCategoryModelCategory($category_id);
+        if($categoryId && $task != 'delete'){
+            $this->category = new JeproshopCategoryModelCategory($categoryId);
         }else{
             if(JeproshopShopModelShop::isFeaturePublished() && JeproshopShopModelShop::getShopContext() == JeproshopShopModelShop::CONTEXT_SHOP){
                 $this->category = new JeproshopCategoryModelCategory($context->shop->category_id);

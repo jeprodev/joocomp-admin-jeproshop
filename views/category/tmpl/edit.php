@@ -24,6 +24,7 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
+$app = JFactory::getApplication();
 ?>
 <form action="<?php echo JRoute::_('index.php?option=com_jeproshop&view=category'); ?>" method="post" name="adminForm" id="adminForm" enctype="multipart/form-data" class="form-horizontal" >
     <?php if(!empty($this->side_bar)){ ?>
@@ -131,5 +132,8 @@ defined('_JEXEC') or die('Restricted access');
 
             </div>
         </div>
+        <input type="hidden" name="product_id" value="<?php echo $this->category->category_id; ?>" />
+        <input type="hidden" name="return" value="<?php echo $app->input->get('return'); ?>" />
+        <?php echo JHtml::_('form.token'); ?>
     </div>
 </form>

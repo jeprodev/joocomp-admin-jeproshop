@@ -81,8 +81,6 @@ defined('_JEXEC') or die('Restricted access');
                             <input type="text" id="jform_upc" maxlength="12" name="information[upc]" value="<?php echo htmlentities($this->product->upc); ?>" />
                             <p class="help-box small" ><?php echo JText::_('COM_JEPROSHOP_US_CANADA_LABEL'); ?></p></div>
                     </div>
-                </div>
-                <div class="half-wrapper right" >
                     <div class="control-group">
                         <div class="control-label">
                             <?php echo $this->productMultiShopCheckbox('published', 'radio'); ?>
@@ -95,6 +93,8 @@ defined('_JEXEC') or die('Restricted access');
                             </fieldset>
                         </div>
                     </div>
+                </div>
+                <div class="half-wrapper right" >
                     <div class="control-group">
                         <div class="control-label">
                             <?php echo $this->productMultiShopCheckbox('redirect_type', 'radio'); ?>
@@ -192,7 +192,7 @@ defined('_JEXEC') or die('Restricted access');
                     <div class="control-label">
                         <?php echo $this->productMultiShopCheckbox('description', 'tinymce'); ?>
                         <label title="<?php echo JText::_('COM_JEPROSHOP_PRODUCT_DESCRIPTION_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_DESCRIPTION_LABEL'); ?><br /></label>
-                        <p class="product_description" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_DESCRIPTION_DESCRIPTION'); ?></p>
+                        <p class="product_description small" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_DESCRIPTION_DESCRIPTION'); ?></p>
                     </div>
                     <div class="controls"><?php echo $this->helper->multiLanguageInputField('description', 'information', 'textarea', $this->product->description); ?></div>
                 </div>
@@ -201,14 +201,14 @@ defined('_JEXEC') or die('Restricted access');
                         <div class="control-label"></div>
                         <div class="controls hint clear alert alert-info" style="display: block;">
                             <?php echo JText::_('COM_JEPROSHOP_PRODUCT_IMAGE_ASSOCIATION_MESSAGE'); ?>
-                            <a class="addImageDescription" style="cursor:pointer" href="javascript:void(0);"><?php echo JText::_('COM_JEPROSHOP_CLICK_HERE_LABEL'); ?></a>
+                            <a class="addImageDescription small" style="cursor:pointer" href="javascript:void(0);"><?php echo JText::_('COM_JEPROSHOP_CLICK_HERE_LABEL'); ?></a>
                         </div>
                     </div>
                     <div id="createImageDescription" class="panel" style="display:none">
                         <div class="panel_content" >
                             <div class="control-group" >
                                 <div class="control-label"><label><?php echo JText::_('COM_JEPROSHOP_SELECT_YOUR_IMAGE_LABEL'); ?></label></div>
-                                <div class="controls" id="jform_createImageDescription" >
+                                <div class="controls" id="jform_create_image_description" >
                                     <ul class="small-image list-inline" >
                                         <?php if(isset($this->product_images)){
                                         foreach($this->product_images as $key => $image){ ?>
@@ -232,20 +232,20 @@ defined('_JEXEC') or die('Restricted access');
                             <div class="control-group">
                                 <div class="control-label" ><label><?php echo JText::_('COM_JEPROSHOP_PRODUCT_IMAGE_TYPE_LABEL'); ?></label></div>
                                 <div class="controls" >
-                                    <ul class="list_form" >
+                                    <select id="jform_image_types" name="information[image_types]" >
                                         <?php foreach($this->imagesTypes as $key => $imageType){ ?>
-                                            <li>
-                                                <input type="radio" name="information[image_types]" id="jform_image_types_<?php echo $key; ?>" /><label for="jform_image_types_<?php echo $key; ?>" ><?php echo $imageType->name; ?></label>
-                                            </li>
+                                            <option value="<?php echo $key; ?>" >
+                                                <?php echo $imageType->name; ?>
+                                            </option>
                                         <?php } ?>
-                                    </ul>
+                                    </select>
                                 </div>
                             </div>
                             <div class="control-group">
                                 <div class="control-label" ><label><?php echo JText::_('COM_JEPROSHOP_IMAGE_TAG_TO_INSERT_LABEL'); ?></label></div>
                                 <div class="controls" >
                                     <input type="text" id="jform_result_image" name="information[result_image]" />
-                                    <p class="preference-description"><?php echo JText::_('COM_JEPROSHOP_IMAGE_TAG_TO_INSERT_DESCRIPTION'); ?></p>
+                                    <p class="preference-description small"><?php echo JText::_('COM_JEPROSHOP_IMAGE_TAG_TO_INSERT_DESCRIPTION'); ?></p>
                                 </div>
                             </div>
                         </div>

@@ -44,7 +44,7 @@ defined('_JEXEC') or die('Restricted access');
         </div>
         <div class="control-group" >
             <div class="controls">
-                <table class="table tableDnD" id="jform_image_table" >
+                <table class="table tableDnD" id="jform_product_image_table" >
                     <thead>
                     <tr>
                         <th class="nowrap" ><?php echo JText::_('COM_JEPROSHOP_IMAGE_LABEL'); ?></th>
@@ -64,7 +64,7 @@ defined('_JEXEC') or die('Restricted access');
                     <tr id="image_id" >
                         <td>
                             <a href="<?php echo COM_JEPROSHOP_PRODUCT_IMAGE_DIR . 'image_path.jpg'; ?>" class="fancybox">
-                                <img src="<?php echo COM_JEPROSHOP_PRODUCT_IMAGE_DIR . $this->iso_tiny_mce . '_default_' . $this->image_type . '.jpg'; ?>" title="legend" alt="legend" class="img_thumbnail" />
+                                <img src="<?php echo COM_JEPROSHOP_PRODUCT_IMAGE_DIR . $this->iso_tiny_mce . '_' . $this->image_type . '_' . $this->context->shop->theme->name . '.jpg'; ?>" title="legend" alt="legend" class="img_thumbnail" />
                             </a>
                         </td>
                         <td>legend</td>

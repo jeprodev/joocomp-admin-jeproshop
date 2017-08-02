@@ -26,7 +26,7 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <div class="panel" id="jform_carrier_cost_setting" >
     <div class="panel-title" ><?php echo JText::_('COM_JEPROSHOP_COST_SETTINGS_LABEL'); ?></div>
-    <div class="panel-content well" >
+    <div class="panel-content" >
         <div class="control-group" >
             <div class="control-label" ><label for="jform_shipping_handling" title="<?php echo JText::_('COM_JEPROSHOP_ADD_HANDLING_COSTS_TITLE_DESC'); ?>"><?php echo JText::_('COM_JEPROSHOP_ADD_HANDLING_COSTS_LABEL'); ?></label></div>
             <div class="controls" >
@@ -77,7 +77,7 @@ defined('_JEXEC') or die('Restricted access');
         <div class="control-group" >
             <div class="control-label" ><label for="jform_zones" title="<?php echo JText::_('COM_JEPROSHOP_SUPPORTED_ZONES_TITLE_DESC'); ?>"><?php echo JText::_('COM_JEPROSHOP_SUPPORTED_ZONES_LABEL'); ?></label></div>
             <div class="controls" >
-                <table class="table" style="width: 500px; ">
+                <table class="table" style="width: 90%; ">
                     <tbody>
                 <?php foreach($this->zones as $zone){ ?>
                     <tr style="border-top: none";>

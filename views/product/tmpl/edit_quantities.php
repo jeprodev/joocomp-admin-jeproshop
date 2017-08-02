@@ -83,7 +83,7 @@ defined('_JEXEC') or die('Restricted access');
                             </p>
                             <p class="radio" >
                                 <label for="depends_on_stock_0" for="depends_on_stock_0">
-                                    <input type="radio"  id="depends_on_stock_0" name="depends_on_stock" class="depends_on_stock" value="0"
+                                    <input type="radio"  id="jform_depends_on_stock_0" name="depends_on_stock" class="depends-on-stock" value="0"
                                         <?php if($this->product->depends_on_stock == 0 || $this->stock_management_active == 0){ ?> checked="checked" <?php } ?> />
                                     <?php echo JText::_('COM_JEPROSHOP_I_WANT_TO_SPECIFY_AVAILABLE_QUANTITIES_MANUALLY_LABEL'); ?>
                                 </label>

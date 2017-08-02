@@ -81,6 +81,38 @@ class JeproshopStockAvailableModelStockAvailable extends JeproshopModel {
         $quantity = $db->loadResult();
         return ($quantity ? $quantity : 0);
     }
+
+    public static function outOfStock($productId, $shopId = null){
+        if (!JeproshopTools::isUnsignedInt($productId)){ return false; }
+
+        $db = JFactory::getDBO();
+        $query = "SELECT out_of_stock FROM " . $db->quoteName('#__jeproshop_stock_available') . " WHERE product_id = ";
+        $query .= (int)$productId . " AND product_attribute_id = 0 " . JeproshopStockAvailableModelStockAvailable::addShopRestriction($shopId);
+
+        $db->setQuery($query);
+        $data = $db->loadObject();
+        return (isset($data->out_of_stock) ? (int)$data->out_of_stock : 0);
+    }
+
+    /**
+     * For a given product, tells if it depends on the physical (usable) stock
+     *
+     * @param int $productId
+     * @param int $shopId Optional : gets context if null @see Context::getContext()
+     * @return bool : depends on stock @see $depends_on_stock
+     */
+    public static function dependsOnStock($productId, $shopId = null){
+        if(!JeproshopTools::isUnsignedInt($productId)){ return false; }
+        $db = JFactory::getDBO();
+
+        $query = "SELECT depends_on_stock FROM " . $db->quoteName('#__jeproshop_stock_available') . " WHERE product_id = " . (int)$productId;
+        $query .= " AND product_attribute_id = 0 " . JeproshopStockAvailableModelStockAvailable::addShopRestriction($shopId);
+
+        $db->setQuery($query);
+        $data = $db->loadObject();
+
+        return (isset($data->depends_on_stock) ? $data->depends_on_stock : 0);
+    }
 }
 
 

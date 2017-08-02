@@ -49,7 +49,7 @@ if(isset($this->product->product_id) && !$this->product->is_virtual){ ?>
                 <div class="control-group">
                     <div class="control-label"><label for="jform_attribute_group"><?php echo JText::_('COM_JEPROSHOP_ATTRIBUTE_GROUP_LABEL'); ?></label></div>
                     <div class="controls">
-                        <select name="declination[attribute_group]" id="jform_attribute_group" onchange="populate_attrs();">
+                        <select name="declination[attribute_group]" id="jform_attribute_group" >
                             <?php if(isset($this->attributes_groups)){
                                 foreach($this->attributes_groups as $key => $attribute_group){ ?>
                                     <option value="<?php echo$attribute_group->attribute_group_id; ?>"><?php echo htmlentities($attribute_group->name); ?>&nbsp;&nbsp;</option>
@@ -62,17 +62,17 @@ if(isset($this->product->product_id) && !$this->product->is_virtual){ ?>
                     <div class="control-label" ><label for="attribute" ><?php echo JText::_('COM_JEPROSHOP_VALUE_LABEL'); ?></label></div>
                     <div class="controls" >
                         <div class="attribute_selector one-third" >
-                            <select name="declination[attribute]" id="jform_attribute">
+                            <select name="declination[attribute]" id="jform_attribute" >
                                 <option value="0">--</option>
                             </select>
                         </div>
                         <div class="attribute_buttons center one-third">
-                            <button type="button" class="btn btn-default" onclick="add_attr();"><i class="icon-plus-sign-alt"></i> <?php echo JText::_('COM_JEPROSHOP_ADD_LABEL'); ?></button>
+                            <button id="jform_add_attribute_btn" type="button" class="btn btn-default" ><i class="icon-plus-sign-alt"></i> <?php echo JText::_('COM_JEPROSHOP_ADD_LABEL'); ?></button>
                             <br /><div style="margin-bottom: 30px;" ></div>
-                            <button type="button" class="btn btn-default" onclick="del_attr()"><i class="icon-minus-sign-alt"></i> <?php echo JText::_('COM_JEPROSHOP_DELETE_LABEL'); ?></button>
+                            <button id="jform_delete_attribute_btn" type="button" class="btn btn-default" ><i class="icon-minus-sign-alt"></i> <?php echo JText::_('COM_JEPROSHOP_DELETE_LABEL'); ?></button>
                         </div>
                         <div class="selected_attribute one-third">
-                            <select id="jform_product_att_list" name="declination[attribute_combination_list[]]" multiple="multiple" ></select>
+                            <select id="jform_product_attribute_list" name="declination[attribute_combination_list[]]" multiple="multiple" ></select>
                         </div>
                     </div>
                 </div>
@@ -107,7 +107,7 @@ if(isset($this->product->product_id) && !$this->product->is_virtual){ ?>
                     <div class="controls" >
                         <div class="input-append" >
                             <?php if($this->currency->prefix != ""){ ?><button type="button" class="btn" id="jform_img" ><?php echo $this->currency->prefix; ?></button><?php } ?>
-                            <input type="text" name="declination[attribute_wholesale_price]" id="jform_attribute_wholesale_price" value="0" onKeyUp="if (isArrowKey(event)) return ;this.value = this.value.replace(/,/g, '.');" class="price-box" />&nbsp;
+                            <input type="text" name="declination[attribute_wholesale_price]" id="jform_attribute_wholesale_price" value="0"  class="price-box" />
                             <?php if($this->currency->suffix != ""){ ?><button type="button" class="btn" id="jform_img" ><?php echo $this->currency->suffix; ?></button><?php } ?>
                         </div>
                         <p style="display:none;" id="jform_attribute_wholesale_price_full">( <?php echo JText::_('COM_JEPROSHOP_OVERRIDES_WHOLESALE_PRICE_FROM_THE_PRICES_TAB'); ?> )</p>
@@ -122,7 +122,7 @@ if(isset($this->product->product_id) && !$this->product->is_virtual){ ?>
                     </div>
                     <div class="controls">
                         <p class="col-lg-4">
-                            <select name="declination[attribute_price_impact]" id="jform_attribute_price_impact" onchange="check_impact(); calcImpactPriceTI();">
+                            <select name="declination[attribute_price_impact]" id="jform_attribute_price_impact" >
                                 <option value="0"><?php echo JText::_('COM_JEPROSHOP_NONE_LABEL'); ?></option>
                                 <option value="1"><?php echo JText::_('COM_JEPROSHOP_INCREASE_LABEL'); ?></option>
                                 <option value="-1"><?php echo JText::_('COM_JEPROSHOP_DECREASE_LABEL'); ?></option>
@@ -130,14 +130,14 @@ if(isset($this->product->product_id) && !$this->product->is_virtual){ ?>
                         <div class="input-append" >
                             <?php if($this->currency->prefix != ""){ ?><button type="button" class="btn" id="jform_img" ><?php echo $this->currency->prefix; ?></button><?php } ?>
                             <input type="hidden"  id="jform_attribute_real_price_tax_excluded" name="declination[attribute_price]" value="0.00" />
-                            <input type="text" id="jform_attribute_price" value="0.00" onkeyup="$('#jform_attribute_real_price-tax_excluded').val(this.value.replace(/,/g, '.')); if (isArrowKey(event)) return ;this.value = this.value.replace(/,/g, '.'); calcImpactPriceTI();" class="price-box" />
+                            <input type="text" id="jform_attribute_price" name="jform[attribute_price]" value="0.00" class="price-box" />
                             <?php if($this->currency->suffix != ""){ ?><button type="button" class="btn" id="jform_img" ><?php echo $this->currency->suffix; ?></button><?php } ?>
                         </div>
                         <?php if($this->context->country->country_display_tax_label){ echo " " . JText::_('COM_JEPROSHOP_TAX_EXCLUDED_LABEL'); } ?>&nbsp;
                         <?php if(!$this->tax_exclude_tax_option){  echo " " . JText::_('COM_JEPROSHOP_OR_LABEL') . " ";?>&nbsp;
                             <div class="input-append" >
                             <?php if($this->currency->prefix != ""){ ?><button type="button" class="btn" id="jform_img" ><?php echo $this->currency->prefix; ?></button><?php } ?>
-                            <input type="text" name="attribute_priceTI" id="attribute_priceTI" value="0.00" onkeyup="if (isArrowKey(event)) return ;this.value = this.value.replace(/,/g, '.'); calcImpactPriceTE();" class="price-box" />
+                            <input type="text" name="jform[attribute_price_tax_included]" id="jform_attribute_price_tax_included" value="0.00"  class="price-box" />
                             <?php if($this->currency->suffix != ""){ ?><button type="button" class="btn" id="jform_img" ><?php echo $this->currency->suffix; ?></button><?php } ?>
                             </div><?php
                             echo " " . JText::_('COM_JEPROSHOP_TAX_INCLUDED_LABEL');
@@ -162,32 +162,36 @@ if(isset($this->product->product_id) && !$this->product->is_virtual){ ?>
                         </label>
                     </div>
                     <div class="controls">
-                        <p>
-                            <select name="declination[attribute_weight_impact]" id="jform_attribute_weight_impact" onchange="check_weight_impact();">
-                                <option value="0"><?php echo JText::_('COM_JEPROSHOP_NONE_LABEL'); ?></option>
-                                <option value="1"><?php echo JText::_('COM_JEPROSHOP_INCREASE_LABEL'); ?></option>
-                                <option value="-1"><?php echo JText::_('COM_JEPROSHOP_DECREASE_LABEL'); ?></option>
-                            </select>&nbsp;<?php echo JText::_('COM_JEPROSHOP_PER_LABEL') . '&nbsp;'; echo $this->weight_unit; ?>
-                            <input type="text" name="declination[attribute_weight]" id="jform_attribute_weight" value="0.00" onKeyUp="if (isArrowKey(event)) return ;this.value = this.value.replace(/,/g, '.');" class="price-box" />
-                        </p>
+                        <select name="declination[attribute_weight_impact]" id="jform_attribute_weight_impact"  >
+                            <option value="0"><?php echo JText::_('COM_JEPROSHOP_NONE_LABEL'); ?></option>
+                            <option value="1"><?php echo JText::_('COM_JEPROSHOP_INCREASE_LABEL'); ?></option>
+                            <option value="-1"><?php echo JText::_('COM_JEPROSHOP_DECREASE_LABEL'); ?></option>
+                        </select>
+                        &nbsp;	<?php echo JText::_('COM_JEPROSHOP_OF_LABEL'); ?> &nbsp;
+                        <div class="input-append" >
+                            <?php if($this->currency->format % 2 != 0){ ?><button type="button" class="btn" id="jform_img" ><?php echo $this->currency->sign; ?></button><?php } ?>
+                            <input type="text" name="declination[attribute_weight_price]" id="jform_attribute_weight_price" value="0.00" class="price-box" />
+                            <?php if($this->currency->format % 2 == 0){ ?><button type="button" class="btn" id="jform_img" ><?php echo $this->currency->sign; ?></button> <?php } ?>
+                        </div>
+                        &nbsp;<?php echo JText::_('COM_JEPROSHOP_PER_LABEL') . '&nbsp;'; echo $this->weight_unit; ?>
                     </div>
                 </div>
                 <div id="tr_unit_impact" class="control-group">
                     <div class="control-label" >
-                        <label  for="attribute_unit_impact">
+                        <label  for="jform_attribute_unit_impact">
                             <?php echo $this->productMultiShopCheckFields('attribute_unit_impact', 'attribute_unit_impact');
                             echo JText::_('COM_JEPROSHOP_IMPACT_ON_UNIT_PRICE_LABEL'); ?>
                         </label>
                     </div>
                     <div class="controls">
-                        <select name="declination[attribute_unit_impact]" id="jform_attribute_unit_impact" onchange="check_unit_impact();">
+                        <select name="declination[attribute_unit_impact]" id="jform_attribute_unit_impact" >
                             <option value="0"><?php echo JText::_('COM_JEPROSHOP_NONE_LABEL'); ?></option>
                             <option value="1"><?php echo JText::_('COM_JEPROSHOP_INCREASE_LABEL'); ?></option>
                             <option value="-1"><?php echo JText::_('COM_JEPROSHOP_DECREASE_LABEL'); ?></option>
                         </select>&nbsp;	<?php echo JText::_('COM_JEPROSHOP_OF_LABEL'); ?> &nbsp;
                         <div class="input-append">
                             <?php if($this->currency->format % 2 != 0){ ?><button type="button" class="btn" id="jform_img" ><?php echo $this->currency->sign; ?></button><?php } ?>
-                            <input type="text" name="declination[attribute_unity]" id="jform_attribute_unity" value="0.00" onKeyUp="if (isArrowKey(event)) return ;this.value = this.value.replace(/,/g, '.');" class="price-box" />
+                            <input type="text" name="declination[attribute_unity_price]" id="jform_attribute_unity_price" value="0.00"  class="price-box" />
                             <?php if($this->currency->format % 2 == 0){ ?><button type="button" class="btn" id="jform_img" ><?php echo $this->currency->sign; ?></button> <?php } ?>
                         </div> / <span id="unity_third"><?php echo $this->product->unity; ?></span>
                     </div>
@@ -203,7 +207,7 @@ if(isset($this->product->product_id) && !$this->product->is_virtual){ ?>
                         <div class="controls">
                             <div class="input-append">
                                 <?php if($this->currency->format % 2 != 0){ ?><button type="button" class="btn" id="jform_img" ><?php echo $this->currency->sign; ?></button><?php } ?>
-                                <input type="text" name="declination[attribute_ecotax]" id="jform_attribute_ecotax" value="0.00" onKeyUp="if(isArrowKey(event)) return ;this.value = this.value.replace(/,/g, '.');" class="price-box" />
+                                <input type="text" name="declination[attribute_ecotax_price]" id="jform_attribute_ecotax_price" value="0.00" class="price-box" />
                                 <?php if($this->currency->format % 2 == 0){ ?><button type="button" class="btn" id="jform_img" ><?php echo $this->currency->sign; ?></button><?php } ?>
                             </div>
                         </div>
@@ -211,13 +215,13 @@ if(isset($this->product->product_id) && !$this->product->is_virtual){ ?>
                 <?php } ?>
                 <div class="control-group">
                     <div class="control-label" >
-                        <label class="col-lg-3" for="attribute_minimal_quantity" title="<?php echo JText::_('COM_JEPROSHOP_THE_MINIMUM_QUANTITY_TO_BUY_THIS_PRODUCT_SET_TO_ONE_TO_DISABLE_THIS_FEATURE_TITLE_DESC'); ?>" >
+                        <label class="col-lg-3" for="jform_attribute_minimal_quantity" title="<?php echo JText::_('COM_JEPROSHOP_THE_MINIMUM_QUANTITY_TO_BUY_THIS_PRODUCT_SET_TO_ONE_TO_DISABLE_THIS_FEATURE_TITLE_DESC'); ?>" >
                             <?php echo $this->productMultiShopCheckFields('attribute_minimal_quantity', 'default');
                             echo JText::_('COM_JEPROSHOP_MINIMUM_QUANTITY_LABEL'); ?>
                         </label>
                     </div>
                     <div class="controls" >
-                        <b>&times;</b> <input maxlength="6" name="declination[attribute_minimal_quantity]" id="jform_attribute_minimal_quantity" type="text" value="<?php echo $this->product->minimal_quantity; ?>" class="quantity_box" />
+                        <b>&times;</b> <input maxlength="6" name="declination[attribute_minimal_quantity]" id="jform_attribute_minimal_quantity" type="text" value="<?php echo $this->product->minimal_quantity; ?>" class="quantity-box" />
                     </div>
                 </div>
                 <div class="control-group">
@@ -227,7 +231,7 @@ if(isset($this->product->product_id) && !$this->product->is_virtual){ ?>
                         </label>
                     </div>
                     <div class="controls">
-                        <input class="datepicker" id="jform_available_date_attribute" name="declination[combinations[available_date_attribute]]" value="<?php echo $this->available_date; ?>" type="text" />
+                        <input class="input-date datepicker" id="jform_available_date_attribute" name="declination[combinations[available_date_attribute]]" value="<?php echo isset($this->available_date) ? $this->available_date : date('Y-m-d'); ?>" type="text" />
                         &nbsp;<i class="icon-calendar-empty"></i>
                     </div>
                 </div>
@@ -240,7 +244,7 @@ if(isset($this->product->product_id) && !$this->product->is_virtual){ ?>
                                     <li>
                                         <input type="checkbox" name="jform_[image_attr_id[]]" value="<?php echo $image->image_id; ?>" id="jform_image_attr_id_<?php echo $image->image_id; ?>" />
                                         <label for="image_attr_id_<?php echo $image->image_id; ?>">
-                                            <img class="img-thumbnail" src="<?php //echo $image->getExistingImagePath() . '_' . $this->imageType . '.jpg'; ?> " alt="<?php echo $image->legend; ?>" title="<?php echo $image->legend; ?>" />
+                                            <img class="img-thumbnail" src="<?php echo $this->context->controller->getProductImageLink("", $this->product->product_id . '_' . $image->image_id, "default_small"); ?> " alt="<?php echo $image->legend; ?>" title="<?php echo $image->legend; ?>" />
                                         </label>
                                     </li>
                                 <?php } ?>
@@ -267,7 +271,7 @@ if(isset($this->product->product_id) && !$this->product->is_virtual){ ?>
                         </p>
                     </div>
                 </div>
-                <?php echo $this->list; ?>
+                <?php //print_r($this->attribute_list); ?>
             </div>
         </div>
     </div>

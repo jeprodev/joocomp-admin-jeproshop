@@ -50,12 +50,12 @@ class JeproshopGroupModelGroup extends  JeproshopModel {
             $this->lang_id = (JeproshopLanguageModelLanguage::getLanguage($langId) ? (int)$langId : JeproshopSettingModelSetting::getValue('default_lang'));
         }
 
-        if($shopId && $this->isMultiShop('cart', false)){
+        if($shopId && $this->isMultiShop('group', false)){
             $this->shop_id = (int)$shopId;
             $this->getShopFromContext = FALSE;
         }
 
-        if($this->isMultiShop('cart', false) && !$this->shop_id){
+        if($this->isMultiShop('group', false) && !$this->shop_id){
             $this->shop_id = JeproshopContext::getContext()->shop->shop_id;
         }
 
@@ -113,7 +113,7 @@ class JeproshopGroupModelGroup extends  JeproshopModel {
             if($groupData){
                 $this->group_id = $groupId;
                 foreach($groupData as $key => $value){
-                    if(property_exists($key, $this)){
+                    if(array_key_exists($key, $this)){
                         $this->{$key} = $value;
                     }
                 }
@@ -244,4 +244,30 @@ class JeproshopGroupModelGroup extends  JeproshopModel {
     }
 
 
+}
+
+
+class JeproshopGroupReductionModelGroupReduction extends JeproshopModel {
+    public	$group_id;
+    public	$category_id;
+    public	$reduction;
+
+    protected static $reduction_cache = array();
+
+    public static function getValueForProduct($productId, $groupId){
+        if (!JeproshopGroupModelGroup::isFeaturePublished()){ return 0; }
+
+        if (!isset(self::$reduction_cache[$productId . '_' . $groupId])){
+            $db = JFactory::getDBO();
+
+            $query = "SELECT " . $db->quoteName('reduction') . " FROM " . $db->quoteName('#__jeproshop_product_group_reduction_cache');
+            $query .= " WHERE " . $db->quoteName('product_id') . " = " .(int)$productId . " AND " . $db->quoteName('group_id') . " = " .(int)$groupId;
+
+            $db->setQuery($query);
+            $reduction = $db->loadObject();
+            self::$reduction_cache[$productId.'_'.$groupId] = ($reduction ? $reduction : 0);
+        }
+        // Should return string (decimal in database) and not a float
+        return self::$reduction_cache[$productId. '_'. $groupId];
+    }
 }

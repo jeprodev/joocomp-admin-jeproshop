@@ -26,7 +26,7 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <div class="panel" id="jform_carrier_shop_setting" >
     <div class="panel-title" ><?php echo JText::_('COM_JEPROSHOP_SHOP_SETTINGS_LABEL'); ?></div>
-    <div class="panel-content well" >
+    <div class="panel-content" >
         <div class="control-group" >
             <div class="control-label" ><label for="jform_associated_shops" title="<?php echo JText::_('COM_JEPROSHOP_ASSOCIATED_SHOP_LABEL'); ?>" ><?php echo JText::_('COM_JEPROSHOP_ASSOCIATED_SHOP_LABEL'); ?></label> </div>
             <div class="controls" ><?php echo $this->shop_tree; ?></div>

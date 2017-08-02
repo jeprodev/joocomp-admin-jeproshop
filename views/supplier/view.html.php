@@ -77,4 +77,33 @@ class JeproshopSupplierViewSupplier extends JeproshopViewLegacy {
         }
         $this->addSideBar('catalog');
     }
+
+    /**
+     * Load class supplier using identifier in $_GET (if possible)
+     * otherwise return an empty supplier, or die
+     *
+     * @param boolean $opt Return an empty supplier if load fail
+     * @return supplier|boolean
+     */
+    public function loadObject($opt = false){
+        $app =JFactory::getApplication();
+
+        $supplierId = (int)$app->input->get('supplier_id');
+        if ($supplierId && JeproshopTools::isUnsignedInt($supplierId)) {
+            if (!$this->supplier)
+                $this->supplier = new JeproshopSupplierModelSupplier($supplierId);
+            if (JeproshopTools::isLoadedObject($this->supplier, 'supplier_id'))
+                return $this->supplier;
+            // throw exception
+            JError::raiseError(500, 'The supplier cannot be loaded (or found)');
+            return false;
+        } elseif ($opt) {
+            if (!$this->supplier)
+                $this->supplier = new JeproshopSupplierModelSupplier();
+            return $this->supplier;
+        } else {
+            $this->errors[] = Tools::displayError('The supplier cannot be loaded (the identifier is missing or invalid)');
+            return false;
+        }
+    }
 }

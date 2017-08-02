@@ -243,4 +243,141 @@ class JeproshopCustomerModelCustomer extends JeproshopModel {
         return $customers;
     }
 
+    /**
+     * Specify if a customer already in base
+     *
+     * @param $customer_id Customer id
+     * @return boolean
+     */
+    // DEPRECATED
+    public function customerIdExists($customer_id){
+        return JeproshopCustomerModelCustomer::customerIdExistsStatic((int)$customer_id);
+    }
+
+    public function isGuest(){
+        return (bool)$this->is_guest;
+    }
+
+    public static function customerIdExistsStatic($customerId){
+        $cache_id = 'jeproshop_customer_exists_id_'.(int)$customerId;
+        if (!JeproshopCache::isStored($cache_id)){
+            $db = JFactory::getDBO();
+
+            $query = "SELECT " . $db->quoteName('customer_id') . " FROM " . $db->quoteName('#__jeproshop_customer');
+            $query .= " AS customer WHERE customer." . $db->quoteName('customer_id') . " = " . (int)$customerId;;
+
+            $db->setQuery($query);
+            $result = $db->loadResult();
+            JeproshopCache::store($cache_id, $result);
+        }
+        return JeproshopCache::retrieve($cache_id);
+    }
+
+    public function getGroups(){
+        return JeproshopCustomerModelCustomer::getStaticGroups((int)$this->customer_id);
+    }
+
+    public static function getStaticGroups($customerId){
+        if (!JeproshopGroupModelGroup::isFeaturePublished()){
+            return array(JeproshopSettingModelSetting::getValue('customer_group'));
+        }
+
+        if($customerId == 0){
+            self::$_customer_groups[$customerId] = array((int)  JeproshopSettingModelSetting::getValue('unidentified_group'));
+        }
+
+        if (!isset(self::$_customer_groups[$customerId])){
+            self::$_customer_groups[$customerId] = array();
+            $db = JFactory::getDBO();
+
+            $query = "SELECT customer_group." . $db->quoteName('group_id') . " FROM " . $db->quoteName('#__jeproshop_customer_group');
+            $query .= " AS customer_group WHERE customer_group." . $db->quoteName('customer_id') . " = " .(int)$customerId;
+            $db->setQuery($query);
+            $result = $db->loadObjectList();
+            foreach ($result as $group){
+                self::$_customer_groups[$customerId][] = (int)$group->group_id;
+            }
+        }
+        return self::$_customer_groups[$customerId];
+    }
+
+    public function getBoughtProducts(){
+        $db = JFactory::getDBO();
+
+        $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_orders') . " AS ord LEFT JOIN " . $db->quoteName('#__jeproshop_order_detail') . " AS order_detail ON ord.order_id";
+        $query .= " = order_detail.order_id WHERE ord.valid = 1 AND ord." . $db->quoteName('customer_id') . " = " . (int)$this->customer_id;
+
+        $db->setQuery($query);
+        return $db->loadObjectList();
+    }
+
+    public function getLastConnections(){
+        $db = JFactory::getDBO();
+
+        $query = "SELECT connection.date_add, COUNT(connection_page.page_id) AS pages, TIMEDIFF(MAX(connection_page.time_end), connection.date_add) as time, http_referrer,";
+        $query .= " INET_NTOA(ip_address) as ip_address FROM " . $db->quoteName('#__jeproshop_guest') . " AS g LEFT JOIN "  . $db->quoteName('#__jeproshop_connection') . " AS ";
+        $query .= " connection ON connection.guest_id = g.guest_id LEFT JOIN " . $db->quoteName('#__jeproshop_connection_page') . " AS connection_page  ON connection.";
+        $query .= "connection_id = connection_page.connection_id WHERE g." . $db->quoteName('customer_id') . " = " . (int)$this->customer_id . " GROUP BY connection.";
+        $query .= $db->quoteName('connection_id') . " ORDER BY connection.date_add DESC LIMIT 10 ";
+
+        $db->setQuery($query);
+        return $db->loadObjectList();
+    }
+
+    /**
+     * Check if e-mail is already registered in database
+     *
+     * @param string $email e-mail
+     * @param $returnId boolean
+     * @param $ignoreGuest boolean, to exclude guest customer
+     * @return Customer ID if found, false otherwise
+     */
+    public static function customerExists($email, $returnId = false, $ignoreGuest = true){
+        if (!JeproshopTools::isEmail($email)){
+            if (defined('COM_JEPROSHOP_DEV_MODE') && COM_JEPROSHOP_DEV_MODE)
+                die (Tools::displayError('Invalid email'));
+            else
+                return false;
+        }
+        $db = JFactory::getDBO();
+        $query = "SELECT " . $db->quoteName('customer_id') . " FROM " . $db->quoteName('#__jeproshop_customer');
+        $query .= " WHERE " . $db->quoteName('email') . " = " . $db->quote($db->escape($email));
+        $query .= JeproshopShopModelShop::addSqlRestriction(JeproshopShopModelShop::SHARE_CUSTOMER);
+        $query .= ($ignoreGuest ? " AND " . $db->quoteName('is_guest') . " = 0" : "");
+
+        $db->setQuery($query);
+        $result = $db->loadObject();
+
+        if ($returnId)
+            return $result->customer_id;
+        return isset($result->customer_id);
+    }
+
+    public function getInterestedProducts(){
+        $db = JFactory::getDBO();
+
+        $query = "SELECT DISTINCT cart_product.product_id, cart.cart_id, cart.shop_id, cart_product.shop_id ";
+        $query .= " AS cart_product_shop_id FROM " . $db->quoteName('#__jeproshop_cart_product') . " AS cart_product";
+        $query .= " JOIN " . $db->quoteName('#__jeproshop_cart') . " AS cart ON (cart.cart_id = cart_product.cart_id) ";
+        $query .= "JOIN " . $db->quoteName('#__jeproshop_product') . " AS product ON (cart_product.product_id = product.";
+        $query .= "product_id) WHERE cart.customer_id = " . (int)$this->customer_id . " AND cart_product.product_id";
+        $query .= " NOT IN ( SELECT product_id FROM " . $db->quoteName('#__jeproshop_orders') . " AS ord JOIN ";
+        $query .= $db->quoteName('#__jeproshop_order_detail') . " AS ord_detail ON (ord.order_id = ord_detail.order_id ) WHERE ";
+        $query .= "ord.valid = 1 AND ord.customer_id = " . (int)$this->customer_id . ")";
+
+        $db->setQuery($query);
+        return $db->loadObjectList();
+    }
+
+    public static function searchCustomerByValue($fieldValue){
+        $db = JFactory::getDBO();
+        $sql = '%' . $fieldValue . '%';
+        $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_customer') . " WHERE ( " . $db->quoteName('email') ;
+        $query .= " LIKE " . $db->quote($sql) . " OR " . $db->quoteName('customer_id') . " LIKE " . $db->quote($sql);
+        $query .= " OR "  . $db->quoteName('lastname') . " LIKE " . $db->quote($sql) ." OR " . $db->quoteName('firstname');
+        $query .= " LIKE " . $db->quote($sql). " ) " ; // . JeproshopShopModelShop::addSqlRestriction(JeproshopShopModelShop::SHARE_CUSTOMER);
+        $db->setQuery($query);
+        return $db->loadObjectList();
+    }
+
 }

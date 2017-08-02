@@ -34,7 +34,7 @@ defined('_JEXEC') or die('Restricted access');
         <div class="separation"></div>
         <div class="panel" >
             <div class="panel-title" ><i class="icon-globe" ></i> <?php echo JText::_('COM_JEPROSHOP_YOU_ARE_ABOUT_TO_EDIT_LABEL') . ' ' . JText::_('COM_JEPROSHOP_STATE_LABEL') . ' ' ;?></div>
-            <div class="panel-content well" >
+            <div class="panel-content" >
                 <div class="control-group" >
                     <div class="control-label" ><label for="jform_name" title="<?php echo JText::_('COM_JEPROSHOP_PROVIDE_THE_STATE_NAME_TO_DISPLAY_IN_ADDRESSES_AND_INVOICES_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_STATE_NAME_LABEL'); ?></label></div>
                     <div class="controls" ><input type="text" id="jform_name" name="jform[name]" required="required" maxlength="32" /></div>

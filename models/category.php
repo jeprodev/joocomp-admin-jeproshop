@@ -555,4 +555,71 @@ class JeproshopCategoryModelCategory extends JeproshopModel {
         return JeproshopCache::retrieve($cache_id);
     }
 
+    public static function getLinkRewrite($categoryId, $langId){
+        if (!JeproshopTools::isUnsignedInt($categoryId) || !JeproshopTools::isUnsignedInt($langId)){
+            return false;
+        }
+
+        if (!isset(self::$_links[$categoryId . '_' . $langId])){
+            $db = JFactory::getDBO();
+
+            $query = "SELECT category_lang." . $db->quoteName('link_rewrite') . " FROM " . $db->quoteName('#__jeproshop_category_lang');
+            $query .= " AS category_lang WHERE " . $db->quoteName('lang_id') . " = " . (int)$langId ;
+            $query .= JeproshopShopModelShop::addSqlRestrictionOnLang('category_lang') . " AND category_lang.";
+            $query .= $db->quoteName('category_id') . " = " .(int)$categoryId;
+
+            $db->setQuery($query);
+            self::$_links[$categoryId . '_' . $langId] = $db->loadResult();
+        }
+        return self::$_links[$categoryId . '_' . $langId];
+    }
+
+    /**
+     * @param $shopId
+     * @return bool
+     */
+    public function isParentCategoryAvailable($shopId){
+        if(!$shopId) {
+            $shopId = JeproshopContext::getContext()->shop->shop_id;
+        }
+        $shopId = $shopId ? $shopId : JeproshopSettingModelSetting::getValue('default_shop');
+        $db = JFactory::getDBO();
+
+        $query = "SELECT category." . $db->quoteName('category_id') . " FROM " . $db->quoteName('#__jeproshop_category') . " AS category ";
+        $query .= JeproshopShopModelShop::addSqlAssociation('category') . " WHERE category_shop." . $db->quoteName('shop_id') . " = " .(int)$shopId;
+        $query .= " AND category." . $db->quoteName('parent_id') . " = " . (int)$this->parent_id;
+
+        $db->setQuery($query);
+        return (bool)$db->loadResult();
+    }
+
+    /**
+     * Check if there is more than one entries in associated shop table for current entity
+     *
+     * @return bool
+     */
+    public function hasMultiShopEntries() {
+        if (!JeproshopShopModelShop::isTableAssociated('category') || !JeproshopShopModelShop::isFeaturePublished())
+            return false;
+        $db = JFactory::getDBO();
+
+        $query = "SELECT COUNT(*) FROM " . $db->quoteName('#__jeproshop_category_shop') . " WHERE " . $db->quoteName('category_id') . " = " .(int)$this->category_id;
+        $db->setQuery($query);
+        return (bool)$db->loadResult();
+    }
+
+    public function getGroups(){
+        $cache_id = 'jeproshop_category::getGroups_'.(int)$this->category_id;
+        if (!JeproshopCache::isStored($cache_id)){
+            $db = JFactory::getDBO();
+            $query = "SELECT category_group." . $db->quoteName('group_id') . " FROM " . $db->quoteName('#__jeproshop_category_group');
+            $query .= " AS category_group WHERE category_group." . $db->quoteName('category_id') . " = " .(int)$this->category_id;
+
+            $db->setQuery($query);
+            $groups = $db->loadObjectList();
+
+            JeproshopCache::store($cache_id, $groups);
+        }
+        return JeproshopCache::retrieve($cache_id);
+    }
 }

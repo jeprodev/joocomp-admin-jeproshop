@@ -43,52 +43,53 @@ class JeproshopTaxModelTax extends JeproshopModel
     protected static $_product_country_tax = array();
     protected static $_product_tax_via_rules = array();
 
-    public function __construct($tax_id = null, $lang_id = null){
-        $db = JFactory::getDBO();
-
-        if($lang_id !== NULL){
-            $this->lang_id = (JeproshopLanguageModelLanguage::getLanguage($lang_id) ? (int)$lang_id : JeproshopSettingModelSetting::getValue('default_lang'));
+    public function __construct($taxId = null, $langId = null){
+        if($langId !== NULL){
+            $this->lang_id = (JeproshopLanguageModelLanguage::getLanguage($langId) ? (int)$langId : JeproshopSettingModelSetting::getValue('default_lang'));
         }
 
-        if($tax_id){
-            $cache_id = 'jeproshop_tax_model_' . $tax_id . '_' . $lang_id;
-
-            if(!JeproshopCache::isStored($cache_id)){
+        if($taxId){
+            $cacheKey = 'jeproshop_tax_model_' . $taxId . '_' . $langId;
+            $db = JFactory::getDBO();
+            if(!JeproshopCache::isStored($cacheKey)){
                 $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_tax') . " AS tax ";
 
-                if($lang_id){
-                    $query .= " LEFT JOIN " . $db->quoteName('#__jeproshop_tax_lang') . " AS tax_lang ON (tax." . $db->quoteName('tax_id') . " = tax_lang." . $db->quoteName('lang_id') . " AND tax_lang." . $db->quoteName('lang_id') . " = " . (int)$lang_id . ") ";
+                if($langId){
+                    $query .= " LEFT JOIN " . $db->quoteName('#__jeproshop_tax_lang') . " AS tax_lang ON (tax.";
+                    $query .= $db->quoteName('tax_id') . " = tax_lang." . $db->quoteName('lang_id') . " AND tax_lang.";
+                    $query .= $db->quoteName('lang_id') . " = " . (int)$langId . ") ";
                 }
-                $query .= " WHERE tax." . $db->quoteName('tax_id') . " = " . (int)$tax_id;
+                $query .= " WHERE tax." . $db->quoteName('tax_id') . " = " . (int)$taxId;
 
                 $db->setQuery($query);
-                $tax_data = $db->loadObject();
-                if($tax_data){
-                    if(!$lang_id){
-                        $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_tax_lang') . " WHERE " . $db->quoteName('tax_id') . " = " . (int)$tax_id;
+                $taxData = $db->loadObject();
+                if($taxData){
+                    if(!$langId){
+                        $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_tax_lang') . " WHERE ";
+                        $query .= $db->quoteName('tax_id') . " = " . (int)$taxId;
 
                         $db->setQuery($query);
-                        $tax_lang_data = $db->loadObjectList();
-                        foreach($tax_lang_data as $row){
+                        $taxLangData = $db->loadObjectList();
+                        foreach($taxLangData as $row){
                             foreach($row as $key => $value){
                                 if(array_key_exists($key, $this) && $key != 'tax_id'){
-                                    if(!isset($tax_data->{$key}) || !is_array($tax_data->{$key})){
-                                        $tax_data->{$key} = array();
+                                    if(!isset($taxData->{$key}) || !is_array($taxData->{$key})){
+                                        $taxData->{$key} = array();
                                     }
-                                    $tax_data->{$key}[$row->lang_id] = $value;
+                                    $taxData->{$key}[$row->lang_id] = $value;
                                 }
                             }
                         }
                     }
-                    JeproshopCache::store($cache_id, $tax_data);
+                    JeproshopCache::store($cacheKey, $taxData);
                 }
             }else{
-                $tax_data = JeproshopCache::retrieve($cache_id);
+                $taxData = JeproshopCache::retrieve($cacheKey);
             }
 
-            if($tax_data){
-                $tax_data->tax_id = $tax_id;
-                foreach($tax_data as $key => $value){
+            if($taxData){
+                $taxData->tax_id = $taxId;
+                foreach($taxData as $key => $value){
                     if(array_key_exists($key, $this)){
                         $this->{$key} = $value;
                     }
@@ -372,7 +373,7 @@ class JeproshopTaxModelTax extends JeproshopModel
      * @deprecated since 1.5
      */
     public static function getProductTaxRateViaRules($product_id, $country_id, $state_id, $zipcode){
-        Tools::displayAsDeprecated();
+        //JeproshopTools::displayAsDeprecated();
 
         if (!isset(self::$_product_tax_via_rules[$product_id . '-' . $country_id . '_' . $state_id . '_' . $zipcode])){
             $tax_rate = JeproshopTaxRulesGroupModelTaxRulesGroup::getTaxesRate((int)JeproshopProductModelProduct::getTaxRulesGroupIdByProductId((int)$product_id), (int)$country_id, (int)$state_id, $zipcode);
@@ -701,6 +702,7 @@ class JeproshopTaxRuleModelTaxRule extends JeproshopModel
     }
 }
 
+
 /****** --------- TAX RULES GROUP -------- *****/
 class JeproshopTaxRulesGroupModelTaxRulesGroup extends JeproshopModel
 {
@@ -718,10 +720,10 @@ class JeproshopTaxRulesGroupModelTaxRulesGroup extends JeproshopModel
 
     protected static $_taxes = array();
 
-    public function __construct($tax_rule_group_id = null){
+    public function __construct($taxRuleGroupId = null){
         $db = JFactory::getDBO();
-        if($tax_rule_group_id){
-            $cache_id = 'jeproshop_tax_rule_group_model_' . $tax_rule_group_id;
+        if($taxRuleGroupId){
+            $cache_id = 'jeproshop_tax_rule_group_model_' . $taxRuleGroupId;
             if(!JeproshopCache::isStored($cache_id)){
                 $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_tax_rules_group') . " AS tax_rules_group ";
                 /** Get Shop information **/
@@ -729,7 +731,7 @@ class JeproshopTaxRulesGroupModelTaxRulesGroup extends JeproshopModel
                     $query .= " LEFT JOIN " . $db->quoteName('#__jeproshop_tax_rules_group_shop') . " AS tax_rules_group_shop ON ( tax_rules_group.";
                     $query .= "tax_rules_group_id = tax_rules_group_shop.tax_rules_group_id AND tax_rules_group_shop.shop_id = " . (int)$this->shop_id . ")";
                 }
-                $query .= " WHERE tax_rules_group." . $db->quoteName('tax_rules_group_id') . " = " . (int)$tax_rule_group_id;
+                $query .= " WHERE tax_rules_group." . $db->quoteName('tax_rules_group_id') . " = " . (int)$taxRuleGroupId;
 
                 $db->setQuery($query);
                 $taxRuleGroupData = $db->loadObject();
@@ -743,7 +745,7 @@ class JeproshopTaxRulesGroupModelTaxRulesGroup extends JeproshopModel
                         $this->{$key} = $value;
                     }
                 }
-                $this->tax_rules_group_id = $tax_rule_group_id;
+                $this->tax_rules_group_id = $taxRuleGroupId;
             }
         }
     }
@@ -751,22 +753,23 @@ class JeproshopTaxRulesGroupModelTaxRulesGroup extends JeproshopModel
     public static function getTaxRulesGroups($published = TRUE){
         $db = JFactory::getDBO();
 
-        $query = "SELECT DISTINCT tax_rules_group." . $db->quoteName('tax_rules_group_id') . ", tax_rules_group.name, tax_rules_group.published FROM ";
-        $query .= $db->quoteName('#__jeproshop_tax_rules_group') . " AS tax_rules_group ". JeproshopShopModelShop::addSqlAssociation('tax_rules_group');
+        $query = "SELECT DISTINCT tax_rules_group." . $db->quoteName('tax_rules_group_id') . ", tax_rules_group." . $db->quoteName('name');
+        $query .= ", tax_rules_group." . $db->quoteName('published') . " FROM " . $db->quoteName('#__jeproshop_tax_rules_group');
+        $query .= " AS tax_rules_group ". JeproshopShopModelShop::addSqlAssociation('tax_rules_group');
         $query .= ($published ?  " WHERE tax_rules_group." . $db->quoteName('published') . " =  1" : "") . " ORDER BY name ASC";
-
+//echo $query; exit();
         $db->setQuery($query);
         return $db->loadObjectList();
     }
 
-    public static function getAssociatedTaxRatesByCountryId($country_id){
+    public static function getAssociatedTaxRatesByCountryId($countryId){
         $db = JFactory::getDBO();
 
         $query = "SELECT tax_rules_group." . $db->quoteName('tax_rules_group_id') . ", tax." . $db->quoteName('rate') . " FROM ";
         $query .= $db->quoteName('#__jeproshop_tax_rules_group') . " AS tax_rules_group LEFT JOIN " . $db->quoteName('#__jeproshop_tax_rule');
         $query .= " AS tax_rule ON(tax_rule." . $db->quoteName('tax_rules_group_id') . " = tax_rules_group." . $db->quoteName('tax_rules_group_id');
         $query .= ") LEFT JOIN " . $db->quoteName('#__jeproshop_tax') . " AS tax ON(tax." . $db->quoteName('tax_id') . " = tax_rule.";
-        $query .= $db->quoteName('tax_id') . ") WHERE tax_rule." . $db->quoteName('country_id') . " = " . (int)$country_id . " AND tax_rule.";
+        $query .= $db->quoteName('tax_id') . ") WHERE tax_rule." . $db->quoteName('country_id') . " = " . (int)$countryId . " AND tax_rule.";
         $query .= $db->quoteName('state_id') . " = 0 AND 0 between " . $db->quoteName('zipcode_from') . " AND " . $db->quoteName('zipcode_to');
 
         $db->setQuery($query);
@@ -800,14 +803,14 @@ class JeproshopTaxRulesGroupModelTaxRulesGroup extends JeproshopModel
         }
 
         $limit = $app->getUserStateFromRequest('global.list.limit', 'limit', $app->getCfg('list_limit'), 'int');
-        $limit_start = $app->getUserStateFromRequest($option . $view . '.limitstart', 'limitstart', 0, 'int');
-        $lang_id = $app->getUserStateFromRequest($option . $view . '.lang_id', 'lang_id', $context->language->lang_id, 'int');
-        $order_by = $app->getUserStateFromRequest($option . $view . '.order_by', 'order_by', 'date_add', 'string');
-        $order_way = $app->getUserStateFromRequest($option . $view . '.order_way', 'order_way', 'ASC', 'string');
+        $limitStart = $app->getUserStateFromRequest($option . $view . '.limitstart', 'limitstart', 0, 'int');
+        $langId = $app->getUserStateFromRequest($option . $view . '.lang_id', 'lang_id', $context->language->lang_id, 'int');
+        $orderBy = $app->getUserStateFromRequest($option . $view . '.order_by', 'order_by', 'date_add', 'string');
+        $orderVay = $app->getUserStateFromRequest($option . $view . '.order_way', 'order_way', 'ASC', 'string');
 
-        $use_limit = true;
+        $useLimit = true;
         if ($limit === false)
-            $use_limit = false;
+            $useLimit = false;
 
         do {
             $query = "SELECT SQL_CALC_FOUND_ROWS tax_rules_group." . $db->quoteName('tax_rules_group_id') . ", tax_rules_group." . $db->quoteName('name');
@@ -816,19 +819,19 @@ class JeproshopTaxRulesGroupModelTaxRulesGroup extends JeproshopModel
             $db->setQuery($query);
             $total = count($db->loadObjectList());
 
-            $query .= (($use_limit === true) ? " LIMIT " .(int)$limit_start . ", " .(int)$limit : "");
+            $query .= (($useLimit === true) ? " LIMIT " .(int)$limitStart . ", " .(int)$limit : "");
 
             $db->setQuery($query);
-            $tax_rules_groups = $db->loadObjectList();
+            $taxRulesGroups = $db->loadObjectList();
 
-            if($use_limit == true){
-                $limit_start = (int)$limit_start -(int)$limit;
-                if($limit_start < 0){ break; }
+            if($useLimit == true){
+                $limitStart = (int)$limitStart -(int)$limit;
+                if($limitStart < 0){ break; }
             }else{ break; }
-        } while (empty($tax_rules_groups));
+        } while (empty($taxRulesGroups));
 
-        $this->pagination = new JPagination($total, $limit_start, $limit);
-        return $tax_rules_groups;
+        $this->pagination = new JPagination($total, $limitStart, $limit);
+        return $taxRulesGroups;
     }
     /*
         public function getTaxRuleList(JeproshopContext $context = null){
@@ -938,11 +941,11 @@ class JeproshopTaxRulesGroupModelTaxRulesGroup extends JeproshopModel
         }
     }
 
-    public function delete()
-    {
+    public function delete(){
         $db = JFactory::getDBO();
 
-        $query = "DELETE FROM " . $db->quoteName('#__jeproshop_tax_rule') . " WHERE " . $db->quoteName('tax_rules_group_id') . " = " . $this->tax_rules_group_id;
+        $query = "DELETE FROM " . $db->quoteName('#__jeproshop_tax_rule') . " WHERE " . $db->quoteName('tax_rules_group_id');
+        $query .= " = " . $this->tax_rules_group_id;
         $db->setQuery($query);
         $res = $db->query();
         return (parent::deleste() && $res);
@@ -966,12 +969,12 @@ class JeproshopTaxRulesGroupModelTaxRulesGroup extends JeproshopModel
      * @param $state_id
      * @param $zipcode
      * @return float|int
-     */
+     * /
     public static function getTaxesRate($tax_rules_group_id, $country_id, $state_id, $zipcode)
     {
         Tools::displayAsDeprecated();
         $rate = 0;
-        foreach (TaxRulesGroup::getTaxes($tax_rules_group_id, $country_id, $state_id, $zipcode) as $tax)
+        foreach (JeproshopTaxRulesGroupModelTaxRulesGroup::getTaxes($tax_rules_group_id, $country_id, $state_id, $zipcode) as $tax)
             $rate += (float)$tax->rate;
 
         return $rate;
@@ -980,10 +983,10 @@ class JeproshopTaxRulesGroupModelTaxRulesGroup extends JeproshopModel
     /**
      * Return taxes associated to this para
      * @deprecated since 1.5
-     */
+     * /
     public static function getTaxes($tax_rules_group_id, $country_id, $state_id, $county_id)
     {
         Tools::displayAsDeprecated();
         return array();
-    }
+    } */
 }

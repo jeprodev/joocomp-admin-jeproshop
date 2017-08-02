@@ -771,14 +771,14 @@ class JeproshopProductModelProduct extends JeproshopModel{
     /**
      * Get all available product attributes resume
      *
-     * @param integer $lang_id Language id
-     * @param string $attribute_value_separator
-     * @param string $attribute_separator
+     * @param integer $langId Language id
+     * @param string $attributeValueSeparator
+     * @param string $attributeSeparator
      * @return array Product attributes combinations
      */
-    public function getAttributesResume($lang_id, $attribute_value_separator = ' - ', $attribute_separator = ', '){
+    public function getAttributesResume($langId, $attributeValueSeparator = ' - ', $attributeSeparator = ', '){
         if (!JeproshopCombinationModelCombination::isFeaturePublished()){ return array(); }
-        $add_shop = '';
+        $addShop = '';
 
         $db = JFactory::getDBO();
 
@@ -791,22 +791,22 @@ class JeproshopProductModelProduct extends JeproshopModel{
 
         if (!$combinations){ return false; }
 
-        $product_attributes = array();
+        $productAttributes = array();
         foreach ($combinations as $combination){
-            $product_attributes[] = (int)$combination->product_attribute_id;
+            $productAttributes[] = (int)$combination->product_attribute_id;
         }
         $query = "SELECT product_attribute_combination.product_attribute_id, GROUP_CONCAT(attribute_group_lang." . $db->quoteName('name') . ", ";
-        $query .= $db->quote($attribute_value_separator) . ",attribute_lang." . $db->quoteName('name') . " ORDER BY attribute_group_lang.";
-        $query .= $db->quoteName('attribute_group_id') . " SEPARATOR " . $db->quote($attribute_separator).") as attribute_designation FROM ";
+        $query .= $db->quote($attributeValueSeparator) . ",attribute_lang." . $db->quoteName('name') . " ORDER BY attribute_group_lang.";
+        $query .= $db->quoteName('attribute_group_id') . " SEPARATOR " . $db->quote($attributeSeparator).") as attribute_designation FROM ";
         $query .= $db->quoteName('#__jeproshop_product_attribute_combination') . " AS product_attribute_combination LEFT JOIN ";
         $query .= $db->quoteName('#__jeproshop_attribute') . " AS attribute ON attribute." . $db->quoteName('attribute_id') . " = product_attribute_combination.";
         $query .= $db->quoteName('attribute_id') . " LEFT JOIN " . $db->quoteName('#__jeproshop_attribute_group') . " AS attribute_group ON attribute_group.";
         $query .= $db->quoteName('attribute_group_id') . " = attribute." . $db->quoteName('attribute_group_id') . " LEFT JOIN " . $db->quoteName('#__jeproshop_attribute_lang');
         $query .= " AS attribute_lang ON (attribute." . $db->quoteName('attribute_id') . " = attribute_lang." . $db->quoteName('attribute_id') . " AND attribute_lang.";
-        $query .= $db->quoteName('lang_id') . " = " .(int)$lang_id . ") LEFT JOIN " . $db->quoteName('#__jeproshop_attribute_group_lang');
+        $query .= $db->quoteName('lang_id') . " = " .(int)$langId . ") LEFT JOIN " . $db->quoteName('#__jeproshop_attribute_group_lang');
         $query .= " AS attribute_group_lang ON (attribute_group." . $db->quoteName('attribute_group_id') . " = attribute_group_lang." . $db->quoteName('attribute_group_id');
-        $query .= " AND attribute_group_lang." . $db->quoteName('lang_id') . " = " . (int)$lang_id . ") WHERE product_attribute_combination.product_attribute_id IN (";
-        $query .= implode(',', $product_attributes).") GROUP BY product_attribute_combination.product_attribute_id";
+        $query .= " AND attribute_group_lang." . $db->quoteName('lang_id') . " = " . (int)$langId . ") WHERE product_attribute_combination.product_attribute_id IN (";
+        $query .= implode(',', $productAttributes).") GROUP BY product_attribute_combination.product_attribute_id";
 
         $db->setQuery($query);
         $lang = $db->loadObjectList();
@@ -817,15 +817,15 @@ class JeproshopProductModelProduct extends JeproshopModel{
 
         //Get quantity of each variations
         foreach ($combinations as $key => $row){
-            $cache_key = $row->product_id.'_'.$row->product_attribute_id.'_quantity';
+            $cacheKey = $row->product_id.'_'.$row->product_attribute_id.'_quantity';
 
-            if (!JeproshopCache::isStored($cache_key))
+            if (!JeproshopCache::isStored($cacheKey))
                 JeproshopCache::store(
-                    $cache_key,
+                    $cacheKey,
                     JeproshopStockAvailableModelStockAvailable::getQuantityAvailableByProduct($row->product_id, $row->product_attribute_id)
                 );
 
-            $combinations[$key]->quantity = JeproshopCache::retrieve($cache_key);
+            $combinations[$key]->quantity = JeproshopCache::retrieve($cacheKey);
         }
 
         return $combinations;
@@ -897,5 +897,606 @@ class JeproshopProductModelProduct extends JeproshopModel{
         return $db->loadObjectList();
     }
 
+    /**
+     * Get product price
+     *
+     * @param integer $productId Product id
+     * @param boolean $useTax With taxes or not (optional)
+     * @param integer $productAttributeId Product attribute id (optional).
+     *    If set to false, do not apply the combination price impact. NULL does apply the default combination price impact.
+     * @param integer $decimals Number of decimals (optional)
+     * @param boolean $onlyReduction Returns only the reduction amount
+     * @param boolean $useReduction Set if the returned amount will include reduction
+     * @param integer $quantity Required for quantity discount application (default value: 1)
+     * @param integer $customerId Customer ID (for customer group reduction)
+     * @param integer $cartId Cart ID. Required when the cookie is not accessible (e.g., inside a payment module, a cron task...)
+     * @param integer $addressId Customer address ID. Required for price (tax included) calculation regarding the guest localization
+     * @param null $specificPriceOutput
+     * @param boolean $withEcoTax insert ecotax in price output.
+     * @param bool $useGroupReduction
+     * @param JeproshopContext $context
+     * @param bool $useCustomerPrice
+     * @internal param int $divisor Useful when paying many time without fees (optional)
+     * @internal param \variable_reference $specificPriceOutput .
+     *    If a specific price applies regarding the previous parameters, this variable is filled with the corresponding SpecificPrice object
+     * @return float Product price
+     */
+    public static function getStaticPrice($productId, $useTax = true, $productAttributeId = null, $decimals = 6, $onlyReduction = false, $useReduction = true, $quantity = 1, $customerId = null,
+                                          $cartId = null, $addressId = null, $specificPriceOutput = null, $withEcoTax = true, $useGroupReduction = true, JeproshopContext $context = null, $useCustomerPrice = true){
+        if(!$context){
+            $context = JeproshopContext::getContext();
+        }
 
+        $cur_cart = $context->cart;
+
+        if (!JeproshopTools::isBool($useTax) || !JeproshopTools::isUnsignedInt($productId)){
+            //die(Tools::displayError());
+        }
+
+        // Initializations
+        $groupId = (int)JeproshopGroupModelGroup::getCurrent()->group_id;
+
+        // If there is cart in context or if the specified id_cart is different from the context cart id
+        if (!is_object($cur_cart) || (JeproshopTools::isUnsignedInt($cartId) && $cartId && $cur_cart->cart_id != $cartId)){
+            /*
+             * When a user (e.g., guest, customer, Google...) is on Jeproshop, he has already its cart as the global (see /init.php)
+             * When a non-user calls directly this method (e.g., payment module...) is on JeproShop, he does not have already it BUT knows the cart ID
+             * When called from the back office, cart ID can be inexistent
+             * /
+            if (!$cartId && !isset($context->employee)){
+                JError::raiseError(500, __FILE__ . ' ' . __LINE__);
+            }*/
+            $currentCart = new JeproshopCartModelCart($cartId);
+            // Store cart in context to avoid multiple instantiations in BO
+            if (!JeproshopTools::isLoadedObject($context->cart, 'cart_id')){
+                $context->cart = $currentCart;
+            }
+        }
+        $db = JFactory::getDBO();
+        $cartQuantity = 0;
+        if ((int)$cartId){
+            $cacheKey= 'jeproshop_product_model_get_price_static_' . (int)$productId .'_' . (int)$cartId;
+            $cart_qty = JeproshopCache::retrieve($cacheKey);
+            if (!JeproshopCache::isStored($cacheKey) || ( $cart_qty != (int)$quantity)){
+                $query = "SELECT SUM(" . $db->quoteName('quantity') . ") FROM " . $db->quoteName('#__jeproshop_cart_product');
+                $query .= " WHERE " . $db->quoteName('product_id') . " = " . (int)$productId . " AND " . $db->quoteName('cart_id');
+                $query .= " = " .(int)$cartId;
+                $db->setQuery($query);
+                $cartQuantity = (int)$db->loadResult();
+                JeproshopCache::store($cacheKey, $cartQuantity);
+            }
+            $cartQuantity = JeproshopCache::retrieve($cacheKey);
+        }
+
+        $currencyId = (int)JeproshopTools::isLoadedObject($context->currency, 'currency_id') ? $context->currency->currency_id : JeproshopSettingModelSetting::getValue('default_currency');
+
+        // retrieve address information
+        $countryId = (int)$context->country->country_id;
+        $stateId = 0;
+        $zipCode = 0;
+
+        if (!$addressId && JeproshopTools::isLoadedObject($cur_cart, 'cart_id')){
+            $addressId = $cur_cart->{JeproshopSettingModelSetting::getValue('tax_address_type')};
+        }
+
+        if ($addressId){
+            $addressInfo = JeproshopAddressModelAddress::getCountryAndState($addressId);
+            if ($addressInfo->country_id){
+                $countryId = (int)$addressInfo->country_id;
+                $stateId = (int)$addressInfo->state_id;
+                $zipCode = $addressInfo->postcode;
+            }
+        }else if (isset($context->customer->geoloc_country_id)){
+            $countryId = (int)$context->customer->geoloc_country_id;
+            $stateId = (int)$context->customer->state_id;
+            $zipCode = (int)$context->customer->postcode;
+        }
+
+        if (JeproshopTaxModelTax::taxExcludedOption()){
+            $useTax = false;
+        }
+
+        if ($useTax != false && !empty($addressInfo->vat_number)
+            && $addressInfo->country_id != JeproshopSettingModelSetting::getValue('vat_number_country')
+            && JeproshopSettingModelSetting::getValue('vat_number_management')){
+            $useTax = false;
+        }
+
+        if (is_null($customerId) && JeproshopTools::isLoadedObject($context->customer, 'customer_id')){
+            $customerId = $context->customer->customer_id;
+        }
+
+        return JeproshopProductModelProduct::priceCalculation($context->shop->shop_id, $productId,
+            $productAttributeId, $countryId, $stateId, $zipCode, $currencyId, $groupId,
+            $quantity, $useTax, $decimals, 	$onlyReduction, $useReduction, $withEcoTax, $specificPriceOutput,
+            $useGroupReduction, $customerId, $useCustomerPrice, $cartId, $cartQuantity
+        );
+    }
+
+    /**
+     * Price calculation / Get product price
+     *
+     * @param integer $shopId Shop id
+     * @param integer $productId Product id
+     * @param integer $productAttributeId Product attribute id
+     * @param integer $countryId Country id
+     * @param integer $stateId State id
+     * @param $zipCode
+     * @param integer $currencyId Currency id
+     * @param integer $groupId Group id
+     * @param integer $quantity Quantity Required for Specific prices : quantity discount application
+     * @param boolean $useTax with (1) or without (0) tax
+     * @param integer $decimals Number of decimals returned
+     * @param boolean $onlyReduction Returns only the reduction amount
+     * @param boolean $useReduction Set if the returned amount will include reduction
+     * @param boolean $withEcotaxInsertEcotax in price output.
+     * @param $specificPrice
+     * @param $useGroupReduction
+     * @param int $customerId
+     * @param bool $useCustomerPrice
+     * @param int $cartId
+     * @param int $realQuantity
+     * @internal param \variable_reference $specific_price_output If a specific price applies regarding the previous parameters, this variable is filled with the corresponding SpecificPrice object*    If a specific price applies regarding the previous parameters, this variable is filled with the corresponding SpecificPrice object
+     * @return float Product price
+     */
+    public static function priceCalculation($shopId, $productId, $productAttributeId, $countryId, $stateId, $zipCode, $currencyId, $groupId, $quantity, $useTax,
+                                            $decimals, $onlyReduction, $useReduction, $withEcoTax, &$specificPrice, $useGroupReduction, $customerId = 0, $useCustomerPrice = true, $cartId = 0, $realQuantity = 0){
+        static $address = null;
+        static $context = null;
+
+        if ($address === null){
+            $address = new JeproshopAddressModelAddress();
+        }
+
+        if ($context == null){
+            $context = JeproshopContext::getContext()->cloneContext();
+        }
+
+        if ($shopId !== null && $context->shop->shop_id != (int)$shopId){
+            $context->shop = new JeproshopShopModelShop((int)$shopId);
+        }
+
+        if (!$useCustomerPrice){
+            $customerId = 0;
+        }
+
+        if ($productAttributeId === null){
+            $productAttributeId = JeproshopProductModelProduct::getDefaultAttribute($productId);
+        }
+
+        $cacheKey = $productId . '_' .$shopId . '_' . $currencyId . '_' . $countryId . '_' . $stateId . '_' . $zipCode . '_' . $groupId .
+            '_' . $quantity . '_' . $productAttributeId . '_' .($useTax ? '1' : '0').'_' . $decimals.'_'. ($onlyReduction ? '1' :'0').
+            '_'.($useReduction ?'1':'0') . '_' . $withEcoTax. '_' . $customerId . '_'.(int)$useGroupReduction.'_'.(int)$cartId.'-'.(int)$realQuantity;
+
+        // reference parameter is filled before any returns
+        $specificPrice = JeproshopSpecificPriceModelSpecificPrice::getSpecificPrice((int)$productId, $shopId, $currencyId,
+            $countryId, $groupId, $quantity, $productAttributeId, $customerId, $cartId, $realQuantity
+        );
+
+        if (isset(self::$_prices[$cacheKey])){
+            return self::$_prices[$cacheKey];
+        }
+        $db = JFactory::getDBO();
+        // fetch price & attribute price
+        $cacheKey2 = $productId . '_' . $shopId;
+        if (!isset(self::$_pricesLevel2[$cacheKey])){
+            $select = "SELECT product_shop." . $db->quoteName('price') . ", product_shop." . $db->quoteName('ecotax');
+            $from = $db->quoteName('#__jeproshop_product') . " AS product INNER JOIN " . $db->quoteName('#__jeproshop_product_shop');
+            $from .= " AS product_shop ON (product_shop.product_id = product.product_id AND product_shop.shop_id = " .(int)$shopId  . ")";
+
+            if (JeproshopCombinationModelCombination::isFeaturePublished()){
+                $select .= ", product_attribute_shop.product_attribute_id, product_attribute_shop." . $db->quoteName('price') . " AS attribute_price, product_attribute_shop.default_on";
+                $leftJoin = " LEFT JOIN " . $db->quoteName('#__jeproshop_product_attribute') .  " AS product_attribute ON product_attribute.";
+                $leftJoin .= $db->quoteName('product_id') . " = product." . $db->quoteName('product_id') . " LEFT JOIN " . $db->quoteName('#__jeproshop_product_attribute_shop');
+                $leftJoin .= " AS product_attribute_shop ON (product_attribute_shop.product_attribute_id = product_attribute.product_attribute_id AND product_attribute_shop.shop_id = " .(int)$shopId .")";
+            }else{
+                $select .= ", 0 as product_attribute_id";
+                $leftJoin = "";
+            }
+            $query = $select . " FROM " . $from . $leftJoin . " WHERE product." . $db->quoteName('product_id') . " = " . (int)$productId;
+
+            $db->setQuery($query);
+            $results = $db->loadObjectList();
+
+            foreach ($results as $row){
+                $array_tmp = array(
+                    'price' => $row->price, 'ecotax' => $row->ecotax,
+                    'attribute_price' => (isset($row->attribute_price) ? $row->attribute_price : null)
+                );
+
+                self::$_pricesLevel2[$cacheKey2][(int)$row->product_attribute_id] = $array_tmp;
+
+                if (isset($row->default_on) && $row->default_on == 1){
+                    self::$_pricesLevel2[$cacheKey2][0] = $array_tmp;
+                }
+            }
+        }
+
+        if (!isset(self::$_pricesLevel2[$cacheKey2][(int)$productAttributeId])){
+            return;
+        }
+
+        $result = self::$_pricesLevel2[$cacheKey2][(int)$productAttributeId];
+
+        if (!$specificPrice || $specificPrice->price < 0){
+            $price = (float)$result['price'];
+        }else{
+            $price = (float)$specificPrice->price;
+        }
+
+        // convert only if the specific price is in the default currency (id_currency = 0)
+        if (!$specificPrice || !($specificPrice->price >= 0 && $specificPrice->currency_id)){
+            $price = JeproshopTools::convertPrice($price, $currencyId);
+        }
+
+        // Attribute price
+        if (is_array($result) && (!$specificPrice || !$specificPrice->product_attribute_id || $specificPrice->price < 0)){
+            $attributePrice = JeproshopTools::convertPrice($result['attribute_price'] !== null ? (float)$result['attribute_price'] : 0, $currencyId);
+            // If you want the default combination, please use NULL value instead
+            if ($productAttributeId !== false){
+                $price += $attributePrice;
+            }
+        }
+
+        // Tax
+        $address->country_id = $countryId;
+        $address->state_id = $stateId;
+        $address->postcode = $zipCode;
+
+        $taxManager = JeproshopTaxManagerFactory::getManager($address, JeproshopProductModelProduct::getTaxRulesGroupIdByProductId((int)$productId, $context));
+        $productTaxCalculator = $taxManager->getTaxCalculator();
+
+        // Add Tax
+        if ($useTax){
+            $price = $productTaxCalculator->addTaxes($price);
+        }
+
+        // Reduction
+        $specificPriceReduction = 0;
+        if (($onlyReduction || $useReduction) && $specificPrice){
+            if ($specificPrice->reduction_type == 'amount'){
+                $reductionAmount = $specificPrice->reduction;
+
+                if (!$specificPrice->currency_id){
+                    $reductionAmount = JeproshopTools::convertPrice($reductionAmount, $currencyId);
+                }
+                $specificPriceReduction = !$useTax ? $productTaxCalculator->removeTaxes($reductionAmount) : $reductionAmount;
+            }else{
+                $specificPriceReduction = $price * $specificPrice->reduction;
+            }
+        }
+
+        if ($useReduction){
+            $price -= $specificPriceReduction;
+        }
+
+        // Group reduction
+        if($useGroupReduction){
+            $reductionFromCategory = JeproshopGroupReductionModelGroupReduction::getValueForProduct($productId, $groupId);
+            if ($reductionFromCategory !== false){
+                $groupReduction = $price * (float)$reductionFromCategory;
+            }else {
+                // apply group reduction if there is no group reduction for this category
+                $groupReduction = (($reduction = JeproshopGroupModelGroup::getReductionByGroupId($groupId)) != 0) ? ($price * $reduction / 100) : 0;
+            }
+        }else{
+            $groupReduction = 0;
+        }
+
+        if ($onlyReduction){
+            return JeproshopTools::roundPrice($groupReduction + $specificPriceReduction, $decimals);
+        }
+
+        if ($useReduction){  $price -= $groupReduction;   }
+
+        // Eco Tax
+        if (($result['ecotax'] || isset($result['attribute_ecotax'])) && $withEcoTax){
+            $ecoTax = $result['ecotax'];
+            if (isset($result['attribute_ecotax']) && $result['attribute_ecotax'] > 0){
+                $ecoTax = $result['attribute_ecotax'];
+            }
+            if ($currencyId){
+                $ecoTax = JeproshopTools::convertPrice($ecoTax, $currencyId);
+            }
+
+            if ($useTax){
+                // re-init the tax manager for eco-tax handling
+                $taxManager = JeproshopTaxManagerFactory::getManager($address, (int)  JeproshopSettingModelSetting::getValue('ecotax_tax_rules_group_id'));
+                $ecoTaxTaxCalculator = $taxManager->getTaxCalculator();
+                $price += $ecoTaxTaxCalculator->addTaxes($ecoTax);
+            }else{
+                $price += $ecoTax;
+            }
+        }
+        $price = JeproshopTools::roundPrice($price, $decimals);
+        if ($price < 0){
+            $price = 0;
+        }
+
+        self::$_prices[$cacheKey] = $price;
+        return self::$_prices[$cacheKey];
+    }
+
+    public static function getMostUsedTaxRulesGroupId(){
+        $db = JFactory::getDBO();
+
+        $query = "SELECT " . $db->quoteName('tax_rules_group_id') . " FROM ( SELECT COUNT(*) n, product_shop." . $db->quoteName('tax_rules_group_id');
+        $query .= " FROM " . $db->quoteName('#__jeproshop_product') . " AS product " . JeproshopShopModelShop::addSqlAssociation('product');
+        $query .=  " JOIN " . $db->quoteName('#__jeproshop_tax_rules_group') . " AS tax_rule_group ON (product_shop." . $db->quoteName('tax_rules_group_id');
+        $query .= " = tax_rule_group." . $db->quoteName('tax_rules_group_id') . ") WHERE tax_rule_group." . $db->quoteName('published');
+        $query .= " = 1 AND tax_rule_group." . $db->quoteName('deleted') . " = 0 GROUP BY product_shop." . $db->quoteName('tax_rules_group_id');
+        $query .= " ORDER BY n DESC LIMIT 1 ) most_used";
+
+        $db->setQuery($query);
+        $data = $db->loadObject();;
+
+        return (isset($data) ? $data->tax_rules_group_id : 0);
+    }
+
+    public function getTaxRulesGroupId(){
+        return $this->tax_rules_group_id;
+    }
+
+    /**
+     * Select all features for the object
+     *
+     * @return array Array with feature product's data
+     */
+    public function getFeatures(){
+        return JeproshopProductModelProduct::getStaticFeatures((int)$this->product_id);
+    }
+
+    public static function getStaticFeatures($productId){
+        if (!JeproshopFeatureModelFeature::isFeaturePublished()){ return array(); }
+        if (!array_key_exists($productId, self::$_cacheFeatures)){
+            $db = JFactory::getDBO();
+
+            $query = "SELECT product_feature.feature_id, product_feature.product_id, product_feature.feature_value_id, custom FROM ";
+            $query .= $db->quoteName('#__jeproshop_feature_product') . " AS product_feature LEFT JOIN " . $db->quoteName('#__jeproshop_feature_value');
+            $query .= " AS feature_value ON (product_feature.feature_value_id = feature_value.feature_value_id ) WHERE ";
+            $query .= $db->quoteName('product_id') . " = " .(int)$productId;
+
+            $db->setQuery($query);
+            self::$_cacheFeatures[$productId] = $db->loadObjectList();
+        }
+        return self::$_cacheFeatures[$productId];
+    }
+
+    public function getCombinationImages($langId){
+        if (!JeproshopCombinationModelCombination::isFeaturePublished()){ return false; }
+
+        $db = JFactory::getDBO();
+
+        $query = "SELECT " . $db->quoteName('product_attribute_id') . " FROM " . $db->quoteName('#__jeproshop_product_attribute');
+        $query .= " WHERE " . $db->quoteName('product_id') . " = " . (int)$this->product_id;
+        $db->setQuery($query);
+        $product_attributes = $db->loadObjectList();
+
+        if (!$product_attributes)
+            return false;
+
+        $ids = array();
+
+        foreach ($product_attributes as $product_attribute){
+            $ids[] = (int)$product_attribute->product_attribute_id;
+        }
+
+        $query = "SELECT product_attribute_image." . $db->quoteName('image_id') . ", product_attribute_image." . $db->quoteName('product_attribute_id');
+        $query .= ", image_lang." . $db->quoteName('legend') . " FROM " . $db->quoteName('#__jeproshop_product_attribute_image') . " AS product_attribute_image";
+        $query .= " LEFT JOIN " . $db->quoteName('#__jeproshop_image_lang') . " AS image_lang ON (image_lang." . $db->quoteName('image_id') . " = product_attribute_image.";
+        $query .= $db->quoteName('image_id') . ") LEFT JOIN " . $db->quoteName('#__jeproshop_image') . " AS image ON (image." . $db->quoteName('image_id');
+        $query .= " = product_attribute_image." . $db->quoteName('image_id') . ") WHERE product_attribute_image." . $db->quoteName('product_attribute_id');
+        $query .= " IN (" .implode(', ', $ids). ") AND image_lang." . $db->quoteName('lang_id') . " = " .(int)$langId . " ORDER by image." . $db->quoteName('position');
+
+        $db->setQuery($query);
+        $result = $db->loadObjectList();
+
+        if (!$result)
+            return false;
+
+        $images = array();
+
+        foreach ($result as $row)
+            $images[$row->product_attribute_id][] = $row;
+
+        return $images;
+    }
+
+    public static function getTaxRulesGroupIdByProductId($productId, JeproshopContext $context = null) {
+        if (!$context){
+            $context = JeproshopContext::getContext();
+        }
+        $key = 'product_tax_rules_group_id_'.(int)$productId .'_'.(int)$context->shop->shop_id;
+        if (!JeproshopCache::isStored($key)){
+            $db = JFactory::getDBO();
+
+            $query = "SELECT " . $db->quoteName('tax_rules_group_id') . " FROM " . $db->quoteName('#__jeproshop_product_shop') . " WHERE ";
+            $query .= $db->quoteName('product_id') . " = " .(int)$productId . " AND shop_id = " .(int)$context->shop->shop_id;
+
+            $db->setQuery($query);
+            $taxRulesGroupId = $db->loadObject()->tax_rules_group_id;
+            JeproshopCache::store($key, $taxRulesGroupId);
+        }
+        return JeproshopCache::retrieve($key);
+    }
+
+    public static function cacheProductsFeatures($productIds) {
+        if (!JeproshopFeatureModelFeature::isFeaturePublished()){ return; }
+
+        $product_implode = array();
+        foreach ($productIds as $productId) {
+            if ((int)$productId && !array_key_exists($productId, self::$_cacheFeatures)) {
+                $product_implode[] = (int)$productId;
+            }
+        }
+
+        if (!count($product_implode)){ return; }
+
+        $db = JFactory::getDBO();
+
+        $query = "SELECT feature_id, product_id, feature_value_id FROM " . $db->quoteName('#__jeproshop_feature_product') . " WHERE ";
+        $query .= $db->quoteName('product_id') . " IN (" .implode($product_implode, ','). ")";
+
+        $db->setQuery($query);
+        $result = $db->loadObjectList();
+
+        foreach ($result as $row){
+            if (!array_key_exists($row->product_id, self::$_cacheFeatures))
+                self::$_cacheFeatures[$row->product_id] = array();
+            self::$_cacheFeatures[$row->product_id][] = $row;
+        }
+    }
+
+    public static function defineProductImage($row, $langId){
+        if (isset($row->image_id) && $row->image_id)
+            return $row->product_id . '_' .$row->image_id;
+
+        return JeproshopLanguageModelLanguage::getIsoCodeByLanguageId((int)$langId).'_default';
+    }
+
+    public static function isAvailableWhenOutOfStock($outOfStock){
+        // @TODO Update of STOCK_MANAGEMENT & ORDER_OUT_OF_STOCK
+        $return = (int)$outOfStock == 2 ? (int)JeproshopSettingModelSetting::getValue('order_out_of_stock') : (int)$outOfStock;
+        return !JeproshopSettingModelSetting::getValue('stock_management')? true : $return;
+    }
+
+    public static function getTaxesInformation($row, JeproshopContext $context = null){
+        static $address = null;
+
+        if ($context === null)
+            $context = JeproshopContext::getContext();
+        if ($address === null)
+            $address = new JeproshopAddressModelAddress();
+
+        $address->country_id = (int)$context->country->country_id;
+        $address->state_id = 0;
+        $address->postcode = 0;
+
+        $taxManager = JeproshopTaxManagerFactory::getManager($address, JeproshopProductModelProduct::getTaxRulesGroupIdByProductId((int)$row->product_id, $context));
+        $row->rate = $taxManager->getTaxCalculator()->getTotalRate();
+        $row->tax_name = $taxManager->getTaxCalculator()->getTaxesName();
+
+        return $row;
+    }
+
+    public static function getCoverImage($productId){
+        $db = JFactory::getDBO();
+        $query = "SELECT " . $db->quoteName('image_id') . " FROM " . $db->quoteName('#__jeproshop_image') . " WHERE ";
+        $query .= $db->quoteName('product_id') . " = " . (int)$productId . " AND cover = 1 ";
+
+        $db->setQuery($query);
+        return $db->loadObject();
+    }
+
+    /*
+	 ** Customization management
+	 */
+    public static function getAllCustomizedData($cartId, $langId = null, $onlyInCart = true){
+        if (!JeproshopCustomization::isFeaturePublished()){ return false; }
+
+        // No need to query if there isn't any real cart!
+        if (!$cartId){ return false; }
+        if (!$langId){	$langId = JeproshopContext::getContext()->language->lang_id; }
+
+        $db = JFactory::getDBO();
+
+        $query = "SELECT customized_data." . $db->quoteName('customization_id') . ", customization." . $db->quoteName('delivery_address_id');
+        $query .= ", customization." . $db->quoteName('product_id') . ", customization_field_lang." . $db->quoteName('customization_field_id');
+        $query .= ", customization." . $db->quoteName('product_attribute_id') . ", customized_data." . $db->quoteName('type') . ", ";
+        $query .= "customized_data." . $db->quoteName('index') . ", customized_data." . $db->quoteName('value') . ", ";
+        $query .= "customization_field_lang." . $db->quoteName('name') . " FROM " . $db->quoteName('#__jeproshop_customized_data') . " AS ";
+        $query .= " customized_data NATURAL JOIN " . $db->quoteName('#__jeproshop_customization') . " AS customization LEFT JOIN ";
+        $query .= $db->quoteName('#__jeproshop_customization_field_lang') . " AS customization_field_lang ON (customization_field_lang.";
+        $query .= "customization_field_id = customized_data." . $db->quoteName('index') . " AND lang_id = " .(int)$langId . ") WHERE ";
+        $query .= "customization." . $db->quoteName('cart_id') . " = " . (int)$cartId . ($onlyInCart ? " AND customization." .$db->quoteName('in_cart') . " = 1"  : "");
+        $query .= " ORDER BY " . $db->quoteName('product_id'). ", " . $db->quoteName('product_attribute_id') . ", " . $db->quoteName('type') . ", " . $db->quoteName('index');
+
+        $db->setQuery($query);
+        $result = $db->loadObjectList();
+
+        if (!$result){ return false; }
+
+        $customizedData = array();
+
+        foreach ($result as $row){
+            $customizedData[(int)$row->product_id][(int)$row->product_attribute_id][(int)$row->delivery_address_id][(int)$row->customization_id]['data'][(int)$row->type][] = $row;
+        }
+
+        $query = "SELECT " . $db->quoteName('product_id') . ", " . $db->quoteName('product_attribute_id') . ", " . $db->quoteName('customization_id');
+        $query .= ", " . $db->quoteName('address_delivery_id') . ", " . $db->quoteName('quantity') . ", " . $db->quoteName('quantity_refunded') . ", ";
+        $query .= $db->quoteName('quantity_returned') . " FROM " . $db->quoteName('#__jeproshop_customization') . " WHERE " . $db->quoteName('cart_id');
+        $query .= " = " . (int)($cartId) . ($onlyInCart ? " AND " . $db->quoteName('in_cart') . " = 1"  : "");
+
+        $db->seQuery($query);
+        $result = $db->loadObjectList();
+        if (!$result ){ return false; }
+
+        foreach ($result as $row){
+            $customizedData[(int)$row->product_id][(int)$row->product_attribute_id][(int)$row->address_delivery_id][(int)$row->customization_id]['quantity'] = (int)$row->quantity;
+            $customizedData[(int)$row->product_id][(int)$row->product_attribute_id][(int)$row->address_delivery_id][(int)$row->customization_id]['quantity_refunded'] = (int)$row->quantity_refunded;
+            $customizedData[(int)$row->product_id][(int)$row->product_attribute_id][(int)$row->address_delivery_id][(int)$row->customization_id]['quantity_returned'] = (int)$row->quantity_returned;
+        }
+
+        return $customizedData;
+    }
+
+    public static function addCustomizationPrice(&$products, &$customizedData){ 
+        /*if (!$customizedData) {
+            return;
+        } */
+
+        foreach ($products as &$productUpdate){
+            if (!JeproshopCustomization::isFeaturePublished()){
+                $productUpdate->customization_quantity_total = 0;
+                $productUpdate->customization_quantity_refunded = 0;
+                $productUpdate->customization_quantity_returned = 0;
+            }else{
+                $customizationQuantity = 0;
+                $customizationQuantityRefunded = 0;
+                $customizationQuantityReturned = 0;
+
+                /* Compatibility */
+                $productId = (int)(isset($productUpdate->product_id) ? $productUpdate->product_id : $productUpdate->product_id);
+                $productAttributeId = (int)(isset($productUpdate->product_attribute_id) ? $productUpdate->product_attribute_id : $productUpdate->product_attribute_id);
+                $deliveryAddressId = (int)$productUpdate->delivery_address_id;
+                $productQuantity = (int)(isset($productUpdate->cart_quantity) ? $productUpdate->cart_quantity : $productUpdate->product_quantity);
+                $price = isset($productUpdate->price) ? $productUpdate->price : 0;
+                if (isset($productUpdate->price_with_tax) && $productUpdate->price_with_tax)
+                    $priceWithTax = $productUpdate->price_with_tax;
+                else
+                    $priceWithTax = $price * (1 + ((isset($productUpdate->tax_rate) ? $productUpdate->tax_rate : $productUpdate->rate) * 0.01));
+
+                if (!isset($customizedData[$productId][$productAttributeId][$deliveryAddressId]))
+                    $deliveryAddressId = 0;
+                if (isset($customizedData[$productId][$productAttributeId][$deliveryAddressId])){
+                    foreach ($customizedData[$productId][$productAttributeId][$deliveryAddressId] as $customization){
+                        $customizationQuantity += (int)$customization->quantity;
+                        $customizationQuantityRefunded += (int)$customization->quantity_refunded;
+                        $customizationQuantityReturned += (int)$customization->quantity_returned;
+                    }
+                }
+
+                $productUpdate->customization_quantity_total = $customizationQuantity;
+                $productUpdate->customization_quantity_refunded = $customizationQuantityRefunded;
+                $productUpdate->customization_quantity_returned = $customizationQuantityReturned;
+
+                if ($customizationQuantity){
+                    $productUpdate->total_with_tax = $priceWithTax * ($productQuantity - $customizationQuantity);
+                    $productUpdate->total_customization_with_tax = $priceWithTax * $customizationQuantity;
+                    $productUpdate->total = $price * ($productQuantity - $customizationQuantity);
+                    $productUpdate->total_customization = $price * $customizationQuantity;
+                }
+            }
+        }
+    }
+
+    public static function getProductAttributeCoverImage($productAttributeId){
+        $db = JFactory::getDBO();
+
+        $query = "SELECT " . $db->quoteName('image_id') . " FROM " . $db->quoteName('#__jeproshop_product_attribute_image');
+        $query .= " WHERE product_attribute_id = " . (int)$productAttributeId;
+
+        $db->setQuery($query);
+        return $db->loadObject();
+    }
 }

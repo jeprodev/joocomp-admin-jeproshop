@@ -33,7 +33,7 @@ defined('_JEXEC') or die('Restricted access');
         <?php echo $this->renderLocalisationSubMenu('states'); ?>
         <div class="separation"></div>
         <div class="panel" >
-            <div class="panel-content well" >
+            <div class="panel-content" >
                 <table class="table table-striped" id="state-list" >
                     <thead>
                     <tr>

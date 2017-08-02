@@ -25,29 +25,32 @@
 defined('_JEXEC') or die('Restricted access');
 
 class JeproshopCategoryViewCategory extends JeproshopViewLegacy{
+    public $category = null;
+
     public function renderDetails($tpl = null){
         $app = JFactory::getApplication();
-        $category_id = $app->input->get('category_id');
+        $categoryId = $app->input->get('category_id');
 
         if(!isset($this->context) || empty($this->context)){ $this->context = JeproshopContext::getContext(); }
-        if(!JeproshopShopModelShop::isFeaturePublished() && count(JeproshopCategoryModelCategory::getCategoriesWithoutParent()) > 1 && $category_id){
-            $categories_tree = array(get_object_vars($this->context->controller->category->getTopCategory()));
+
+        if(!JeproshopShopModelShop::isFeaturePublished() && count(JeproshopCategoryModelCategory::getCategoriesWithoutParent()) > 1 && $categoryId){
+            $categoriesTree = array(get_object_vars($this->context->controller->category->getTopCategory()));
         }else{
-            $categories_tree = $this->context->controller->category->getParentsCategories();
-            $end = end($categories_tree);
-            if(isset($categories_tree) && !JeproshopShopModelShop::isFeaturePublished() && (isset($end) && $end->parent_id != 0)){
-                $categories_tree = array_merge($categories_tree, array(get_object_vars($this->context->controller->category->getTopCategory())));
+            $categoriesTree = $this->context->controller->category->getParentsCategories();
+            $end = end($categoriesTree);
+            if(isset($categoriesTree) && !JeproshopShopModelShop::isFeaturePublished() && (isset($end) && $end->parent_id != 0)){
+                $categoriesTree = array_merge($categoriesTree, array(get_object_vars($this->context->controller->category->getTopCategory())));
             }
         }
 
-        $count_categories_without_parent = count(JeproshopCategoryModelCategory::getCategoriesWithoutParent());
+        $countCategoriesWithoutParent = count(JeproshopCategoryModelCategory::getCategoriesWithoutParent());
 
-        if(empty($categories_tree) && ($this->context->controller->category->category_id != 1 || $category_id ) && (JeproshopShopModelShop::getShopContext() == JeproshopShopModelShop::CONTEXT_SHOP && !JeproshopShopModelShop::isFeaturePublished() && $count_categories_without_parent > 1)){
-            $categories_tree = array(array('name' => $this->context->controller->category->name[$this->context->language->lang_id]));
+        if(empty($categoriesTree) && ($this->context->controller->category->category_id != 1 || $categoryId ) && (JeproshopShopModelShop::getShopContext() == JeproshopShopModelShop::CONTEXT_SHOP && !JeproshopShopModelShop::isFeaturePublished() && $countCategoriesWithoutParent > 1)){
+            $categoriesTree = array(array('name' => $this->context->controller->category->name[$this->context->language->lang_id]));
         }
-        $categories_tree = array_reverse($categories_tree);
+        $categoriesTree = array_reverse($categoriesTree);
 
-        $this->assignRef('categories_tree', $categories_tree);
+        $this->assignRef('categories_tree', $categoriesTree);
         $this->assignRef('categories_tree_current_id', $this->context->controller->category->category_id);
 
         $categoryModel = new JeproshopCategoryModelCategory();
@@ -142,7 +145,7 @@ class JeproshopCategoryViewCategory extends JeproshopViewLegacy{
         $image_url = JeproshopImageManager::thumbnail($image, 'category_' . $this->context->controller->category->category_id . '.jpg' , 350, 'jpg', true, true);
         $imageSize = file_exists($image) ? filesize($image)/1000 : false;
 
-        $shared_category = JeproshopTools::isLoadedObject($this->context->controller->category, 'category_id') && $this->context->controller->category->hasMultishopEntries();
+        $shared_category = JeproshopTools::isLoadedObject($this->context->controller->category, 'category_id') && $this->context->controller->category->hasMultiShopEntries();
         $this->assignRef('shared_category', $shared_category);
         $allow_accented_chars_url = (int)JeproshopSettingModelSetting::getValue('allow_accented_chars_url');
         $this->assignRef('allow_accented_chars_url', $allow_accented_chars_url);
@@ -154,7 +157,8 @@ class JeproshopCategoryViewCategory extends JeproshopViewLegacy{
         $this->assignRef('categories_tree', $categories_data);
 
         $image = JeproshopImageManager::thumbnail(COM_JEPROSHOP_CATEGORY_IMAGE_DIR . '/' . $this->context->controller->category->category_id . '.jpg', 'category_' . (int)$this->context->controller->category->category_id . '.jpg', 350, 'jpg', true);
-        $this->assignRef('image', ($image ? $image : false));
+        $image = ($image ? $image : false);
+        $this->assignRef('image', $image);
         $size =  $image ? filesize(COM_JEPROSHOP_CATEGORY_IMAGE_DIR . '/' . $this->context->controller->category->category_id . 'jpg') / 1000 : false;
         $this->assignRef('size', $size);
 
@@ -175,13 +179,18 @@ class JeproshopCategoryViewCategory extends JeproshopViewLegacy{
         $is_root_category = (bool)$app->input->get('is_root_category');
         $this->assignRef('is_root_category', $is_root_category);
 
+        $this->assignRef('groups', $groups);
+
         $helper = new JeproshopHelper();
         $this->assignRef('helper', $helper);
-        $this->assignRef('groups', $groups);
 
         $this->addToolBar();
 
         parent::display($tpl);
+    }
+    
+    public function renderViewForm($tpl = null){
+        
     }
 
     public function loadObject($option = false){

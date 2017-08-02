@@ -41,10 +41,31 @@ class JeproshopAddressViewAddress extends JeproshopViewLegacy {
     }
 
     public function renderAddForm($tpl = null){
-        $this->addToolBar();
-        parent::display($tpl);
+        $this->renderEditForm($tpl);
     }
     public function renderEditForm($tpl = null){
+        if($this->context == null){ $this->context = JeproshopContext::getContext(); }
+
+        $app = JFactory::getApplication();
+        $this->context = JeproshopContext::getContext();
+        $customerId = $app->input->get('customer_id');
+        if(!$customerId && JeproshopTools::isLoadedObject($this->address, 'address_id')){
+            $customerId = $this->address->customer_id;
+        }
+
+        if($customerId){
+            $customer = new JeproshopCustomerModelCustomer((int)$customerId);
+        }else{
+            $customer = null;
+        }
+
+        $zones = JeproshopZoneModelZone::getZones($this->context->language->lang_id);
+        $countries = JeproshopCountryModelCountry::getStaticCountries($this->context->language->lang_id);
+
+        $this->assignRef('customer', $customer);
+        $this->assignRef('countries', $countries);
+        $this->assignRef('zones', $zones);
+
         $this->addToolBar();
         parent::display($tpl);
     }

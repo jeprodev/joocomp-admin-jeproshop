@@ -34,7 +34,7 @@ defined('_JEXEC') or die('Restricted access');
         <div class="separation" ></div>
         <div class="panel well">
             <div class="panel-content" >
-                <table class="table table-striped" id="productList">
+                <table class="table table-striped" id="attribute-list">
                     <thead>
                     <tr>
                         <th width="1%" class="nowrap center" >#</th>
@@ -75,7 +75,7 @@ defined('_JEXEC') or die('Restricted access');
                         </tr>
                     <?php } ?>
                     </tbody>
-                    <tfoot><tr><td colspan="7" ><?php echo $this->pagination->getListFooter(); ?></td></tr></tfoot>
+                    <tfoot><tr><td colspan="7" ><?php if(isset($this->pagination)){ echo $this->pagination->getListFooter(); } ?></td></tr></tfoot>
                 </table>
             </div>
         </div>

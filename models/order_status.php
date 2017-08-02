@@ -25,6 +25,8 @@
 defined('_JEXEC') or die('Restricted access');
 
 class JeproshopOrderStatusModelOrderStatus extends JeproshopModel {
+    public $order_id;
+
     public $order_status_id;
 
     /** @var string Name */
@@ -69,6 +71,10 @@ class JeproshopOrderStatusModelOrderStatus extends JeproshopModel {
     const FLAG_DELIVERY		= 4;  /* 00100 */
     const FLAG_SHIPPED		= 8;  /* 01000 */
     const FLAG_PAID			= 16; /* 10000 */
+
+    public function __construct($orderStatusId = null)
+    {
+    }
 
     /**
      * Get all available order statuses

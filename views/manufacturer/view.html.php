@@ -55,18 +55,53 @@ class JeproshopManufacturerViewManufacturer extends JeproshopViewLegacy {
     }
 
     private function addToolBar(){
-        switch ($this->getLayout()){
+        $task = JFactory::getApplication()->input->get('task');
+        switch ($task){
             case 'add':
-                JToolBarHelper::title(JText::_('COM_JEPROSHOP_ADD_NEW_MANUFACTURER_TITLE'), 'jeproshop-category');
+                JToolBarHelper::title(JText::_('COM_JEPROSHOP_ADD_NEW_MANUFACTURER_TITLE'), 'jeproshop-manufacture');
                 JToolBarHelper::apply('save');
                 JToolBarHelper::cancel('cancel');
                 break;
+            case 'edit':
+                JToolBarHelper::title(JText::_('COM_JEPROSHOP_EDIT_MANUFACTURER_TITLE'), 'jeproshop-manufacture');
+                JToolBarHelper::apply('update', JText::_('COM_JEPROSHOP_UPDATE_LABEL'));
+                JToolBarHelper::cancel('cancel');
+                break;
             default:
-                JToolBarHelper::title(JText::_('COM_JEPROSHOP_MANUFACTURERS_LIST_TITLE'), 'jeproshop-category');
+                JToolBarHelper::title(JText::_('COM_JEPROSHOP_MANUFACTURERS_LIST_TITLE'), 'jeproshop-manufacturer');
                 JToolBarHelper::addNew('add');
                 break;
         }
         $this->addSideBar('catalog');
+    }
+
+    /**
+     * Load class supplier using identifier in $_GET (if possible)
+     * otherwise return an empty supplier, or die
+     *
+     * @param boolean $opt Return an empty supplier if load fail
+     * @return supplier|boolean
+     */
+    public function loadObject($opt = false){
+        $app =JFactory::getApplication();
+
+        $manufacturerId = (int)$app->input->get('manufacturer_id');
+        if ($manufacturerId && JeproshopTools::isUnsignedInt($manufacturerId)) {
+            if (!$this->manufacturer)
+                $this->manufacturer = new JeproshopManufacturerModelManufacturer($manufacturerId);
+            if (JeproshopTools::isLoadedObject($this->manufacturer, 'manufacturer_id'))
+                return $this->manufacturer;
+            // throw exception
+            JError::raiseError(500, 'The manufacturer cannot be loaded (or found)');
+            return false;
+        } elseif ($opt) {
+            if (!$this->manufacturer)
+                $this->manufacturer = new JeproshopManufacturerModelManufacturer();
+            return $this->manufacturer;
+        } else {
+            $this->errors[] = Tools::displayError('The manufacturer cannot be loaded (the identifier is missing or invalid)');
+            return false;
+        }
     }
     
 }

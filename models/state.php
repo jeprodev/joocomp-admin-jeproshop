@@ -55,4 +55,26 @@ class JeproshopStateModelState extends JeproshopModel {
 
         if(!$context){ $context = JeproshopContext::getContext(); }
     }
+
+    /**
+     * Get a state name with its ID
+     *
+     * @param integer $stateId Country ID
+     * @return string State name
+     */
+    public static function getNameByStateId($stateId){
+        if (!$stateId)
+            return false;
+        $cacheKey = 'jeproshop_state_get_name_by_id_'. (int)$stateId;
+        if (!JeproshopCache::isStored($cacheKey)) {
+            $db = JFactory::getDBO();
+            $query = "SELECT " . $db->quoteName('name') . "	FROM " . $db->quoteName('#__jeproshop_state') . " WHERE ";
+            $query .= $db->quoteName('state_id') . "= " . (int)$stateId;
+
+            $db->setQuery($query);
+            $result = $db->loadResult();
+            JeproshopCache::store($cacheKey, $result);
+        }
+        return JeproshopCache::retrieve($cacheKey);
+    }
 }

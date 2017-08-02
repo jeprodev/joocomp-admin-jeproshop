@@ -190,6 +190,44 @@ class JeproshopAddressModelAddress extends JeproshopModel{
         $this->pagination = new JPagination($total, $limitStart, $limit);
         return $addresses;
     }
+
+    /**
+     * Specify if an address is already in base
+     *
+     * @param int $addressId Address id
+     * @return boolean
+     */
+    public static function addressExists($addressId){
+        $key = 'address_exists_'.(int)$addressId;
+        if (!JeproshopCache::isStored($key)){
+            $db = JFactory::getDBO();
+
+            $query = "SELECT " . $db->quoteName('address_id') . " FROM " . $db->quoteName('#__jeproshop_address');
+            $query .= " AS address WHERE address." . $db->quoteName('address_id') . " = " . (int)$addressId;
+
+            $db->setQuery($query);
+            $addressId = $db->loadResult();
+            JeproshopCache::store($key, (bool)$addressId);
+        }
+        return JeproshopCache::retrieve($key);
+    }
+
+    public static function getCountryAndState($addressId) {
+        if (isset(self::$_countriesIds[$addressId]))
+            return self::$_countriesIds[$addressId];
+        if ($addressId) {
+            $db = JFactory::getDBO();
+
+            $query = "SELECT " . $db->quoteName('country_id') . ", " . $db->quoteName('state_id') . ", " . $db->quoteName('vat_number') . ", " . $db->quoteName('postcode') . " FROM ";
+            $query .= $db->quoteName('#__jeproshop_address') . " WHERE " . $db->quoteName('address_id') . " = " . (int)$addressId;
+            $db->setQuery($query);
+            $result = $db->loadObject();
+        }else
+            $result = false;
+        self::$_countriesIds[$addressId] = $result;
+        return $result;
+    }
+
 }
 
 
@@ -206,6 +244,8 @@ class JeproshopAddressFormatModelAddressFormat extends JeproshopModel {
     public static $forbiddenClassList = array(
         'Manufacturer',
         'Supplier');
+
+    const _CLEANING_REGEX_ = '#([^\w:_]+)#i';
 
     /**
      * Returns address format by country if not defined using default country
@@ -281,6 +321,165 @@ class JeproshopAddressFormatModelAddressFormat extends JeproshopModel {
             unset($reflect);
         }
         return $objectList;
+    }
+
+    /**
+     * Return a data array containing ordered, formatValue and object fields
+     * @param $address
+     * @return array
+     */
+    public static function getFormattedLayoutData($address){
+        $layoutData = array();
+
+        if ($address && $address instanceof JeproshopAddressModelAddress){
+            $layoutData['ordered'] = JeproshopAddressFormatModelAddressFormat::getOrderedAddressFields((int)$address->country_id);
+            $layoutData['format'] = JeproshopAddressFormatModelAddressFormat::getFormattedAddressFieldsValues($address, $layoutData['ordered']);
+            $layoutData['object'] = array();
+
+            $reflect = new ReflectionObject($address);
+            $public_properties = $reflect->getProperties(ReflectionProperty::IS_PUBLIC);
+            foreach ($public_properties as $property)
+                if (isset($address->{$property->getName()}))
+                    $layoutData['object'][$property->getName()] = $address->{$property->getName()};
+        }
+        return $layoutData;
+    }
+
+    /**
+     * Returns address format fields in array by country
+     *
+     * @param int $country_id
+     * @param bool $split_all
+     * @param bool $cleaned
+     * @return Array String field address format
+     */
+    public static function getOrderedAddressFields($country_id = 0, $split_all = false, $cleaned = false){
+        $out = array();
+        $field_set = explode("\n", JeproshopAddressFormatModelAddressFormat::getAddressCountryFormat($country_id));
+        foreach ($field_set as $field_item){
+            if ($split_all){
+                $keyList = array();
+                if ($cleaned){
+                    $keyList = ($cleaned) ? preg_split(self::_CLEANING_REGEX_, $field_item, -1, PREG_SPLIT_NO_EMPTY) : explode(' ', $field_item);
+                }
+                foreach ($keyList as $word_item){ $out[] = trim($word_item); }
+            } else{
+                $out[] = ($cleaned) ? implode(' ', preg_split(self::_CLEANING_REGEX_, trim($field_item), -1, PREG_SPLIT_NO_EMPTY)) : trim($field_item);
+            }
+        }
+        return $out;
+    }
+
+    /***
+     * Returns the formatted fields with associated values
+     *
+     * @param $address is an instantiated Address object
+     * @param $addressFormat is the format
+     * @param null $lang_id
+     * @return float Array
+     */
+    public static function getFormattedAddressFieldsValues($address, $addressFormat, $lang_id = null){
+        if (!$lang_id)
+            $lang_id = JeproshopContext::getContext()->language->lang_id;
+        $tab = array();
+        $temporaryObject = array();
+
+        // Check if $address exist and it's an instantiate object of Address
+        if ($address && ($address instanceof JeproshopAddressFormatModelAddressFormat))
+            foreach ($addressFormat as $line)
+            {
+                if (($keyList = preg_split(self::_CLEANING_REGEX_, $line, -1, PREG_SPLIT_NO_EMPTY)) && is_array($keyList))
+                {
+                    foreach ($keyList as $pattern)
+                        if ($associateName = explode(':', $pattern))
+                        {
+                            $totalName = count($associateName);
+                            if ($totalName == 1 && isset($address->{$associateName[0]}))
+                                $tab[$associateName[0]] = $address->{$associateName[0]};
+                            else
+                            {
+                                $tab[$pattern] = '';
+
+                                // Check if the property exist in both classes
+                                if (($totalName == 2) && class_exists($associateName[0]) &&
+                                    property_exists($associateName[0], $associateName[1]) &&
+                                    property_exists($address, 'id_'.strtolower($associateName[0])))
+                                {
+                                    $idFieldName = 'id_'.strtolower($associateName[0]);
+
+                                    if (!isset($temporaryObject[$associateName[0]]))
+                                        $temporaryObject[$associateName[0]] = new $associateName[0]($address->{$idFieldName});
+                                    if ($temporaryObject[$associateName[0]])
+                                        $tab[$pattern] = (is_array($temporaryObject[$associateName[0]]->{$associateName[1]})) ?
+                                            ((isset($temporaryObject[$associateName[0]]->{$associateName[1]}[$lang_id])) ?
+                                                $temporaryObject[$associateName[0]]->{$associateName[1]}[$lang_id] : '') :
+                                            $temporaryObject[$associateName[0]]->{$associateName[1]};
+                                }
+                            }
+                        }
+                    JeproshopAddressFormatModelAddressFormat::setOriginalDisplayFormat($tab, $line, $keyList);
+                }
+            }
+        JeproshopAddressFormatModelAddressFormat::cleanOrderedAddress($addressFormat);
+        // Free the instantiate objects
+        foreach ($temporaryObject as &$object)
+            unset($object);
+        return $tab;
+    }
+
+    /**
+     ** Cleaned the layout set by the user
+     * @param $orderedAddressField
+     */
+    public static function cleanOrderedAddress(&$orderedAddressField){
+        foreach ($orderedAddressField as &$line){
+            $cleanedLine = '';
+            if (($keyList = preg_split(self::_CLEANING_REGEX_, $line, -1, PREG_SPLIT_NO_EMPTY))){
+                foreach ($keyList as $key)
+                    $cleanedLine .= $key.' ';
+                $cleanedLine = trim($cleanedLine);
+                $line = $cleanedLine;
+            }
+        }
+    }
+
+    /**
+     ** Set the layout key with the liable value
+     ** example : (firstname) =>
+     **         : (firstname-lastname) =>
+     * @param $formattedValueList
+     * @param $currentLine
+     * @param $currentKeyList
+     */
+    protected static function setOriginalDisplayFormat(&$formattedValueList, $currentLine, $currentKeyList){
+        if ($currentKeyList && is_array($currentKeyList)) {
+            if ($originalFormattedPatternList = explode(' ', $currentLine)) {
+                // Foreach the available pattern
+                foreach ($originalFormattedPatternList as $patternNum => $pattern) {
+                    // Var allows to modify the good formatted key value when multiple key exist into the same pattern
+                    $mainFormattedKey = '';
+
+                    // Multiple key can be found in the same pattern
+                    foreach ($currentKeyList as $key) {
+                        // Check if we need to use an older modified pattern if a key has already be matched before
+                        $replacedValue = empty($mainFormattedKey) ? $pattern : $formattedValueList[$mainFormattedKey];
+                        if (($formattedValue = preg_replace('/' . $key . '/', $formattedValueList[$key], $replacedValue, -1, $count))) {
+                            if ($count) {
+                                // Allow to check multiple key in the same pattern,
+                                if (empty($mainFormattedKey))
+                                    $mainFormattedKey = $key;
+                                // Set the pattern value to an empty string if an older key has already been matched before
+                                if ($mainFormattedKey != $key)
+                                    $formattedValueList[$key] = '';
+                                // Store the new pattern value
+                                $formattedValueList[$mainFormattedKey] = $formattedValue;
+                                unset($originalFormattedPatternList[$patternNum]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }

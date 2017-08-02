@@ -40,11 +40,11 @@ defined('_JEXEC') or die('Restricted access');
                 </div>
                 <div class="control-group" >
                     <div class="control-label" ><label for="jform_" title="<?php echo JText::_('COM_JEPROSHOP_MANUFACTURER_SHORT_DESCRIPTION_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_SHORT_DESCRIPTION_LABEL'); ?></label> </div>
-                    <div class="controls" ><?php echo $this->helper->multiLanguageTextAreaField('short_description', 'jform', false, $this->manufacturer->short_description); ?></div>
+                    <div class="controls" ><?php echo $this->helper->multiLanguageInputField('short_description', 'jform', 'textarea', false, $this->manufacturer->short_description); ?></div>
                 </div>
                 <div class="control-group" >
                     <div class="control-label" ><label for="jform_description" title="<?php echo JText::_('COM_JEPROSHOP_MANUFACTURER_DESCRIPTION_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_DESCRIPTION_LABEL'); ?></label> </div>
-                    <div class="controls" ><?php echo $this->helper->multiLanguageTextAreaField('description', 'jform', false, $this->manufacturer->description); ?></div>
+                    <div class="controls" ><?php echo $this->helper->multiLanguageInputField('description', 'jform', 'textarea', false, $this->manufacturer->description); ?></div>
                 </div>
                 <div class="control-group" >
                     <div class="control-label" ><label for="jform_logo" title="<?php echo JText::_('COM_JEPROSHOP_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_LOGO_LABEL'); ?></label> </div>
@@ -52,15 +52,15 @@ defined('_JEXEC') or die('Restricted access');
                 </div>
                 <div class="control-group" >
                     <div class="control-label" ><label for="jform_meta_title" title="<?php echo JText::_('COM_JEPROSHOP_META_TITLE_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_META_TITLE_LABEL'); ?></label> </div>
-                    <div class="controls" ><?php echo $this->helper->multiLanguageInputField('meta_title', 'jform', false, $this->manufacturer->meta_title); ?></div>
+                    <div class="controls" ><?php echo $this->helper->multiLanguageInputField('meta_title', 'jform', 'text', false, $this->manufacturer->meta_title); ?></div>
                 </div>
                 <div class="control-group" >
                     <div class="control-label" ><label for="jform_meta_description" title="<?php echo JText::_('COM_JEPROSHOP_META_DESCRIPTION_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_META_DESCRIPTION_LABEL'); ?></label> </div>
-                    <div class="controls" ><?php echo $this->helper->multiLanguageInputField('meta_description', 'jform', false, $this->manufacturer->meta_description); ?></div>
+                    <div class="controls" ><?php echo $this->helper->multiLanguageInputField('meta_description', 'jform', 'text',  false, $this->manufacturer->meta_description); ?></div>
                 </div>
                 <div class="control-group" >
                     <div class="control-label" ><label for="jform_meta_keywords" title="<?php echo JText::_('COM_JEPROSHOP_META_KEYWORDS_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_META_KEYWORDS_LABEL'); ?></label> </div>
-                    <div class="controls" ><?php echo $this->helper->multiLanguageInputField('meta_keywords', 'jform', false, $this->manufacturer->meta_keywords); ?></div>
+                    <div class="controls" ><?php echo $this->helper->multiLanguageInputField('meta_keywords', 'jform', 'text', false, $this->manufacturer->meta_keywords); ?></div>
                 </div>
                 <div class="control-group" >
                     <div class="control-label" ><label for="jform_published" title="<?php echo JText::_('COM_JEPROSHOP_PUBLISHED_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_PUBLISHED_LABEL'); ?></label> </div>

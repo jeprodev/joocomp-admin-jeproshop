@@ -92,23 +92,20 @@ class JeproshopSupplierModelSupplier extends JeproshopModel {
             }
 
             foreach ($suppliers as $key => $supplier){
-                $sql = '
-					SELECT DISTINCT(ps.`id_product`)
-					FROM `'._DB_PREFIX_.'product_supplier` ps
-					JOIN `'._DB_PREFIX_.'product` p ON (ps.`id_product`= p.`id_product`)
-					'.Shop::addSqlAssociation('product', 'p').'
-					WHERE ps.`id_supplier` = '.(int)$supplier['id_supplier'].'
-					AND ps.id_product_attribute = 0'.
-                    ($active ? ' AND product_shop.`active` = 1' : '').
-                    ' AND product_shop.`visibility` NOT IN ("none")'.
-                    ($all_groups ? '' :'
-					AND ps.`id_product` IN (
-						SELECT cp.`id_product`
-						FROM `'._DB_PREFIX_.'category_group` cg
-						LEFT JOIN `'._DB_PREFIX_.'category_product` cp ON (cp.`id_category` = cg.`id_category`)
-						WHERE cg.`id_group` '.$sql_groups.'
-					)');
-                $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+                $query = "SELECT DISTINCT(product_supplier." . $db->quoteName('product_id') . " FROM " . $db->quoteName('#__jeproshop_product_supplier');
+                $query .= " AS product_supplier JOIN " . $db->quoteName('#__jeproshop_product') . " AS product ON (product_supplier.";
+                $query .= $db->quoteName('product_id') . " = product." . $db->quoteName('product_id') . ") " . JeproshopShopModelShop::addSqlAssociation('product');
+                $query .= " WHERE product_supplier." . $db->quoteName('supplier_id') . " = " .(int)$supplier->supplier_id  . " AND product_supplier.";
+                $query .= $db->quoteName('product_attribute_id') . " = 0 " . ($published ? " AND product_shop." . $db->quoteName('published') . " = 1" : '');
+                $query .= " AND product_shop." . $db->quoteName('visibility') . " NOT IN ('none') " .
+                    ($allGroups ? " " :
+					" AND product_supplier." . $db->quoteName('product_id') . " IN ( SELECT product_category." . $db->quoteName('product_id') .
+                    " FROM " . $db->quoteName('#__jeproshop_category_group') . " AS category_group LEFT JOIN " . $db->quoteName('#__jeproshop_product_category') .
+                    " AS product_category ON (product_category." . $db->quoteName('category_id') . " = category_group." . $db->quoteName('category_id') .
+                    ") WHERE category_group." . $db->quoteName('group_id') .$sqlGroups . ")");
+
+                $db->setQuery($query);
+                $result = $db->loadObjectList();
                 $suppliers[$key]['nb_products'] = count($result);
             }
         }
@@ -116,7 +113,7 @@ class JeproshopSupplierModelSupplier extends JeproshopModel {
         $nb_suppliers = count($suppliers);
         $rewrite_settings = (int)JeproshopSettingModelSetting::getValue('rewrite_settings');
         for ($i = 0; $i < $nb_suppliers; $i++){
-            $suppliers[$i]->link_rewrite = ($rewrite_settings ? JeproshopTools::linkRewrite($suppliers[$i]->name) : 0);
+            $suppliers[$i]->link_rewrite = ($rewrite_settings ? JeproshopTools::str2url($suppliers[$i]->name) : 0);
         }
         return $suppliers;
     }
@@ -163,6 +160,17 @@ class JeproshopSupplierModelSupplier extends JeproshopModel {
 
         $this->pagination = new JPagination($total, $limit_start, $limit);
         return $suppliers;
+    }
+
+    public function getSupplierAddress(){
+        $db = JFactory::getDBO();
+
+        $query = "SELECT address." . $db->quoteName('company') . ", address." . $db->quoteName('phone') . ", address." . $db->quoteName('phone_mobile') . ", address." . $db->quoteName('address1');
+        $query .= ", address." . $db->quoteName('address2') . ", address." . $db->quoteName('postcode') . ", address." . $db->quoteName('country_id') . ", address." . $db->quoteName('state_id');
+        $query .= ", address." . $db->quoteName('city') . " FROM " . $db->quoteName('#__jeproshop_address') . " AS address WHERE address." . $db->quoteName('supplier_id') . " = " . (int)$this->supplier_id;
+
+        $db->setQuery($query);
+        return $db->loadObject();
     }
 
 }

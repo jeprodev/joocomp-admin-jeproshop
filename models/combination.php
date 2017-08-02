@@ -60,6 +60,10 @@ class JeproshopCombinationModelCombination extends JeproshopModel{
 
     public $available_date = '0000-00-00';
 
+    public function __construct()
+    {
+    }
+
     /**
      * This method is allow to know if a feature is active
      * @return bool

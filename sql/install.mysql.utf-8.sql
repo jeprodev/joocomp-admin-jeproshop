@@ -397,6 +397,33 @@ CREATE TABLE IF NOT EXISTS `#__jeproshop_product_attribute_combination` (
   KEY `product_attribute_id` (`product_attribute_id`)
 )  ENGINE=InnoDB DEFAULT CHARACTER SET=utf8;
 
+CREATE TABLE IF NOT EXISTS `#__jeproshop_customization`(
+  `customization_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `product_attribute_id` int(10) UNSIGNED not NULL ,
+  `delivery_address_id` INT(10) UNSIGNED NOT NULL DEFAULT 0,
+  `cart_id` INT(10) UNSIGNED NOT NULL DEFAULT 0,
+  `product_id` INT(10) UNSIGNED NOT NULL,
+  `quantity` INT(10) NOT NULL ,
+  `in_cart` TINYINT(1) UNSIGNED DEFAULT 0,
+  PRIMARY KEY (`customization_id`),
+  KEY `product_attribute_id` (`product_attribute_id`),
+  KEY `delivery_address_id` (`delivery_address_id`),
+  KEY `cart_id` (`cart_id`),
+  KEY `product_id` (`product_id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8;
+
+
+CREATE TABLE IF NOT EXISTS `#__jeproshop_customized_data` (
+  `customization_id` INT(10) UNSIGNED NOT NULL,
+  `type` TINYINT(1) NOT NULL,
+  `index` INT(3) not NULL ,
+  `value` VARCHAR(255) NOT NULL ,
+  `module_id` INT(10) NOT NULL DEFAULT 0,
+  `price` DECIMAL(20,6) NOT NULL DEFAULT 0.000000,
+  `weight` DECIMAL(20,6) NOT NULL  DEFAULT 0.000000,
+  PRIMARY KEY (`customization_id`, `type`, `index`)
+)ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
+
 CREATE TABLE  IF NOT EXISTS `#__jeproshop_customization_field` (
   `customization_field_id` int(10) unsigned NOT NULL auto_increment,
   `product_id` int(10) unsigned NOT NULL,
@@ -1812,15 +1839,16 @@ CREATE TABLE IF NOT EXISTS `#__jeproshop_layered_indexable_attribute_group_lang_
   `attribute_id` int(10) unsigned NOT NULL,
   `lang_id` int(11) unsigned NOT NULL,
   `url_name` VARCHAR(20) NOT NULL DEFAULT '',
-  `meta_title` VARCHAR(20) NOT NULL DEFAULT '',
+  `meta_title` VARCHAR(20) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__jeproshop_layered_indexable_attribute_lang_value`(
   `attribute_id` int(10) unsigned NOT NULL,
   `lang_id` int(11) unsigned NOT NULL,
   `url_name` VARCHAR(20) NOT NULL DEFAULT '',
-  `meta_title` VARCHAR(20) NOT NULL DEFAULT '',
+  `meta_title` VARCHAR(20) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8;
+
 
 
 CREATE TABLE IF NOT EXISTS `#__jeproshop_layered_indexable_feature`(

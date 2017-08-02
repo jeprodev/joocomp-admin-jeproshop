@@ -153,4 +153,39 @@ class JeproshopCountryController extends JeproshopController{
         $countryModel = $this->getModel('country');
         $countryModel->save2NewState();
     }
+
+    public function search(){
+        $app = JFactory::getApplication();
+        $useAjax = $app->input->getInt('use_ajax');
+        $tab = $app->input->getWord('tab');
+        $jsonData = array("success" =>false, "found" => false);
+
+        if(isset($tab) && $tab != '') {
+            switch ($tab) {
+                case "countries" :
+                    $zoneId = $app->input->get('zone_id');
+                    $countries = JeproshopCountryModelCountry::getCountriesByZoneId($zoneId);
+                    if(!empty($countries)){
+                        $countriesArray = array();
+                        foreach($countries as $country){
+                            $countriesArray[] = array(
+                                "country_id" => $country->country_id, "name" => $country->name
+                            ); 
+                        }
+                        $jsonData = array(
+                            "success" => true, "found" => true, "countries" => $countriesArray
+                        );
+                    }
+                    break;
+            }
+        }
+        if($useAjax){
+            $document = JFactory::getDocument();
+            $document->setMimeEncoding('application/json');
+            echo json_encode($jsonData);
+            $app->close();
+        }
+    }
+
+    
 }

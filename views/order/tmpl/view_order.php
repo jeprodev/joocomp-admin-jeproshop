@@ -52,7 +52,7 @@ defined('_JEXEC') or die('Restricted access');
                                     <span>
                                 </span>
                             </div>
-                            <div class="panel-content well" >
+                            <div class="panel-content " >
                                 <?php echo JHtml::_('bootstrap.startTabSet', 'order_form', array('active' =>'status'));
                                 echo JHtml::_('bootstrap.addTab', 'order_form', 'status', '<i class="icon-time"></i> ' .JText::_('COM_JEPROSHOP_ORDER_STATUS_LABEL') . ' <span class="badge badge-success">' . count($this->history) . '</span>'); ?>
                                 <h4 class="visible-print"><?php echo JText::_('COM_JEPROSHOP_STATUS_LABEL'); ?> <span class="badge badge-success" ><?php echo '(' . count($this->history) . ')'; ?></span></h4>
@@ -61,17 +61,17 @@ defined('_JEXEC') or die('Restricted access');
                                     <table class="table history-status row-margin-bottom">
                                         <tbody>
                                         <?php foreach($this->history as $key => $row){
-                                            if($key == 0){ ?>
+                                            if($key == 0){  ?>
                                                 <tr>
-                                                    <td style="background-color:<?php echo $row->color; ?>"><img src="<?php echo JURI::root() . 'media/com_jeproshop/images/order_status/' . $row->order_status_id . '.gif'; ?>" width="16" height="16" alt="<?php echo stripslashes($row->order_state_name); ?>" /></td>
-                                                    <td style="background-color:<?php echo $row->color; ?>; color:<?php echo $row->text_color; ?>"><?php echo stripslashes($row->order_state_name); ?></td>
+                                                    <td style="background-color:<?php echo $row->color; ?>"><img src="<?php echo JURI::root() . 'media/com_jeproshop/images/order_status/' . $row->order_status_id . '.gif'; ?>" width="16" height="16" alt="<?php echo stripslashes($row->order_status_name); ?>" /></td>
+                                                    <td style="background-color:<?php echo $row->color; ?>; color:<?php echo $row->text_color; ?>"><?php echo stripslashes($row->order_status_name); ?></td>
                                                     <td style="background-color:<?php echo $row->color; ?>; color:<?php echo $row->text_color; ?>"><?php if($row->employee_lastname){ echo stripslashes($row->employee_firstname) . ' ' . stripslashes($row->employee_lastname) . ') '; } ?></td>
                                                     <td style="background-color:<?php echo $row->color; ?>; color:<?php echo $row->text_color; ?>"><?php echo JeproshopTools::dateFormat($row->date_add, true); ?></td>
                                                 </tr>
                                             <?php }else{ ?>
                                                 <tr>
                                                     <td><img src="<?php echo JURI::root() . 'media/com_jeproshop/images/order_status/' . $row->order_state_id . '.gif'; ?>" width="16" height="16" /></td>
-                                                    <td><?php echo stripslashes($row->ostate_name); ?></td>
+                                                    <td><?php echo stripslashes($row->order_status_name); ?></td>
                                                     <td><?php if($row->employee_lastname){ echo stripslashes($row->employee_firstname) . ' ' . stripslashes($row->employee_lastname); }else{ ?>&nbsp;<?php } ?></td>
                                                     <td><?php echo JeproshopTools::dateFormat($row->date_add, true); ?></td>
                                                 </tr>
@@ -83,7 +83,7 @@ defined('_JEXEC') or die('Restricted access');
                                 <!-- Change status form -->
                                 <div class="control-group" >
                                     <select id="jform_order_status_id" name="jform[order_status_id]" >
-                                        <?php foreach($this->order_statues as $status){  ?>
+                                        <?php print_r($this->order_stattues); foreach($this->order_statues as $status){  ?>
                                             <option value="<?php echo $status->order_status_id; ?>" <?php if($status->order_status_id == $this->current_status){ ?> selected="selected" disabled="disabled" <?php } ?>><?php echo $status->name; ?></option>
                                         <?php } ?>
                                     </select>&nbsp;
@@ -260,7 +260,7 @@ defined('_JEXEC') or die('Restricted access');
                         </div>
                         <div class="panel">
                             <div class="panel-title" ><i class="icon-truck"  ></i> <?php echo strtoupper(JText::_('COM_JEPROSHOP_SHIPPING_LABEL')); ?></div>
-                            <div class="panel-content well" >
+                            <div class="panel-content " >
                                 <?php echo JHtml::_('bootstrap.startTabSet', 'shipping_form', array('active' =>'shipping'));
                                 echo JHtml::_('bootstrap.addTab', 'shipping_form', 'shipping', '<i class="icon-truck"></i> ' .JText::_('COM_JEPROSHOP_SHIPPING_LABEL') . ' <span class="badge badge-success">' . count($this->order->getShipping()) . '</span>'); ?>
                                 <h4 class="visible-print"><?php echo JText::_('COM_JEPROSHOP_SHIPPING_LABEL'); ?> <span class="badge badge-success">(<?php echo count($this->order->getShipping()); ?>)</span></h4>
@@ -375,7 +375,7 @@ defined('_JEXEC') or die('Restricted access');
                                 <i class="icon-money"></i> <?php echo strtoupper(JText::_('COM_JEPROSHOP_PAYMENTS_LABEL')); ?>
                                 <span class="badge badge-success" ><?php echo count($this->order->getOrderPayments()); ?></span>
                             </div>
-                            <div class="panel-content well" >
+                            <div class="panel-content " >
                                 <?php if(count($this->order->getOrderPayments()) > 0){ ?>
                                     <p class="alert alert-danger" style="<?php if(round($this->orders_total_paid_tax_incl, 2) == round($this->total_paid, 2) || $this->currentState->order_state_id == 6){ ?> display: none; <?php } ?>" >
                                         <?php echo JText::_('COM_JEPROSHOP_WARNING_LABEL'); ?>
@@ -391,7 +391,7 @@ defined('_JEXEC') or die('Restricted access');
                                                     <br /><?php echo JText::_('COM_JEPROSHOP_THIS_WARNING_ALSO_CONCERNS_THE_NEXT_ORDERS_MESSAGE'); ?>
                                                 <?php }
                                             } ?>
-                                            <a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=order&task=view&order_id=' . $this->brother_order->order_id . '&' . JSession::getFormToken() . '=1'); ?>" >
+                                            <a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=order&task=view&order_id=' . $this->brother_order->order_id . '&' . JeproshopTools::getOrderFormToken() . '=1'); ?>" >
                                                 #{'%06d'|sprintf:$brother_order->order_id}
                                             </a>
                                         <?php } ?>
@@ -520,11 +520,11 @@ defined('_JEXEC') or die('Restricted access');
                                     </div>
                                 </form>
                                 <?php if(!$this->order->valid && sizeof($this->currencies) > 1){ ?>
-                                    <form action="<?php echo JRoute::_('index.php?option=com_jeproshop&view=order&order_id=' . (int)$this->order->order_id . '&' . JSesion::getFormToken() . '=1'); ?>" class="form-horizontal well" method="post" >
+                                    <form action="<?php echo JRoute::_('index.php?option=com_jeproshop&view=order&order_id=' . (int)$this->order->order_id . '&' . JeproshopTools::getOrderFormToken() . '=1'); ?>" class="form-horizontal " method="post" >
                                         <div class="control-group">
                                             <div class="control-label" ><label class=""><?php echo JText::_('COM_JEPROSHOP_CHANGE_CURRENCY_LABEL'); ?></label></div>
                                             <div class="controls" >
-                                                <select name="new_currency">
+                                                <select name="jform[new_currency]" class="middle-size">
                                                     <?php foreach($this->currencies as $currency_change){
                                                         if($currency_change->currency_id != $this->order->currency_id){ ?>
                                                             <option value="<?php echo $currency_change->currency_id; ?>"><?php echo $currency_change->name . ' - ' . $currency_change->sign; ?></option>
@@ -546,19 +546,19 @@ defined('_JEXEC') or die('Restricted access');
                             <div class="panel-title" >
                                 <i class="icon-user"></i> <?php echo strtoupper(JText::_('COM_JEPROSHOP_CUSTOMER_LABEL')); ?>
                                 <span class="badge badge-success">
-							<a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=customer&task=view&customer_id=' . $this->customer->customer_id . '&' . JSession::getFormToken() . '=1'); ?>" >
+							<a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=customer&task=view&customer_id=' . $this->customer->customer_id . '&' . JeproshopTools::getCustomerToken() . '=1'); ?>" >
                                 <?php if(JeproshopSettingModelSetting::getValue('enable_b2b_mode')){ echo $this->customer->company . ' - '; }
                                 echo JText::_('COM_JEPROSHOP_' . strtoupper($this->customer->title) . '_LABEL'). ' ' . strtoupper($this->customer->lastname) . ' ' . $this->customer->firstname ; ?>
                             </a>
 						</span>
                                 <span class="badge badge-success"><?php echo '#' . $this->customer->customer_id; ?></span>
                             </div>
-                            <div class="panel-content well" >
+                            <div class="panel-content " >
                                 <div class="half-wrapper left" >
                                     <?php if($this->customer->isGuest()){
                                         echo JText::_('COM_JEPROSHOP_THIS_ORDER_HAS_BEEN_PLACED_BY_A_GUEST_LABEL');
                                         if(!JeproshopCustomerModelCustomer::customerExists($this->customer->email)){ ?>
-                                            <form method="post" action="<?php echo JRoute::_('index.php?option=com_jeproshop&view=customer&task=edit&customer_id=' . (int)$this->customer->customer_id . '&' .JSession::getFormToken() . '=1'); ?>" >
+                                            <form method="post" action="<?php echo JRoute::_('index.php?option=com_jeproshop&view=customer&task=edit&customer_id=' . (int)$this->customer->customer_id . '&' .JeproshopTools::getCustomerToken() . '=1'); ?>" >
                                                 <input type="hidden" name="jform[lang_id]" value="<?php echo $this->order->lang_id; ?>" />
                                                 <input class="btn btn-default" type="submit" name="submitGuestToCustomer" value="<?php echo JText::_('COM_JEPROSHOP_TRANSFORM_GUEST_INTO_CUSTOMER_MESSAGE'); ?>" />
                                                 <p class="help-block"><?php echo JText::_('COM_JEPROSHOP_THIS_FEATURE_WILL_GENERATE_A_RANDOM_PASSWORD_AND_SEND_AN_EMAIL_CUSTOMER_MESSAGE'); ?></p>
@@ -569,7 +569,7 @@ defined('_JEXEC') or die('Restricted access');
                                             </div>
                                         <?php }
                                     }else{ ?>
-                                        <dl class="well list-detail" >
+                                        <dl class=" list-detail" >
                                             <dt><?php echo JText::_('COM_JEPROSHOP_EMAIL_ADDRESS_LABEL') . ' : '; ?></dt>
                                             <dd><a href="mailto:<?php echo $this->customer->email; ?>" ><i class="icon-envelope-o"></i><?php echo $this->customer->email; ?></a></dd>
                                             <dt><?php echo JText::_('COM_JEPROSHOP_ACCOUNT_REGISTERED_LABEL'); ?></dt>
@@ -589,13 +589,13 @@ defined('_JEXEC') or die('Restricted access');
                                 </div>
                                 <div class="half-wrapper right" >
                                     <div class="form-group hidden-print">
-                                        <a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=customer&task=view&customer_id=' . (int)$this->customer->customer_id . '&' . JSession::getFormToken() . '=1'); ?>" class="btn btn-default btn-block"><?php echo JText::_('COM_JEPROSHOP_VIEW_FULL_DETAILS_LABEL'); ?></a>
+                                        <a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=customer&task=view&customer_id=' . (int)$this->customer->customer_id . '&' . JeproshopTools::getCustomerToken() . '=1'); ?>" class="btn btn-default btn-block"><?php echo JText::_('COM_JEPROSHOP_VIEW_FULL_DETAILS_LABEL'); ?></a>
                                     </div>
                                     <div class="panel panel-sm">
                                         <div class="panel-title">
                                             <i class="icon-eye-slash"></i> <?php echo JText::_('COM_JEPROSHOP_PRIVATE_NOTE_LABEL'); ?>
                                         </div>
-                                        <div class="panel-content well" >
+                                        <div class="panel-content " >
                                             <form action="ajax.php" method="post" onsubmit="saveCustomerNote(<?php echo $this->customer->customer_id; ?>); return false;" id="jform_customer_note" class="form-horizontal" >
                                                 <div class="control-group">
                                                     <textarea name="note" id="jform_note_content" class="textarea-autosize" onkeyup="$(this).val().length > 0 ? $('#jform_submit_customer_note').removeAttr('disabled') : $('#jform_submit_customer_note').attr('disabled', 'disabled')"><?php echo $this->customer->note; ?></textarea>
@@ -614,7 +614,7 @@ defined('_JEXEC') or die('Restricted access');
                         <?php } ?>
                         <div class="panel">
                             <div class="panel-title" ></div>
-                            <div class="panel-content well" >
+                            <div class="panel-content " >
                                 <?php
                                 echo JHtml::_('bootstrap.startTabSet', 'address_form', array('active' =>'delivery_address'));
                                 echo JHtml::_('bootstrap.addTab', 'address_form', 'delivery_address', JText::_('COM_JEPROSHOP_DELIVERY_ADDRESS_LABEL')); ?>
@@ -628,7 +628,7 @@ defined('_JEXEC') or die('Restricted access');
                                                 <div class="control-group" >
                                                     <select name="jform[address_id]" >
                                                         <?php foreach($this->customer_addresses as $address){ ?>
-                                                            <option value="<?php echo $address->address_id; ?>" <?php if($address->address_id == $this->order->address_delivery_id){ ?> selected="selected" <?php } ?> >
+                                                            <option value="<?php echo $address->address_id; ?>" <?php if($address->address_id == $this->order->delivery_address_id){ ?> selected="selected" <?php } ?> >
                                                                 <?php echo ucfirst($address->alias) . ' - ' . $address->address1 . ' ' . $address->postcode . $address->city;
                                                                 if(!empty($address->state)){ echo ' ' . ucfirst($address->state); }
                                                                 echo ' ' . ucfirst($address->country); ?>
@@ -639,7 +639,7 @@ defined('_JEXEC') or die('Restricted access');
                                                 </div>
                                             </form>
                                         <?php } ?>
-                                        <div class="well">
+                                        <div class="">
                                             <div class="row">
                                                 <div class="col-sm-6">
                                                     <?php  $address_type = (($this->delivery_address->address_id == $this->invoice_address->address_id) ? '&address_type=1' : '' ); ?>
@@ -667,7 +667,7 @@ defined('_JEXEC') or die('Restricted access');
                                                 <select name="jform[address_id]" >
                                                     <?php foreach($this->customer_addresses as $address){ ?>
                                                         <option value="<?php echo $address->address_id; ?>"
-                                                            <?php if($address->address_id == $this->order->address_invoice_id){ ?> selected="selected" <?php } ?> >
+                                                            <?php if($address->address_id == $this->order->invoice_address_id){ ?> selected="selected" <?php } ?> >
                                                             <?php echo  $address->alias . ' - ' . $address->address1 . ' ' . $address->postcode . ' ' . $address->city;
                                                             if(!empty($address->state)){ echo ' ' . $address->state; }
                                                             echo ', ' . ucfirst($address->country); ?>
@@ -678,11 +678,11 @@ defined('_JEXEC') or die('Restricted access');
                                             </div>
                                         </form>
                                     <?php } ?>
-                                    <div class="well">
+                                    <div class="">
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <?php $address_type = (($this->delivery_address->address_id == $this->invoice_address->address_id) ? '&address_type=2' : ''); ?>
-                                                <a class="btn btn-default pull-right" href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=address&task=add&address_id=' . (int)$this->invoice_address->address_id . $address_type . '&realedit=1&order_id=' . (int)$this->order->order_id . '&' . JSession::getFormToken() . '=1&return='); ?>" >
+                                                <a class="btn btn-default pull-right" href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=address&task=add&address_id=' . (int)$this->invoice_address->address_id . $address_type . '&realedit=1&order_id=' . (int)$this->order->order_id . '&' . JeproshopTools::getAddressToken() . '=1&return='); ?>" >
                                                     <i class="icon-pencil"></i> <?php echo ucfirst(JText::_('COM_JEPROSHOP_EDIT_LABEL')); ?>
                                                 </a>
                                                 <?php echo JeproshopTools::displayAddressDetail($this->invoice_address, '<br />');
@@ -704,7 +704,7 @@ defined('_JEXEC') or die('Restricted access');
                                 <i class="icon-envelope"></i> <?php echo strtoupper(JText::_('COM_JEPROSHOP_MESSAGES_LABEL')); ?>
                                 <span class="badge badge-success"><?php echo sizeof($this->customer_thread_message); ?></span>
                             </div>
-                            <div class="panel-content well" >
+                            <div class="panel-content " >
                                 <?php if(sizeof($this->messages)){ ?>
                                     <div class="panel panel-highlighted">
                                         <div class="message-item">
@@ -741,7 +741,7 @@ defined('_JEXEC') or die('Restricted access');
                                         </div>
                                     </div>
                                 <?php } ?>
-                                <div id="messages" class="well hidden-print">
+                                <div id="messages" class=" hidden-print">
                                     <form action="{$smarty.server.REQUEST_URI|escape:'html':'UTF-8'}&amp;token={$smarty.get.token|escape:'html':'UTF-8'}" method="post" onsubmit="if (getE('visibility').checked == true) return confirm('<?php echo JText::_('COM_JEPROSHOP_DO_YOU_WANT_TO_SEND_THIS_MESSAGE_TO_THE_CUSTOMER_MESSAGE'); ?>');" >
                                         <div id="message" class="form-horizontal">
                                             <div class="control-group">
@@ -803,7 +803,7 @@ defined('_JEXEC') or die('Restricted access');
                                     <div class="panel-title">
                                         <i class="icon-shopping-cart"></i> <?php echo strtoupper(JText::_('COM_JEPROSHOP_PRODUCTS_LABEL')); ?> <span class="badge badge-success" ><?php echo count($this->products); ?></span>
                                     </div>
-                                    <div class="panel-content well" >
+                                    <div class="panel-content " >
                                         <?php
                                         if($this->order->getTaxCalculationMethod() == COM_JEPROSHOP_TAX_EXCLUDED){
                                             $taxMethod = JText::_('COM_JEPROSHOP_TAX_EXCLUDED_LABEL');
@@ -1046,7 +1046,7 @@ defined('_JEXEC') or die('Restricted access');
                                                         <tr class="product-line-row">
                                                             <td><?php if(isset($product->image) && $product->image->image_id){ echo $product->image_tag; } ?></td>
                                                             <td>
-                                                                <a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=product&product_id=' . (int)$product->product_id . '&task=update&' . JSession::getFormToken() . '=1'); ?>" >
+                                                                <a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=product&product_id=' . (int)$product->product_id . '&task=update&' . JeproshopTools::getProductToken() . '=1'); ?>" >
                                                                     <span class="product_name"><?php echo $product->product_name; ?></span><br />
                                                                     <?php if($product->product_reference){ echo JText::_('COM_JEPROSHOP_REFERENCE_NUMBER_LABEL') . ' : ' . $product->product_reference . '<br />'; }
                                                                     if($product->product_supplier_reference){ echo JText::_('COM_JEPROSHOP_SUPPLIER_REFERENCE_LABEL') . ' : ' . $product->product_supplier_reference; } ?>
@@ -1385,7 +1385,7 @@ defined('_JEXEC') or die('Restricted access');
                                                             </table>
                                                         </div>
                                                         <div class="current-edit" id="jform_voucher_form" style="display:none;" >
-                                                            <div class="form-horizontal well">
+                                                            <div class="form-horizontal ">
                                                                 <div class="control-group">
                                                                     <div class="control-label" ><label><?php echo JText::_('COM_JEPROSHOP_NAME_LABEL'); ?></label></div>
                                                                     <div class="controls">
@@ -1413,7 +1413,7 @@ defined('_JEXEC') or die('Restricted access');
                                                                     <div class="col-lg-9">
                                                                         <div class="input-group">
                                                                             <div class="input-group-addon">
-                                                                                <span id="discount_currency_sign" style="display: none;">{$currency->sign}</span>
+                                                                                <span id="discount_currency_sign" style="display: none;"><?php echo $currency->sign; ?></span>
                                                                                 <span id="discount_percent_symbol">%</span>
                                                                             </div>
                                                                             <input class="form-control" type="text" name="discount_value"/>
@@ -1518,7 +1518,7 @@ defined('_JEXEC') or die('Restricted access');
                                                             <?php if($this->order->getTaxCalculationMethod() == COM_JEPROSHOP_TAX_EXCLUDED){ ?>
                                                                 <tr id="total_taxes">
                                                                     <td class="text-right"><?php echo JText::_('COM_JEPROSHOP_TAXES_LABEL'); ?></td>
-                                                                    <td class="amount text-right" ><?php echo JeproshopTools::displayPrice(($this->order->total_paid_tax_incl - $this->order->total_paid_tax_excl),  $this->currency->currency_id) ?>}</td>
+                                                                    <td class="amount text-right" ><?php echo JeproshopTools::displayPrice(($this->order->total_paid_tax_incl - $this->order->total_paid_tax_excl),  $this->currency->currency_id) ?></td>
                                                                     <td class="partial_refund_fields current-edit" style="display:none;"></td>
                                                                 </tr>
                                                             <?php }

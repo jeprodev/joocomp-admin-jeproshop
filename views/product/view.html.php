@@ -47,9 +47,9 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
 
         $this->pagination = $productModel->getPagination();
 
-        if($this->getLayout() != 'modal'){
+        //if($this->getLayout() != 'modal'){
             $this->addToolBar();
-        }
+        //}
         parent::display($tpl);
     }
 
@@ -135,7 +135,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
         $this->initSuppliersForm();
         $this->initShippingForm();
         $this->initAttachmentForm();
-        $this->assign('current_shop_url', $this->context->shop->getBaseURL()); 
+        $this->assign('current_shop_url', $this->context->shop->getBaseURL());
 
         parent::display($tpl);
     }
@@ -192,7 +192,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
 
         if (is_array($images)){
             foreach ($images as $k => $image){
-                //$images[$k]->src = $this->context->controller->getImageLink($this->product->link_rewrite[$this->context->language->lang_id], $this->product->product_id.'-'.$image->image_id, 'small_default'); echo $images[$k]->src;
+                $images[$k]->src = $this->context->controller->getProductImageLink($this->product->link_rewrite[$this->context->language->lang_id], $this->product->product_id.'_'.$image->image_id, 'default_small');
             }
             $this->assignRef('product_images', $images);
         }
@@ -267,17 +267,46 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
             $this->assignRef('multi_shop', $multiShop);
         }else{
             JError::raiseWarnig(JText::_('COM_JEPROSHOP_YOU_MUST_SAVE_THIS_PRODUCT_BEFORE_ADDING_SPECIFIC_PRICING_MESSAGE'));
-            $this->product->tax_rules_group_id = JeproshopProductModelProduct::getTaxRulesMostUsedGroupId();
+            $this->product->tax_rules_group_id = JeproshopProductModelProduct::getMostUsedTaxRulesGroupId();
             $this->assignRef('ecotax_tax_excluded', 0);
         }
-        $use_tax = JeproshopSettingModelSetting::getValue('use_tax');
-        $this->assignRef('use_tax', $use_tax);
-        $use_ecotax = JeproshopSettingModelSetting::getValue('use_eco_tax');
-        $this->assignRef('use_ecotax', $use_ecotax);
-        $tax_rules_groups = JeproshopTaxRulesGroupModelTaxRulesGroup::getTaxRulesGroups(true);
-        $this->assignRef('tax_rules_groups', $tax_rules_groups);
-        $taxesRatesByGroup = JeproshopTaxRulesGroupModelTaxRulesGroup::getAssociatedTaxRatesByCountryId($this->context->country->country_id);
-        $this->assignRef('taxesRatesByGroup', $taxesRatesByGroup);
+        $useTax = JeproshopSettingModelSetting::getValue('use_tax');
+        $this->assignRef('use_tax', $useTax);
+        $useEcoTax = JeproshopSettingModelSetting::getValue('use_eco_tax');
+        $this->assignRef('use_ecotax', $useEcoTax);
+        $taxRulesGroups = JeproshopTaxRulesGroupModelTaxRulesGroup::getTaxRulesGroups(true);
+        $taxRates = array(
+            0 => array(
+                'tax_rules_group_id' => 0,
+                'rates' => array(0),
+                'computation_method' => 0
+            )
+        );
+        $address = new JeproshopAddressModelAddress();
+        $address->country_id = (int)$this->context->country->country_id;
+
+        foreach ($taxRulesGroups as $taxRulesGroup) {
+            $taxRulesGroupId = $taxRulesGroup->tax_rules_group_id;
+            $taxManager = JeproshopTaxManagerFactory::getManager($address, $taxRulesGroupId);
+            $taxCalculator = $taxManager->getTaxCalculator();
+
+            $taxRates[$taxRulesGroupId] = array(
+                'tax_rules_group_id' => $taxRulesGroupId,
+                'rates' => array(),
+                'computation_method' => $taxCalculator->computation_method
+            );
+
+            if(isset($taxCalculator->taxes) && count($taxCalculator->taxes)){
+                foreach ($taxCalculator->taxes as $tax){
+                    $taxRates[$taxRulesGroupId]['rates'][] = (float)$tax->rate;
+                }
+            }else{
+                $taxRates[$taxRulesGroupId]['rates'][] = 0;
+            }
+        }
+        $this->assignRef('tax_rules_groups', $taxRulesGroups);
+        //$taxesRatesByGroup = JeproshopTaxRulesGroupModelTaxRulesGroup::getAssociatedTaxRatesByCountryId($this->context->country->country_id);
+        $this->assignRef('taxesRatesByGroup', $taxRates);
         $ecotaxTaxRate = JeproshopTaxModelTax::getProductEcotaxRate();
         $this->assignRef('ecotaxTaxRate', $ecotaxTaxRate);
         $tax_exclude_tax_option = JeproshopTaxModelTax::taxExcludedOption();
@@ -285,11 +314,11 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
 
         $this->product->price = JeproshopTools::convertPrice($this->product->price, $this->context->currency, true, $this->context);
         if($this->product->unit_price_ratio != 0){
-            $unit_price = JeproshopTools::roundPrice($this->product->price / $this->product->unit_price_ratio, 2);
+            $unitPrice = JeproshopTools::roundPrice($this->product->price / $this->product->unit_price_ratio, 2);
         }else{
-            $unit_price = 0;
+            $unitPrice = 0;
         }
-        $this->assignRef('unit_price', $unit_price);
+        $this->assignRef('unit_price', $unitPrice);
     }
 
     public function getCombinationImagesJs(){
@@ -494,7 +523,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
                 $available_quantity = array();
                 $product_designation = array();
 
-                foreach($attributes as $attribute){
+                foreach($attributes as $attribute){ //print_r($attribute);
                     $product_attribute_id = is_object($attribute) ? $attribute->product_attribute_id : $attribute['product_attribute_id'];
                     $attribute_designation = is_object($attribute) ? $attribute->attribute_designation : $attribute['attribute_designation'];
                     // Get available quantity for the current product attribute in the current shop
@@ -594,7 +623,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
                     }
 
                     if (!JeproshopWarehouseModelWarehouse::getPackWarehouses((int)$this->product->product_id))
-                        JeproshopTools::displayWarning(JText::_('You must have a common warehouse between this pack and its product.'));
+                        JeproshopTools::displayWarning(500,JText::_('You must have a common warehouse between this pack and its product.'));
                 }
 
                 $this->assignRef('attributes', $attributes);
@@ -661,8 +690,8 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
                         }
                     }
                     $this->assignRef('attributeJs', $attribute_js);
-                    $attributes_groups =  JeproshopAttributeGroupModelAttributeGroup::getAttributesGroups($this->context->language->lang_id);
-                    $this->assignRef('attributes_groups',$attributes_groups);
+                    $attributesGroups =  JeproshopAttributeGroupModelAttributeGroup::getAttributesGroups($this->context->language->lang_id);
+                    $this->assignRef('attributes_groups',$attributesGroups);
 
                     $images = JeproshopImageModelImage::getImages($this->context->language->lang_id, $this->product->product_id);
                     $weight_unit = JeproshopSettingModelSetting::getValue('weight_unit');
@@ -670,7 +699,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
                     $reasons = JeproshopStockMovementReasonModelStockMovementReason::getStockMovementReasons();
                     $this->assignRef('reasons', $reasons);
                     //$this->assignRef('minimal_quantity', );
-                    $this->assignRef('available_date', $available_date);
+                    //$this->assignRef('available_date', $available_date);
                     $stock_mvt_default_reason = JeproshopSettingModelSetting::getValue('default_stock_mvt_reason');
                     $this->assignRef('default_stock_mvt_reason', $stock_mvt_default_reason);
 
@@ -913,7 +942,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
                 $this->assignRef('image_type', $imageType);
             }
             else
-                JeproshopTools::displayWarning(JText::_('You must save the product in this shop before adding images.'));
+                JeproshopTools::displayWarning(500, JText::_('You must save the product in this shop before adding images.'));
         }
     }
 
@@ -924,7 +953,8 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
         $data->assign('default_form_language', $this->default_form_language); */
 
         if (!JeproshopFeatureModelFeature::isFeaturePublished()){
-            //JeproshopTools::displayWarning(JText::_('This feature has been disabled. ').' <a href="index.php?tab=AdminPerformance&token='.Tools::getAdminTokenLite('AdminPerformance').'#featuresDetachables">'.$this->l('Performances').'</a>');
+            $featureSettingLink = JRoute::_('index.php?option=com_jeproshop&view=setting&task=feature&' . JeproshopTools::getFeatureToken() . '=1');
+            JeproshopTools::displayWarning(500, JText::_('COM_JEPROSHOP_THIS_FEATURE_HAS_BEEN_DISABLED_LABEL') .' <a href="' . $featureSettingLink. '">'. JText::_('COM_JEPROSHOP_PERFORMANCES_LABEL').'</a>');
         }else{
             if ($this->product->product_id){
                 if ($this->product_exists_in_shop){
@@ -935,9 +965,9 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
                         $features[$k]->val = array();
 
                         $custom = true;
-                        foreach ($this->product->getFeatures() as $products){
-                            if ($products->feature_id == $features->feature_id){
-                                $features[$k]->current_item = $products->feature_value_id;
+                        foreach ($this->product->getFeatures() as $productFeature){ 
+                            if ($productFeature->feature_id){
+                                $features[$k]->current_item = $productFeature->feature_value_id;
                             }
                         }
                         $features[$k]->featureValues = JeproshopFeatureValueModelFeatureValue::getFeatureValuesWithLang($this->context->language->lang_id, (int)$feature->feature_id);
@@ -961,10 +991,10 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
                     $data->assign('default_form_language', $this->default_form_language); */
                 }
                 else
-                    JeproshopTools::displayWarning(JText::_('You must save the product in this shop before adding features.'));
+                    JeproshopTools::displayWarning(500, JText::_('You must save the product in this shop before adding features.'));
             }
             else
-                JeproshopTools::displayWarning(JText::_('You must save this product before adding features.'));
+                JeproshopTools::displayWarning(500, JText::_('You must save this product before adding features.'));
         }
 
     }
@@ -1116,7 +1146,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
                 $filter_product_type_options .= '<option value="2" >' . JText::_('COM_JEPROSHOP_PRODUCT_PACKAGE_LABEL'). '</option>';
                 $filter_product_type_options .= '<option value="3" >' . JText::_('COM_JEPROSHOP_PRODUCT_VIRTUAL_LABEL'). '</option>';
                 JHtmlSidebar::addFilter(JText::_('COM_JEPROSHOP_SELECT_PRODUCT_TYPE_LABEL'), 'jform[filter_product_type]', $filter_product_type_options, FALSE);
-                $filter_state_options = '<option value="1" >' . JText::_('COM_JEPROSHOP_FILTER_LABEL'). '</option>';
+               $filter_state_options = '<option value="1" >' . JText::_('COM_JEPROSHOP_FILTER_LABEL'). '</option>';
                 JHtmlSidebar::addFilter(JText::_('COM_JEPROSHOP_SELECT_STATUS_LABEL'), 'jform[filter_state]', $filter_state_options, FALSE);
                 $categories = JeproshopCategoryModelCategory::getCategories();
                 $filter_category_options = '';
@@ -1135,7 +1165,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
                 foreach($suppliers as $supplier){
                     $filter_suppliers_options .= '<option value="' . (int)$supplier->supplier_id . '" >' . ucfirst($supplier->name) . '</option>';
                 }
-                JHtmlSidebar::addFilter(JText::_('COM_JEPROSHOP_SELECT_SUPPLIER_LABEL'), 'jform[filter_supplier]', $filter_suppliers_options, FALSE);
+                JHtmlSidebar::addFilter(JText::_('COM_JEPROSHOP_SELECT_SUPPLIER_LABEL'), 'jform[filter_supplier]', $filter_suppliers_options, FALSE); 
                 break;
         }
         $this->addSideBar('catalog');

@@ -131,9 +131,11 @@ if(isset($this->product->product_id)){
         <a href="<?php echo $addFeatureLink; ?>" class="btn confirm-leave button">
             <i class="icon-plus-sign"></i> <?php echo JText::_('COM_JEPROSHOP_NEW_FEATURE_LABEL'); ?><i class="icon-external-link-sign"></i>
         </a>
-        <div class="panel-footer">
-            <a href="<?php echo $productsLink; ?>" class="btn btn-default"><i class="process-icon-cancel"></i> <?php echo JText::_('COM_JEPROSHOP_CANCEL_LABEL'); ?></a>
-            <button type="submit" name="save_feature" class="btn btn-default pull-right"><i class="process-icon-save"></i> <?php echo JText::_('COM_JEPROSHOP_SAVE_AND_STAY_LABEL'); ?></button>
+        <div class="control-group">
+            <div class="controls" >
+                <a href="<?php echo $productsLink; ?>" class="btn btn-default"><i class="process-icon-cancel"></i> <?php echo JText::_('COM_JEPROSHOP_CANCEL_LABEL'); ?></a>
+                <button type="submit" name="save_feature" class="btn btn-default pull-right"><i class="process-icon-save"></i> <?php echo JText::_('COM_JEPROSHOP_SAVE_AND_STAY_LABEL'); ?></button>
+            </div>
         </div>
     </div>
 </div>

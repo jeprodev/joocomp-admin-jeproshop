@@ -25,11 +25,11 @@
 defined('_JEXEC') or die('Restricted access');
 
 class JeproshopImageController extends JeproshopController{
-    public function initContent($token = null){
+    /*public function initContent($token = null){
         $app = JFactory::getApplication();
         $context = JeproshopContext::getContext();
         $task = $app->input->get('task');
         $view = $app->input->get('view');
 
-    }
+    } */
 }

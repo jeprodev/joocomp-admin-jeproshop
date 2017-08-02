@@ -36,7 +36,7 @@ defined('_JEXEC') or die('Restricted access');
             <div class="panel-content well" >
                 <div class="control-group" >
                     <div class="control-label" ><label for="jform_name"  title="<?php echo JText::_('COM_JEPROSHOP_NAME_TITLE_DESC') . ' ' . JText::_('COM_JEPROSHOP_INVALID_CHARACTERS_LABEL') ; ?>" ><?php echo JText::_('COM_JEPROSHOP_NAME_LABEL'); ?></label></div>
-                    <div class="controls" ><?php echo $this->helper->multiLanguageInputField('name', 'jform', true); ?></div>
+                    <div class="controls" ><?php echo $this->helper->multiLanguageInputField('name', 'jform', 'text', true, $this->feature->name); ?></div>
                 </div>
                 <?php if(JeproshopShopModelShop::isFeaturePublished()){ ?>
                     <div class="control-group" >
@@ -61,8 +61,8 @@ defined('_JEXEC') or die('Restricted access');
                     <tbody>
                     <?php if(isset($this->feature_values) && count($this->feature_values)){
                         foreach($this->feature_values as $index => $value) {
-                            $editLink = JRoute::_('index.php?option=com_jeproshop&view=feature&task=edit_value&feature_value_id=' . $value->feature_value_id . JeproshopTools::getFeatureToken() . '=1');
-                            $deleteLink = JRoute::_('index.php?option=com_jeproshop&view=feature&task=delete_value&feature_value_id=' . $value->feature_value_id . JeproshopTools::getFeatureToken() . '=1');
+                            $editLink = JRoute::_('index.php?option=com_jeproshop&view=feature&task=edit_value&feature_value_id=' . $value->feature_value_id . '&' . JeproshopTools::getFeatureToken() . '=1');
+                            $deleteLink = JRoute::_('index.php?option=com_jeproshop&view=feature&task=delete_value&feature_value_id=' . $value->feature_value_id . '&' . JeproshopTools::getFeatureToken() . '=1');
                             ?>
                             <tr class="row_<?php echo $index % 2; ?>" >
                                 <td class="nowrap center"><?php echo $index + 1; ?></td>

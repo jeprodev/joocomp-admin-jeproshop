@@ -63,7 +63,7 @@ defined('_JEXEC') or die('Restricted access');
                         $product_state = ($product->published ? 'icon-publish' : 'icon-unpublish');
                         ?>
                         <tr class="row_<?php echo $index % 2; ?>" sortable-group-id="<?php echo $product->category_id; ?>">
-                            <td class="nowrap center" ><?php echo  $this->pagination->limitstart + $index + 1; ?></td>
+                            <td class="nowrap center" ><?php echo (isset($this->pagination) ? $this->pagination->limitstart : 0) + $index + 1; ?></td>
                             <td class="nowrap center" ><?php echo JHtml::_('grid.id', $index, $product->product_id); ?></td>
                             <td class="center hidden-phone">
                                 <div class="btn-group">
@@ -99,7 +99,7 @@ defined('_JEXEC') or die('Restricted access');
                     <?php }
                 } ?>
                 </tbody>
-                <tfoot><tr><td colspan="11" class="center nowrap" ><?php echo $this->pagination->getListFooter(); ?></td></tr></tfoot>
+                <tfoot><tr><td colspan="11" class="center nowrap" ><?php if(isset($this->pagination)){ echo $this->pagination->getListFooter(); } ?></td></tr></tfoot>
             </table>
         </div>
     </div>

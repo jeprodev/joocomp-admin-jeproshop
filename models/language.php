@@ -50,16 +50,15 @@ class JeproshopLanguageModelLanguage extends JModelLegacy
     protected static $_LANGUAGES = array();
 
     public function __construct($lang_id = null){
-        parent::__construct();
-
-        $db = JFactory::getDBO();
+        
         $default_language = JFactory::getLanguage();
 
         if($lang_id){
             /** Load shop from database if  id is supplied */
             $cache_id = 'jeproshop_language_model_' . (($lang_id > 0) ? '_' . $lang_id : '');
             if(!JeproshopCache::isStored($cache_id)){
-                $query = " SELECT * FROM " . $db->quoteName('#__languages') . " lang WHERE lang.lang_id = " .  (int)$lang_id;
+                $db = JFactory::getDBO();
+                $query = " SELECT lang.* FROM " . $db->quoteName('#__languages') . " lang WHERE lang.lang_id = " .  (int)$lang_id;
 
                 $db->setQuery($query);
                 $language_data = $db->loadObject();
@@ -163,5 +162,41 @@ class JeproshopLanguageModelLanguage extends JModelLegacy
             JeproshopCache::store($cacheKey, (bool)$db->loadResult());
         }
         return JeproshopCache::retrieve($cacheKey);
+    }
+
+    public static function getLanguageByIETFCode($code){
+        if(!JeproshopTools::isLanguageCode($code)){
+            JError::raiseError(500, JText::_('COM_JEPROSHOP_'));
+        }
+
+        $langCountry = explode('-', $code);
+        $lang = $langCountry[0];
+
+        $db = JFactory::getDBO();
+
+        $query = "SELECT " . $db->quoteName('lang_id') . ", IF(" . $db->quoteName('lang_code') . " = " . $db->quote($code);
+        $query .= ", 0, LENGTH(" . $db->quoteName('lang_code') . ")) as found FROM " . $db->quoteName('#__languages') ;
+        $query .= " WHERE LEFT(" . $db->quoteName('lang_code') . ",2) = " . $db->quote($lang) . " ORDER BY found ASC";
+
+        $db->setQuery($query);
+        $langId = (int)$db->loadObject()->lang_id;
+
+        if($langId > 0){
+            return new JeproshopLanguageModelLanguage($langId);
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * Return iso code from id
+     *
+     * @param $langId
+     * @return string Iso code
+     */
+    public static function getIsoCodeByLanguageId($langId){
+        if (isset(self::$_LANGUAGES[(int)$langId]->iso_code))
+            return self::$_LANGUAGES[(int)$langId]->iso_code;
+        return false;
     }
 }

@@ -86,7 +86,7 @@ defined('_JEXEC') or die('Restricted access');
                         </tr>
                     <?php } ?>
                     </tbody>
-                    <tfoot><tr><td colspan="7" ><?php echo $this->pagination->getListFooter(); ?></td></tr></tfoot>
+                    <tfoot><tr><td colspan="7" ><?php if(isset($this->pagination)){ echo $this->pagination->getListFooter(); } ?></td></tr></tfoot>
                 </table>
             </div>
         </div>

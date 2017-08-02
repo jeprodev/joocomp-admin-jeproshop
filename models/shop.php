@@ -625,4 +625,30 @@ class JeproshopShopModelShop extends JeproshopModel{
                 return ($as_id) ? $group_id : $group_data;
         return false;
     }
+
+    /**
+     * @param string $entity
+     * @param int $shopId
+     * @param bool $published
+     * @param bool $deleted
+     * @return array|bool
+     */
+    public static function getEntityIds($entity, $shopId, $published = false, $deleted = false){
+        if (!JeproshopShopModelShop::isTableAssociated($entity)) {
+            return false;
+        }
+
+        $db = JFactory::getDBO();
+
+        $query = "SELECT entity." . $db->quoteName($entity .'_id') . " FROM " . $db->quoteName('#__jeproshop_' . $entity .'_shop');
+        $query .= " AS entity_shop LEFT JOIN " . $db->quoteName('#__jeproshop_' . $entity) . " AS entity ON (entity.";
+        $query .= $db->quoteName($entity .'_id') . " = entity_shop." . $db->quoteName($entity . '_id');
+        $query .= ") WHERE entity_shop." . $db->quoteName('shop_id') . " = " . (int)$shopId ;
+        $query .= ($published ? " AND entity." .  $db->quoteName('published') . " = 1" : '').
+            ($deleted ? " AND entity." . $db->quoteName('deleted') . " = 0" : '');
+
+        $db->setQuery($query);
+        return $db->loadObjectList();
+    }
+
 }

@@ -65,7 +65,6 @@ class JeproshopCountryModelCountry extends JeproshopModel
     protected static $_zone_ids = array();
     protected static $cache_iso_by_id = array();
 
-
     
     public function __construct($countryId = null, $langId = null, $shopId = NULL){
         $db = JFactory::getDBO();
@@ -294,6 +293,34 @@ class JeproshopCountryModelCountry extends JeproshopModel
 
         $this->pagination = new JPagination($total, $limitStart, $limit);
         return $countries;
+    }
+
+    public static function getCountriesByZoneId($zoneId, $langId = null, $withStates = false){
+        if (empty($zoneId)) {
+            die(JError::raiseError("an error occured jeff"));
+        }
+
+        if($langId == null){
+            $langId = JeproshopContext::getContext()->language->lang_id;
+        }
+        $db = JFactory::getDBO();
+
+        $query = "SELECT DISTINCT country.*, country_lang.* FROM " . $db->quoteName('#__jeproshop_country') . " AS country ";
+        //$query .= JeproshopShopModelShop::addSqlAssociation('country', false) ;
+        if($withStates) {
+            $query .= " LEFT JOIN " . $db->quoteName('#__jeproshop_state') . " AS state ON (state." . $db->quoteName('country_id') . " = country.";
+            $query .= $db->quoteName('country_id') . " AND state." . $db->quoteName('lang_id') . " = " . (int)$langId . ") ";
+        }
+        $query .= " LEFT JOIN " . $db->quoteName('#__jeproshop_country_lang') . " AS country_lang ON (country." . $db->quoteName('country_id');
+        $query .= " = country_lang." . $db->quoteName('country_id') . " AND country_lang." . $db->quoteName('lang_id') ;
+        $query .= ") WHERE country." . $db->quoteName('zone_id') . " = " . (int)$zoneId;
+        /*if($withStates) {
+            $query .= " OR state." . $db->quoteName('zone_id') . " = " . (int)$zoneId;
+        }
+        $query .= " "; // . $db->quoteName('lang_id') . " = " . (int)$langId; */
+
+        $db->setQuery($query);
+        return $db->loadObjectList();
     }
 
 }

@@ -60,9 +60,11 @@ if(isset($this->product->product_id)){ ?>
             <a class="btn btn-default btn-link bt-icon confirm_leave" href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=supplier&t&task=add&' . JeproshopTools::getSupplierToken() . '=1'); ?>">
                 <i class="icon-plus"></i> <?php echo JText::_('COM_JEPROSHOP_CREATE_NEW_SUPPLIER_LABEL'); ?> <i class="icon-external-link-sign"></i>
             </a>
-            <div class="panel-footer">
-                <a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=product'); ?>" class="btn btn-default"><i class="process-icon-cancel"></i> <?php echo JText::_('COM_JEPROSHOP_CANCEL_LABEL'); ?></a>
-                <button type="submit" name="save_supplier" class="btn btn-default pull-right"><i class="process-icon-save"></i> <?php echo JText::_('COM_JEPROSHOP_SAVE_AND_STAY_LABEL'); ?></button>
+            <div class="control-group">
+                <div class="controls" >
+                    <a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=product'); ?>" class="btn btn-default"><i class="process-icon-cancel"></i> <?php echo JText::_('COM_JEPROSHOP_CANCEL_LABEL'); ?></a>
+                    <button type="submit" name="save_supplier" class="btn btn-default pull-right"><i class="process-icon-save"></i> <?php echo JText::_('COM_JEPROSHOP_SAVE_AND_STAY_LABEL'); ?></button>
+                </div>
             </div>
         </div>
     </div>
@@ -73,7 +75,7 @@ if(isset($this->product->product_id)){ ?>
                 <?php if(count($this->associated_suppliers) == 0){
                     echo JText::_('COM_JEPROSHOP_YOU_MUST_SPECIFY_THE_SUPPLIERS_ASSOCIATED_WITH_THIS_PRODUCT_YOU_MUST_ALSO_BEFORE_SETTING_REFERENCES_LABEL');
                 }else{
-                    echo JText::_('COM_JEPROSHOP_YOU_CAN_SPECIFY_PRODUCT_REFERENCES_FOR-EACH_ASSOCIATED_SUPPLIER_LABEL');
+                    echo JText::_('COM_JEPROSHOP_YOU_CAN_SPECIFY_PRODUCT_REFERENCES_FOREACH_ASSOCIATED_SUPPLIER_LABEL');
                 }
                 echo JText::_('COM_JEPROSHOP_CLICK_SAVE_AND_STAY_AFTER_CHANGING_ASSOCIATED_SELECTED_SUPPLIER_TO_DISPLAY_THE_ASSOCIATED_PRODUCT_REFERENCES_LABEL');  ?>
             </div>
@@ -87,7 +89,7 @@ if(isset($this->product->product_id)){ ?>
                                 <tr>
                                     <th class="nowrap" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_NAME_LABEL'); ?></th>
                                     <th class="nowrap" ><?php echo JText::_('COM_JEPROSHOP_SUPPLIER_REFERENCE_LABEL'); ?></th>
-                                    <th class="nowrap" ><?php echo JText::_('COM_JEPROSHOP_UNIT_PRICE_TAX_EXCLUDED_LABEL'); ?></th>
+                                    <th class="nowrap center" ><?php echo JText::_('COM_JEPROSHOP_UNIT_PRICE_TAX_EXCLUDED_LABEL'); ?></th>
                                     <th class="nowrap" ><span class="pull-right"><?php echo JText::_('COM_JEPROSHOP_UNIT_PRICE_CURRENCY_LABEL'); ?></span></th>
                                 </tr>
                                 </thead>
@@ -110,15 +112,16 @@ if(isset($this->product->product_id)){ ?>
                                         <td>
                                             <input type="text" value="<?php echo $reference; ?>" name="supplier[supplier_reference_<?php echo $attribute->product_id . '_' . $attribute->product_attribute_id . '_' . $supplier->supplier_id; ?>]" />
                                         </td>
-                                        <td>
-                                            <input type="text" value="<?php echo htmlentities($price_te); ?>" name="supplier[product_price_<?php echo $attribute->product_id . '_' . $attribute->product_attribute_id . '_' . $supplier->supplier_id; ?>]" class="price_box" />
+                                        <td class="center">
+                                            <input type="text" value="<?php echo htmlentities($price_te); ?>" name="supplier[product_price_<?php echo $attribute->product_id . '_' . $attribute->product_attribute_id . '_' . $supplier->supplier_id; ?>]" class="price-box" />
                                         </td>
                                         <td>
-                                            <select name="supplier[product_price_currency_<?php echo $attribute->product_id . '_' . $attribute->product_attribute_id . '_' . $supplier->supplier_id; ?>]" class="price_box" >
+                                            <span class="pull-right">
+                                            <select name="supplier[product_price_currency_<?php echo $attribute->product_id . '_' . $attribute->product_attribute_id . '_' . $supplier->supplier_id; ?>]" class="middle-size" >
                                                 <?php foreach($this->currencies AS $currency){ ?>
                                                     <option value="<?php echo $currency->currency_id; ?>" <?php if($currency->currency_id == $currency_id){ ?> selected="selected" <?php } ?> ><?php echo $currency->name; ?></option>
                                                 <?php } ?>
-                                            </select>
+                                            </select></span>
                                         </td>
                                     </tr>
                                 <?php } ?>
@@ -130,9 +133,11 @@ if(isset($this->product->product_id)){ ?>
                 <?php } ?>
             </div>
             <div style="clear: both;" ></div>
-            <div class="panel-footer">
-                <a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=product'); ?>" class="btn btn-default"><i class="process-icon-cancel"></i> <?php echo JText::_('COM_JEPROSHOP_CANCEL_LABEL'); ?></a>
-                <button type="submit" name="save_reference" class="btn btn-default pull-right"><i class="process-icon-save"></i> <?php echo JText::_('COM_JEPROSHOP_SAVE_AND_STAY_LABEL'); ?></button>
+            <div class="control-group">
+                <div class="controls" >
+                    <a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=product'); ?>" class="btn btn-default"><i class="process-icon-cancel"></i> <?php echo JText::_('COM_JEPROSHOP_CANCEL_LABEL'); ?></a>
+                    <button type="submit" name="save_reference" class="btn btn-default pull-right"><i class="process-icon-save"></i> <?php echo JText::_('COM_JEPROSHOP_SAVE_AND_STAY_LABEL'); ?></button>
+                </div>
             </div>
             <div class="separation" ></div>
         </div>

@@ -25,5 +25,19 @@
 defined('_JEXEC') or die('Restricted access');
 
 class JeproshopAttributeController extends JeproshopController{
+    public function edit_group(){
+        if($this->viewAccess() && JeproshopTools::checkAttributeGroupToken()){
+            $app = JFactory::getApplication();
+            $view = $app->input->get('view');
+            $viewClass = $this->getView($view, JFactory::getDocument()->getType());
+            $viewClass->setLayout('edit_group');
+            $viewClass->renderAttributeGroupEditForm();
+        }
+    }
+
+    public function view_group(){
+        $this->edit_group();
+    }
+
 
 }

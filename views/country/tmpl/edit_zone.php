@@ -41,7 +41,7 @@ defined('_JEXEC') or die('Restricted access');
                     echo JText::_('COM_JEPROSHOP_YOU_ARE_ABOUT_TO_ADD_LABEL') . ' ' . JText::_('COM_JEPROSHOP_ZONE_LABEL');
                 } ?>
             </div>
-            <div class="panel-content well" >
+            <div class="panel-content" >
                 <div class="control-group" >
                     <div class="control-label" ><label for="jform_name" title="<?php echo JText::_('COM_JEPROSHOP_ZONE_NAME_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_ZONE_NAME_LABEL'); ?></label></div>
                     <div class="controls" ><input type="text" id="jform_name" name="jform[name]" required="required" value="<?php echo (isset($this->zone) ? $this->zone->name : ''); ?>" /></div>

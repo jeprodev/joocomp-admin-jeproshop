@@ -27,6 +27,10 @@ defined('_JEXEC') or die('Restricted access');
 class JeproshopAttributeViewAttribute extends JeproshopViewLegacy{
     protected $attribute;
 
+    protected $attribute_group;
+    
+    protected $helper;
+
     public function renderDetails($tpl = null){
         $attributeModel = new JeproshopAttributeGroupModelAttributeGroup();
         $attribute_groups = $attributeModel->getAttributeGroupList();
@@ -74,6 +78,16 @@ class JeproshopAttributeViewAttribute extends JeproshopViewLegacy{
         parent::display($tpl);
     }
 
+    public function renderAttributeGroupEditForm($tpl = null){
+        if(!isset($this->context)){ $this->context = JeproshopContext::getContext(); }
+        $this->loadAttributeGroup();
+        $this->helper = new JeproshopHelper();
+        $attributes = JeproshopAttributeModelAttribute::getAttributes($this->context->language->lang_id, true, $this->attribute_group->attribute_group_id);
+        $this->assignRef('attributes', $attributes);
+        $this->addToolBar();
+        parent::display($tpl);
+    }
+
     public function loadObject($option = false){
         $app = JFactory::getApplication();
         $attribute_id = $app->input->get('attribute_id');
@@ -96,9 +110,28 @@ class JeproshopAttributeViewAttribute extends JeproshopViewLegacy{
         }
     }
 
-    private function addToolBar()
-    {
-        switch ($this->getLayout()) {
+    public function loadAttributeGroup($option = false){
+        $app = JFactory::getApplication();
+        $attributeGroupId = $app->input->get('attribute_group_id');
+        if($attributeGroupId && JeproshopTools::isUnsignedInt($attributeGroupId)){
+            if(!$this->attribute_group){
+                $this->attribute_group = new JeproshopAttributeGroupModelAttributeGroup($attributeGroupId);
+            }
+            if(JeproshopTools::isLoadedObject($this->attribute_group, 'attribute_group_id')){
+                return $this->attribute_group;
+            }
+            JError::raiseError(500, JText::_('COM_JEPROSHOP_ATTRIBUTE_GROUP_CANNOT_BE_LOADED_OR_FOUND_LABEL'));
+        }else{
+            if($this->attribute_group){
+                $this->attribute_group = new JeproshopAttributeGroupModelAttributeGroup();
+            }
+            return $this->attribute_group;
+        }
+    }
+
+    private function addToolBar(){
+        $task = JFactory::getApplication()->input->get('task');
+        switch ($task) {
             case 'add':
                 JToolBarHelper::title(JText::_('COM_JEPROSHOP_ADD_NEW_ATTRIBUTE_TITLE'), 'attribute-jeproshop');
                 JToolBarHelper::apply('save');

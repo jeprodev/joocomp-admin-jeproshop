@@ -6,13 +6,15 @@
  * Time: 21:44
  */
 
+$defaultCarrierLogo = COM_JEPROSHOP_CARRIER_IMAGE_DIR . 'default_carrier.jpg';
+
 ?>
 <form action="<?php echo JRoute::_('index.php?option=com_jeproshop&view=carrier'); ?>" method="post" name="adminForm" id="adminForm" class="form-horizontal" >
     <?php if(!empty($this->side_bar)){ ?>
         <div id="j-sidebar-container" class="span2" ><?php echo $this->side_bar; ?></div>
     <?php } ?>
     <div id="j-main-container" <?php if(!empty($this->side_bar)){ echo 'class="span10"'; }?> >
-        <?php echo $this->renderCustomerSubMenu('customer'); ?>
+        <?php echo $this->renderShippingSubMenu('customer'); ?>
         <div class="separation"></div>
         <div class="panel" >
             <div class="panel-content" >
@@ -26,7 +28,7 @@
                                 </a>
                             </div>
                         </div>
-                        <img id="carrier_logo_img" src="<?php if($this->carrier_logo){ echo $this->carrier_logo; }else{ echo '../img/admin/carrier-default.jpg';  } ?>" class="img-thumbnail" alt=""/>
+                        <img id="carrier_logo_img" src="<?php if($this->carrier_logo){ echo $this->carrier_logo; }else{ echo $defaultCarrierLogo;  } ?>" class="img-thumbnail" alt=""/>
                     </div>
                 </div>
                 <div id="info-wrapper" class="pull-left">

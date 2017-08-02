@@ -24,6 +24,17 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
+$document = JFactory::getDocument();
+$themeDir = isset(JeproshopContext::getContext()->shop->theme->directory) ? JeproshopContext::getContext()->shop->theme->directory : 'default';
+$document->addScript(JURI::base(). 'components/com_jeproshop/assets/themes/' . $themeDir. '/js/address.js');
+
+$script = 'jQuery(document).ready(function() {' ;
+$script .= 'jQuery("#jform_address_form_wrapper").JeproAddress({' .
+    'address_id : parseInt(' . ((isset($this->address->address_id) && $this->address->address_id > 0) ? $this->address->address_id : 0) . ')';
+$script .= '}); });';
+
+$document->addScriptDeclaration($script);
+
 ?>
 <form action="<?php echo JRoute::_('index.php?option=com_jeproshop&view=address'); ?>" method="post" name="adminForm" id="adminForm" >
     <?php if(!empty($this->side_bar)){ ?>
@@ -32,8 +43,9 @@ defined('_JEXEC') or die('Restricted access');
     <div id="j-main-container" <?php if(!empty($this->side_bar)){ echo 'class="span10"'; }?> >
         <?php echo $this->renderCustomerSubMenu('address'); ?>
         <div class="separation"></div>
-        <div class="panel" >
-            <div class="panel-content well form-horizontal" >
+        <div class="panel" id="jform_address_form_wrapper" >
+            <div class="panel-title" ><?php echo ($this->address->address_id > 0) ? JText::_('COM_JEPROSHOP_EDIT_ADDRESS_LABEL') : JText::_('COM_JEPROSHOP_ADD_NEW_ADDRESS_LABEL'); ?></div>
+            <div class="panel-content form-horizontal" >
                 <div class="control-group" >
                     <div class="control-label" ><label for="jform_customer_id" ><?php echo ucfirst(JText::_('COM_JEPROSHOP_CUSTOMER_LABEL')); ?></label></div>
                     <div class="controls" >
@@ -41,41 +53,10 @@ defined('_JEXEC') or die('Restricted access');
                             <a class="btn btn-default" href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=customer&task=view&customer_id=' . (int)$this->customer->customer_id . '&' . JeproshopTools::getCustomerToken() . '=1'); ?>">
                                 <i class="icon-eye-open"></i> <?php echo '<span >' . $this->customer->lastname . ' ' . $this->customer->firstname . '</span> (' . $this->customer->email . ')'; ?>
                             </a>
-                        <input type="hidden" name="jform[customer_id]" value="<?php echo $this->customer->customer_id; ?>" />
-                        <input type="hidden" name="jform[email]" value="<?php echo $this->customer->email; ?>" />
-                        <?php }else{ ?>
-                            <script type="text/javascript">
-                                $('input[name=jform[email]]').live('blur', function(e){
-                                    var email = $(this).val();
-                                    if (email.length > 5){
-                                        var data = {};
-                                        data.email = email;
-                                        data.token = "{$token|escape:'html':'UTF-8'}";
-                                        data.ajax = 1;
-                                        data.controller = "AdminAddresses";
-                                        data.action = "loadNames";
-                                        $.ajax({
-                                            type: "POST",
-                                            url: "ajax-tab.php",
-                                            data: data,
-                                            dataType: 'json',
-                                            async : true,
-                                            success: function(msg){
-                                                if (msg){
-                                                    var infos = msg.infos.replace("\\'", "'").split('_');
-
-                                                    $('input[name=firstname]').val(infos[0]);
-                                                    $('input[name=lastname]').val(infos[1]);
-                                                    $('input[name=company]').val(infos[2]);
-                                                }
-                                            },
-                                            error: function(msg){}
-                                        });
-                                    }
-                                });
-                            </script>
-                        <input type="text" id="jform_email" name="jform[email]" value="{$fields_value[$input.name]|escape:'html':'UTF-8'}"/>
-
+                        <input type="hidden" name="jform[customer_id]" value="<?php if(isset($this->customer)){ echo $this->customer->customer_id; } ?>" />
+                        <input type="hidden" name="jform[email]" id="jform_email" value="<?php if(isset($this->customer)){  echo $this->customer->email; } ?>" />
+                        <?php }else{ ?> 
+                        <input type="text" id="jform_email" name="jform[email]" value="<?php if(isset($this->customer)){ echo $this->customer->email; } ?>"/>
                         <?php } ?>
                     </div>
                 </div>
@@ -97,7 +78,7 @@ defined('_JEXEC') or die('Restricted access');
                 </div>
                 <div class="control-group" >
                     <div class="control-label" ><label for="jform_company" ><?php echo ucfirst(JText::_('COM_JEPROSHOP_COMPANY_LABEL')); ?></label></div>
-                    <div class="controls" ><input type="text" id="jform_company" name="jform[company]" value="" class="large_input" /></div>
+                    <div class="controls" ><input type="text" id="jform_company" name="jform[company]" value="" class="large-input" /></div>
                 </div>
                 <div class="control-group" >
                     <div class="control-label" ><label for="jform_vat_number" ><?php echo JText::_('COM_JEPROSHOP_VAT_NUMBER_LABEL'); ?></label></div>

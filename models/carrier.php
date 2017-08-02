@@ -330,12 +330,30 @@ class JeproshopCarrierModelCarrier extends JeproshopModel{
 
         foreach ($carriers as $key => $carrier) {
             if($carrier->name == '0'){
-                $carrier->name = JeproshopSettingModelSetting::getCurrentShopName();
+                $carrier->name = JeproshopContext::getContext()->shop->shop_name;
             }
         }
 
         $this->pagination = new JPagination($total, $limitStart, $limit);
         return $carriers;
+    }
+
+    public function getTaxRulesGroupId(JeproshopContext $context = null){
+        return JeproshopCarrierModelCarrier::getTaxRulesGroupIdByCarrierId((int)$this->carrier_id, $context);
+    }
+
+    public static function getTaxRulesGroupIdByCarrierId($carrierId, JeproshopContext $context = null){
+        if (!$context){ $context = JeproshopContext::getContext(); }
+        $key = 'jeproshop_carrier_tax_rules_group_id'.(int)$carrierId . '_' . (int)$context->shop->shop_id;
+        if (!JeproshopCache::isStored($key)){
+            $db = JFactory::getDBO();
+            $query = "SELECT " . $db->quoteName('tax_rules_group_id') . " FROM " . $db->quoteName('#__jeproshop_carrier_tax_rules_group_shop') . " WHERE "; ;
+            $query .= $db->quoteName('carrier_id') . " = " .(int)$carrierId . " AND shop_id = " .(int)JeproshopContext::getContext()->shop->shop_id;
+
+            $db->setQuery($query);
+            JeproshopCache::store($key, $db->loadObject()->tax_rules_group_id);
+        }
+        return JeproshopCache::retrieve($key);
     }
 
 }

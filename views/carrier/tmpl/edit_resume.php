@@ -26,7 +26,7 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <div class="panel form-horizontal" id="jform_carrier_resume_setting" >
     <div class="panel-title" ><?php echo JText::_('COM_JEPROSHOP_RESUME_SETTINGS_LABEL'); ?></div>
-    <div class="panel-content well" >
+    <div class="panel-content " >
         <p id="jform_summary_meta_information"></p>
         <p id="jform_summary_shipping_cost"></p>
         <p id="jform_summary_range"></p>

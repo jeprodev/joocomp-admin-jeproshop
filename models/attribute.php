@@ -51,21 +51,26 @@ class JeproshopAttributeModelAttribute extends JeproshopModel {
      *
      * @param integer $langId Language id
      * @param boolean $notNull Get only not null fields if true
+     * @param null $attributeGroupId
      * @return array Attributes
      */
-    public static function getAttributes($langId, $notNull = false){
+    public static function getAttributes($langId, $notNull = false, $attributeGroupId = null){
         if (!JeproshopCombinationModelCombination::isFeaturePublished()){ return array(); }
 
         $db = JFactory::getDBO();
 
-        $query = "SELECT DISTINCT attribute_group.*, attribute_group_lang.*, attribute." . $db->quoteName('attribute_id') . ", attribute_lang." . $db->quoteName('name') . ", attribute_group_lang." . $db->quoteName('name'). " AS ";
-        $query .= $db->quoteName('attribute_group_name') . " FROM " . $db->quoteName('#__jeproshop_attribute_group') . " AS attribute_group LEFT JOIN " . $db->quoteName('#__jeproshop_attribute_group_lang') . " AS ";
+        $query = "SELECT DISTINCT attribute_group.*, attribute_group_lang.*, attribute." . $db->quoteName('attribute_id') ;
+        $query .= ", attribute_lang." . $db->quoteName('name') . ", attribute_group_lang." . $db->quoteName('name'). " AS ";
+        $query .= $db->quoteName('attribute_group_name') . " FROM " . $db->quoteName('#__jeproshop_attribute_group') ;
+        $query .= " AS attribute_group LEFT JOIN " . $db->quoteName('#__jeproshop_attribute_group_lang') . " AS ";
         $query .= "attribute_group_lang ON (attribute_group." . $db->quoteName('attribute_group_id') . " = attribute_group_lang." . $db->quoteName('attribute_group_id') . " AND attribute_group_lang." . $db->quoteName('lang_id') . " = ";
         $query .= (int)$langId . ") LEFT JOIN " . $db->quoteName('#__jeproshop_attribute') . " AS attribute ON (attribute." . $db->quoteName('attribute_group_id') . " = attribute_group." . $db->quoteName('attribute_group_id');
         $query .= ") LEFT JOIN " . $db->quoteName('#__jeproshop_attribute_lang') . " AS attribute_lang ON (attribute." . $db->quoteName('attribute_id') . " = attribute_lang." . $db->quoteName('attribute_id') . " AND ";
         $query .= "attribute_lang." . $db->quoteName('lang_id') . " = " . (int)$langId . ") " . JeproshopShopModelShop::addSqlAssociation('attribute_group') ;
-        $notNullQuery =  ($notNull ? " WHERE attribute." . $db->quoteName('attribute_id') . " IS NOT NULL AND attribute_lang." . $db->quoteName('name') . " IS NOT NULL AND attribute_group_lang." . $db->quoteName('attribute_group_id') . " IS NOT NULL" : "");
-        $query .= JeproshopShopModelShop::addSqlAssociation('attribute') . $notNullQuery  . " ORDER BY attribute_group_lang." . $db->quoteName('name') .  " ASC, attribute." . $db->quoteName('position') . " ASC";
+        $notNullQuery =  ($notNull ? " AND attribute." . $db->quoteName('attribute_id') . " IS NOT NULL AND attribute_lang." . $db->quoteName('name') . " IS NOT NULL AND attribute_group_lang." . $db->quoteName('attribute_group_id') . " IS NOT NULL" : "");
+        $query .= JeproshopShopModelShop::addSqlAssociation('attribute') . " WHERE 1 " . $notNullQuery;
+        $query .= (JeproshopTools::isUnsignedInt($attributeGroupId) ? " AND attribute." . $db->quoteName('attribute_group_id') . " = " . $attributeGroupId : " ");
+        $query .= " ORDER BY attribute_group_lang." . $db->quoteName('name') .  " ASC, attribute." . $db->quoteName('position') . " ASC";
 
         $db->setQuery($query);
         return $db->loadObjectList();
@@ -263,4 +268,5 @@ class JeproshopAttributeGroupModelAttributeGroup extends JeproshopModel{
         $this->pagination = new JPagination($total, $limitstart, $limit);
         return $attribute_groups;
     }
+    
 }

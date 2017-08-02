@@ -32,6 +32,8 @@ class JeproshopController extends JControllerLegacy
 
     public $allow_employee_form_language;
 
+    public $allow_link_rewrite = false;
+
     public $shop_link_type = "";
 
     public $multi_shop_context = -1;
@@ -41,14 +43,19 @@ class JeproshopController extends JControllerLegacy
     public $has_errors;
 
     /**
+     * @var array List of loaded routes
+     */
+    protected $routes = array();
+
+    /**
      * check if the controller is available for the current user/visitor
      */
-    public function checkAccess(){}
+    public function checkAccess(){ return true; }
 
     /**
      * Check if the current user/visitor has valid view permissions
      */
-    public function viewAccess(){}
+    public function viewAccess(){ return true; }
 
     /**
      * initialize jeproshop
@@ -73,7 +80,7 @@ class JeproshopController extends JControllerLegacy
         if($task == 'edit' || $task == 'add'){
             if(!$viewClass->loadObject(true)){ return false; }
             $viewClass->setLayout('edit');
-            $viewClass->renderEditForm();
+            $viewClass->renderEditForm(); 
         }elseif($task == 'added'){
             $viewClass->setLayout('edit');
             $viewClass->renderAddForm();
@@ -165,6 +172,151 @@ class JeproshopController extends JControllerLegacy
 
         return $languages;
     }
+
+    /**
+     * Returns a link to a product image for display
+     * Note: the new image filesystem stores product images in subdirectories of img/p/
+     *
+     * @param string $name rewrite link of the image
+     * @param string $ids id part of the image filename - can be "productId_imageId" (legacy support, recommended) or "imageId" (new)
+     * @param string $type
+     * @return string
+     */
+    public function getProductImageLink($name, $ids, $type = null){
+        $notDefault = false;
+        if(is_array($name)){ $name = $name[JeproshopContext::getContext()->language->lang_id]; }
+
+        // legacy mode or default image
+        $theme = ((JeproshopShopModelShop::isFeaturePublished() && file_exists(COM_JEPROSHOP_PRODUCT_IMAGE_DIR . $ids . ($type ? '_'.$type : '').'_'. JeproshopContext::getContext()->shop->theme_name .'.jpg')) ? '_'.JeproshopContext::getContext()->shop->theme->name : '');
+
+        if ((JeproshopSettingModelSetting::getValue('legacy_images') && (file_exists(COM_JEPROSHOP_PRODUCT_IMAGE_DIR . $ids . ($type ? '_'.$type : '').$theme.'.jpg'))) || ($notDefault = strpos($ids, 'default') !== false)) {
+            if ($this->allow_link_rewrite == 1 && !$notDefault){
+                $uriPath = JURI::base() . $ids.($type ? '_'.$type : '').$theme.'/'.$name.'.jpg';
+            }else{
+                $context = JeproshopContext::getContext();
+                $theme = isset($context->shop->theme_directory) ? $context->shop->theme_directory : 'default';
+
+                $ids = $context->language->iso_code;
+                $uriPath = COM_JEPROSHOP_PRODUCT_IMAGE_DIR . $ids.($type ? '_' . $type . '_' : '').$theme.'.jpg';
+            }
+        } else {
+            // if ids if of the form product_id-image_id, we want to extract the id_image part
+            $splitIds = explode('_', $ids);
+            $imageId = (isset($splitIds[1]) ? $splitIds[1] : $splitIds[0]);
+            $productId = isset($splitIds[0]) ? $splitIds[0] : "" ;
+
+            if(JeproshopShopModelShop::isFeaturePublished() && file_exists(COM_JEPROSHOP_PRODUCT_IMAGE_DIR . JeproshopImageModelImage::getStaticImageFolder($imageId). $imageId .($type ? '_'.$type : '').'_'.(int)JeproshopContext::getContext()->shop->theme->name . '.jpg')) {
+                $theme = '_' . JeproshopContext::getContext()->shop->theme->name;
+            }else{ $theme = '_default'; }
+
+            if ($this->allow_link_rewrite == 1){
+                $uriPath =  $imageId .($type ? '_'.$type : '').$theme.'/'.$name.'.jpg';
+            }else if(isset($productId) && isset($imageId)) {
+                $uriPath = COM_JEPROSHOP_PRODUCT_IMAGE_DIR . $productId . '/' . $imageId . ($type ? '_' . $type : '') . '.jpg';
+                //$uriPath = COM_JEPROSHOP_PRODUCT_IMAGE_DIR . JeproshopImageModelImage::getStaticImageFolder($imageId) . $imageId . ($type ? '_' . $type : '') . '.jpg';
+            }else{
+                $langCode = JeproshopContext::getContext()->language->iso_code;
+                $uriPath =  COM_JEPROSHOP_PRODUCT_IMAGE_DIR . $langCode .($type ? '_'.$type : '').$theme.'.jpg';
+            }
+        }
+        //return JeproshopTools::getMediaServer($uri_path).$uri_path;
+        return $uriPath;
+    }
+
+    /**
+     * Create a link to a product
+     *
+     * @param mixed $product Product object (can be an ID product, but deprecated)
+     * @param string $alias
+     * @param string $category
+     * @param string $ean13
+     * @param null $langId
+     * @param null $shopId
+     * @param int $productAttributeId ID product attribute
+     * @param bool $forceRoutes
+     * @return string
+     * @throws JException
+     * @internal param int $langId
+     * @internal param int $id_shop (since 1.5.0) ID shop need to be used when we generate a product link for a product in a cart
+     */
+    public function getProductLink($product, $alias = null, $category = null, $ean13 = null, $langId = null, $shopId = null, $productAttributeId = 0, $forceRoutes = false){
+        if (!$langId) {
+            $langId = JeproshopContext::getContext()->language->lang_id;
+        }
+
+        if (!is_object($product)) {
+            if (is_array($product) && isset($product['product_id'])) {
+                $product = new JeproshopProductModelProduct($product['product_id'], false, $langId, $shopId);
+            } elseif ((int)$product) {
+                $product = new JeproshopProductModelProduct((int)$product, false, $langId, $shopId);
+            } else {
+                throw new JException(JText::_('COM_JEPROSHOP_INVALID_PRODUCT_VARS_MESSAGE'));
+            }
+        }
+
+        // Set available keywords
+        $anchor = '&task=view&product_id=' . $product->product_id; // .  ((!$alias) ? '&rewrite=' . $product->getFieldByLang('link_rewrite') : $alias) . ((!$ean13) ? '&ean13=' . $product->ean13 : $ean13);
+        //$anchor .= '&meta_keywords=' . JeproshopTools::str2url($product->getFieldByLang('meta_keywords')) . '&meta_title=' . JeproshopTools::str2url($product->getFieldByLang('meta_title'));
+
+        if ($this->hasKeyword('product', $langId, 'manufacturer', $shopId)) {
+            //$params['manufacturer'] = JeproshopTools::str2url($product->isFullyLoaded ? $product->manufacturer_name : JeproshopManufacturerModelManufacturer::getNameById($product->manufacturer_id));
+        }
+        if ($this->hasKeyword('product', $langId, 'supplier', $shopId)) {
+            //$params['supplier'] = JeproshopTools::str2url($product->isFullyLoaded ? $product->supplier_name : JeproshopSupplierModelSupplier::getNameById($product->supplier_id));
+        }
+        if ($this->hasKeyword('product', $langId, 'price', $shopId)) {
+            //$params['price'] = $product->isFullyLoaded ? $product->price : JeproshopProductModelProduct::getStaticPrice($product->product_id, false, null, 6, null, false, true, 1, false, null, null, null, $product->specific_price);
+        }
+        if ($this->hasKeyword('product', $langId, 'tags', $shopId)) {
+            //$params['tags'] = JeproshopTools::str2url($product->getTags($lang_id));
+        }
+        if ($this->hasKeyword('product', $langId, 'category', $shopId)) {
+            //$params['category'] = (!is_null($product->category) && !empty($product->category)) ? JeproshopTools::str2url($product->category) : JeproshopTools::str2url($category);
+        }
+        if ($this->hasKeyword('product', $langId, 'reference', $shopId)) {
+            //$params['reference'] = JeproshopTools::str2url($product->reference);
+        }
+
+        if ($this->hasKeyword('product', $langId, 'categories', $shopId))
+        {
+            $params['category'] = (!$category) ? $product->category : $category;
+            $cats = array();
+            foreach ($product->getParentCategories() as $cat) {
+                if (!in_array($cat->category_id, Link::$category_disable_rewrite)) {//remove root and home category from the URL
+                    $cats[] = $cat->link_rewrite;
+                }
+            }
+            $params['categories'] = implode('/', $cats);
+        }
+        $anchor .= $productAttributeId ? '&product_attribute_id='  . $productAttributeId : '';
+
+
+
+        return JRoute::_('index.php?option=com_jeproshop&view=product' . $anchor);
+    }
+
+    /**
+     * Check if a keyword is written in a route rule
+     *
+     * @param string $route_id
+     * @param int $lang_id
+     * @param string $keyword
+     * @param int $shop_id
+     * @return bool
+     */
+    public function hasKeyword($route_id, $lang_id, $keyword, $shop_id = null) {
+        if ($shop_id === null){
+            $shop_id = (int)JeproshopContext::getContext()->shop->shop_id;
+        }
+        /*if (!isset($this->routes[$shop_id])){
+            $this->loadRoutes($shop_id);
+        }*/
+        if (!isset($this->routes[$shop_id]) || !isset($this->routes[$shop_id][$lang_id]) || !isset($this->routes[$shop_id][$lang_id][$route_id]))
+            return false;
+
+        return preg_match('#\{([^{}]*:)?'.preg_quote($keyword, '#').'(:[^{}]*)?\}#', $this->routes[$shop_id][$lang_id][$route_id]['rule']);
+    }
+
 
 
 }

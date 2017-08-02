@@ -31,11 +31,11 @@ if(isset($this->product->product_id)){
         <div class="panel-content well" >
             <div class="control-group" >
                 <div class="control-label"><label title="<?php echo JText::_('COM_JEPROSHOP_FILENAME_TITLE_DESC') . '<br />' . JText::_('COM_JEPROSHOP_MAXIMUM_CHARACTERS_TITLE_DESC'); ?>"><?php echo JText::_('COM_JEPROSHOP_FILENAME_LABEL'); ?></label></div>
-                <div class="controls" ><?php echo $this->helper->multiLanguageInputField('attachment_name', 'attachments', true, $this->attachment_name); ?></div>
+                <div class="controls" ><?php echo $this->helper->multiLanguageInputField('attachment_name', 'attachments', 'text', true, $this->attachment_name); ?></div>
             </div>
             <div class="control-group" >
                 <div class="control-label"><label title="<?php echo JText::_('COM_JEPROSHOP_DESCRIPTION_TITLE_DESC'); ?>"><?php echo JText::_('COM_JEPROSHOP_ATTACHMENT_DESCRIPTION_LABEL'); ?></label></div>
-                <div class="controls" ><?php echo $this->helper->multiLanguageTextAreaField('attachment_description', 'attachments', $this->attachment_description); ?></div>
+                <div class="controls" ><?php echo $this->helper->multiLanguageInputField('attachment_description', 'attachments', 'textarea', $this->attachment_description); ?></div>
             </div>
             <div class="control-group" >
                 <div class="control-label"><label title="<?php echo JText::_('COM_JEPROSHOP_ATTACHMENT_FILENAME_TITLE_DESC') . ' ' . $this->attachment_maximum_size . ' ' . JText::_('COM_JEPROSHOP_MB_MAX_LABEL'); ?>"><?php echo JText::_('COM_JEPROSHOP_FILE_LABEL'); ?></label></div>

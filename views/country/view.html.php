@@ -117,7 +117,7 @@ class JeproshopCountryViewCountry extends JeproshopViewLegacy {
                 JToolbarHelper::title(JText::_('COM_JEPROSHOP_ADD_STATE_TITLE'), 'country-jeproshop');
                 JToolbarHelper::apply('update_state', JText::_('COM_JEPROSHOP_UPDATE_LABEL'));
                 break;
-            case 'zones' :
+            case 'zone' :
                 JToolbarHelper::title(JText::_('COM_JEPROSHOP_ZONES_LIST_TITLE'), 'country-jeproshop');
                 JToolbarHelper::addNew('add_zone');
                 JToolbarHelper::editList('edit_zone');

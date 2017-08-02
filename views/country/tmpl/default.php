@@ -32,7 +32,7 @@ defined('_JEXEC') or die('Restricted access');
         <?php echo $this->renderLocalisationSubMenu('country'); ?>
         <div class="separation"></div>
         <div class="panel" >
-            <div class="panel-content well" >
+            <div class="panel-content" >
                 <table class="table table-striped" id="countryList" >
                     <thead>
                     <tr>
@@ -54,15 +54,15 @@ defined('_JEXEC') or die('Restricted access');
                     <?php }else{
                         foreach($this->countries as $index => $country){
                             $country_link = JRoute::_('index.php?option=com_jeproshop&view=country&task=edit&country_id=' . $country->country_id . '&' . JeproshopTools::getCountryToken() . '=1');
-                            $country_state = ($country->published ? 'icon-publish' : 'icon-unpublish');
+                            $countryState = ($country->published ? 'icon-publish' : 'icon-unpublish');
                             ?>
                             <tr class="row_<?php echo $index % 2; ?> " >
                                 <td class="order nowrap center hidden-phone" ><?php echo $index + 1; ?></td>
                                 <td class="order nowrap center hidden-phone" ><?php echo JHtml::_('grid.id', $index, $country->country_id); ?></td>
                                 <td class="order nowrap center hidden-phone" >
                                     <div class="btn-group">
-                                        <a class="btn btn-micro hasTooltip" href="javascript:void(0);" onclick="listCountryTask(<?php echo $country->country_id . ', ' . ($country->published ? '\'unpiblish\'' : '\'publish\'');?>)" >
-                                            <i class="<?php echo $country_state; ?>" ></i></a>
+                                        <a class="btn btn-micro hasTooltip" href="javascript:void(0);" onclick="JeproTools.listCountryTask(<?php echo $country->country_id . ', ' . ($country->published ? '\'unpiblish\'' : '\'publish\'');?>)" >
+                                            <i class="<?php echo $countryState; ?>" ></i></a>
                                     </div>
                                 </td>
                                 <td class="order nowrap " ><a href="<?php echo $country_link; ?>" ><?php echo $country->name; ?></a></td>
@@ -78,7 +78,11 @@ defined('_JEXEC') or die('Restricted access');
                         <?php }
                     }?>
                     </tbody>
-                    <tfoot><?php if(isset($this->pagination)){ echo $this->pagination->getListFooter(); } ?></tfoot>
+                    <tfoot>
+                        <tr>
+                            <td class="center" colspan="8" ><?php if(isset($this->pagination)){ echo $this->pagination->getListFooter(); } ?></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
