@@ -25,5 +25,49 @@
 defined('_JEXEC') or die('Restricted access');
 
 class JeproshopCustomerController extends JeproshopController{
+    public function search(){
+        $app = JFactory::getApplication();
+        $useAjax = $app->input->get('use_ajax');
+        $tab = $app->input->getWord('tab');
+        $jsonData = array("success" =>false, "found" => false);
 
+        if(isset($tab) && $tab != ''){
+            switch ($tab){
+                case 'customer' :
+                    $searches = explode(' ', $app->input->get('content'));
+                    $customers = array();
+                    $searches = array_unique($searches);
+                    foreach($searches as $search){
+                        if(!empty($search)){
+                            $results = JeproshopCustomerModelCustomer::searchCustomerByValue($search);
+                            if($results) {
+                                foreach ($results as $result) {
+                                    $customers[$result->customer_id] = $result;
+                                }
+                            }
+                        }
+                    }
+
+                    if(count($customers)){
+                        $customersArray = array();
+                        foreach($customers as $customer) {
+                            $customerData = array();
+                            foreach($customer as $key => $value){
+                                $customerData[$key] =  $value;
+                            }
+                            $customersArray[] = $customerData ;
+                        }
+                        $jsonData = array("success" =>  true, 'found' => true, 'customers' => $customersArray);
+                    }
+                    break;
+            }
+        }
+
+        if($useAjax){
+            $document = JFactory::getDocument();
+            $document->setMimeEncoding('application/json');
+            echo json_encode($jsonData);
+            $app->close();
+        }
+    }
 }

@@ -45,22 +45,18 @@ class JeproshopOrderViewOrder extends JeproshopViewLegacy {
         parent::display($tpl);
     }
 
-    public function renderAddForm($tpl = null){
-        $input = JFactory::getApplication()->input;
-        $render = $input->get('render');
-        if($render == 'invoices'){}elseif ($render == 'returns'){} elseif ($render == 'delivery'){}elseif ($render == 'refund'){}elseif ($render == 'status'){}elseif ($render == 'messages'){
-
-        }else{
-
-        }
-        $this->addToolBar();
-        parent::display($tpl);
+    public function renderAdForm($tpl = null){ 
+        $this->renderEditForm($tpl);
     }
 
     public function renderEditForm($tpl = null){
         $input = JFactory::getApplication()->input;
         $render = $input->get('render');
-        if($render == 'invoices'){}elseif ($render == 'returns'){} elseif ($render == 'delivery'){}elseif ($render == 'refund'){}elseif ($render == 'status'){}elseif ($render == 'messages'){}else{}
+        if($render == 'invoices'){}elseif ($render == 'returns'){} elseif ($render == 'delivery'){}elseif ($render == 'refund'){}elseif ($render == 'status'){}elseif ($render == 'messages'){
+
+        }else{
+            $this->renderOrderEditForm();
+        }
         $this->addToolBar();
         parent::display($tpl);
     }
@@ -75,6 +71,51 @@ class JeproshopOrderViewOrder extends JeproshopViewLegacy {
         }
         $this->addToolBar();
         parent::display($tpl);
+    }
+
+    private function renderOrderEditForm(){
+        if(!isset($this->context) || $this->context == null){ $this->context = JeproshopContext::getContext(); }
+
+        $app = JFactory::getApplication();
+
+        $cartId = $app->input->get('cart_id');
+        $cart = new JeproshopCartModelCart($cartId);
+
+        $this->context->controller->has_errors = false;
+
+        if($cartId && !JeproshopTools::isLoadedObject($cart, 'cart_id')) {
+            JeproshopTools::displayError(JText::_('COM_JEPROSHOP_THE_CART_DOES_NOT_EXISTS_MESSAGE'));
+            $this->context->controller->has_errors = true;
+        }
+
+        if($cartId && JeproshopTools::isLoadedObject($cart, 'cart_id') && !$cart->customer_id){
+            JeproshopTools::displayError(JText::_('COM_JEPROSHOP_THE_CART_MUST_HAVE_A_CUSTOMER'));
+            $this->context->controller->has_errors = true;
+        }
+
+        if($this->context->controller->has_errors){ return false; }
+        $defaultsOrderStatues = array();
+
+        $paymentModules = array();
+
+        $useRecyclePackage = (int)JeproshopSettingModelSetting::getValue('offer_recycled_wrapping');
+        $this->assignRef('recyclable_pack', $useRecyclePackage);
+        $useGiftWrapping = (int)JeproshopSettingModelSetting::getValue('offer_gift_wrapping');
+        $this->assignRef('gift_wrapping', $useGiftWrapping);
+        $this->assignRef('cart', $cart);
+        $currencies = JeproshopCurrencyModelCurrency::getCurrenciesByShopId(JeproshopContext::getContext()->shop->shop_id);
+        $this->assignRef('currencies', $currencies);
+        $languages = JeproshopLanguageModelLanguage::getLanguages(true, JeproshopContext::getContext()->shop->shop_id);
+        $this->assignRef('languages', $languages);
+        $this->assignRef('payment_modules', $paymentModules);
+        $orderStatues = JeproshopOrderStatusModelOrderStatus::getOrderStatus((int)JeproshopContext::getContext()->language->lang_id);
+        $this->assignRef('order_statues', $orderStatues);
+        $this->assignRef('defaults_order_statues', $defaultsOrderStatues);
+        /*$this->assignRef('show_toolbar' => $this->show_toolbar,
+        $this->assignRef('toolbar_btn' => $this->toolbar_btn,
+        $this->assignRef('toolbar_scroll' => $this->toolbar_scroll, */
+        $catalogMode = (int)JeproshopSettingModelSetting::getValue('catalog_mode');
+        $this->assignRef('catalog_mode', $catalogMode);
     }
 
     private function renderOrderViewForm(){
@@ -244,12 +285,28 @@ class JeproshopOrderViewOrder extends JeproshopViewLegacy {
 
     public function addToolBar(){
         $input = JFactory::getApplication()->input;
+        $document = JFactory::getDocument();
+        $themeDir = JeproshopContext::getContext()->shop->theme->directory;
+        $themeDir = (isset($themeDir) && $themeDir != '') ? $themeDir : 'default';
         $task = $input->get('task');
         $render = $input->get('render');
 
+        $this->addSideBar('order');
+
         switch ($task){
             case 'add' :
-                if($render == 'invoices'){}elseif ($render == 'returns'){} elseif ($render == 'delivery'){}elseif ($render == 'refund'){}elseif ($render == 'status'){}elseif ($render == 'messages'){}else{}
+                if($render == 'invoices'){}elseif ($render == 'returns'){} elseif ($render == 'delivery'){}elseif ($render == 'refund'){}elseif ($render == 'status'){}elseif ($render == 'messages'){
+
+                }else{
+                    JToolBarHelper::title(JText::_('COM_JEPROSHOP_ADD_NEW_ORDER_TITLE'), 'jeproshop-order');
+                    JToolBarHelper::apply('create', JText::_('COM_JEPROSHOP_CREATE_THE_ORDER_LABEL'));
+
+                    $document->addScript(JURI::base() . 'components/com_jeproshop/assets/javascript/jquery/plugins/jquery.typewatch.js');
+                    $document->addScript(JURI::base() . 'components/com_jeproshop/assets/javascript/jquery/plugins/autocomplete/jquery.autocomplete.js');
+                    $document->addScript(JURI::base() . 'components/com_jeproshop/assets/javascript/jquery/plugins/fancybox/jquery.fancybox.js');
+                    $document->addScript(JURI::base() . 'components/com_jeproshop/assets/themes/' . $themeDir .'/js/tools.js');
+                    $document->addScript(JURI::base() . 'components/com_jeproshop/assets/themes/' . $themeDir .'/js/order.js');
+                }
                 break;
             case 'edit' :
                 if($render == 'invoices'){}elseif ($render == 'returns'){} elseif ($render == 'delivery'){}elseif ($render == 'refund'){}elseif ($render == 'status'){}elseif ($render == 'messages'){
@@ -269,7 +326,6 @@ class JeproshopOrderViewOrder extends JeproshopViewLegacy {
                 if($render == 'invoices'){}elseif ($render == 'returns'){} elseif ($render == 'delivery'){}elseif ($render == 'refund'){}elseif ($render == 'status'){}elseif ($render == 'messages'){}else{}
                 break;
         }
-        $this->addSideBar('order');
     }
 
 
@@ -291,9 +347,9 @@ class JeproshopOrderViewOrder extends JeproshopViewLegacy {
 
 
 
-    public function loadObject($option = false){
+    public function loadObject(){
         $input = JFactory::getApplication()->input;
-        $task = $input->get('task');
+        //$task = $input->get('task');
         $render = $input->get('render');
         $isLoaded = false;
 
@@ -310,15 +366,13 @@ class JeproshopOrderViewOrder extends JeproshopViewLegacy {
                     JError::raiseError(500, JText::_('COM_JEPROSHOP_ORDER_NOT_FOUND_MESSAGE'));
                     $isLoaded = false;
                 }else { $isLoaded = true; }
-            }elseif($option){
+            }else{
                 if(!$this->order){
                     $this->order = new JeproshopOrderModelOrder();
                 }
-            }else{
-                JError::raiseError(500, JText::_('COM_JEPROSHOP_ORDER_DOES_NOT_EXIST_MESSAGE'));
-                $isLoaded = false;
+                //JError::raiseError(500, JText::_('COM_JEPROSHOP_ORDER_DOES_NOT_EXIST_MESSAGE'));
+                $isLoaded = true;
             }
-
         }
         return $isLoaded;
     }

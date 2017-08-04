@@ -72,7 +72,7 @@ defined('_JEXEC') or die('Restricted access');
                 <div class="panel-title"><i class="icon-info"></i> <?php echo JText::_('COM_JEPROSHOP_ORDER_INFORMATION_LABEL'); ?></div>
                 <div class="panel-content" >
                     <?php if(isset($this->order->order_id)){ ?>
-                        <h2><a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=order&task=view&order_id=' . $this->order->order_id . '&' . JeproshopTools::getOrderFormToken() . '=1'); ?>" > <?php echo JText::_('COM_JEPROSHOP_ORDER_LABEL') . ' N° ' . $this->order->order_id; ?></a></h2>
+                        <h2><a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=order&task=view&order_id=' . $this->order->order_id . '&render=order' . JeproshopTools::getOrderFormToken() . '=1'); ?>" > <?php echo JText::_('COM_JEPROSHOP_ORDER_LABEL') . ' N° ' . $this->order->order_id; ?></a></h2>
                         <?php echo JText::_('COM_JEPROSHOP_MADE_ON_LABEL') . ' ' . JeproshopTools::dateFormat($this->order->date_add);
                     }else { ?>
                         <h2><?php echo JText::_('COM_JEPROSHOP_NO_ORDER_WAS_CREATED_FROM_THIS_CART_LABEL'); ?></h2>

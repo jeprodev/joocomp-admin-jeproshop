@@ -375,12 +375,13 @@ class JeproshopAddressFormatModelAddressFormat extends JeproshopModel {
      *
      * @param $address is an instantiated Address object
      * @param $addressFormat is the format
-     * @param null $lang_id
+     * @param null $langId
      * @return float Array
      */
-    public static function getFormattedAddressFieldsValues($address, $addressFormat, $lang_id = null){
-        if (!$lang_id)
-            $lang_id = JeproshopContext::getContext()->language->lang_id;
+    public static function getFormattedAddressFieldsValues($address, $addressFormat, $langId = null){
+        if (!$langId) {
+            $langId = JeproshopContext::getContext()->language->lang_id;
+        }
         $tab = array();
         $temporaryObject = array();
 
@@ -411,8 +412,8 @@ class JeproshopAddressFormatModelAddressFormat extends JeproshopModel {
                                         $temporaryObject[$associateName[0]] = new $associateName[0]($address->{$idFieldName});
                                     if ($temporaryObject[$associateName[0]])
                                         $tab[$pattern] = (is_array($temporaryObject[$associateName[0]]->{$associateName[1]})) ?
-                                            ((isset($temporaryObject[$associateName[0]]->{$associateName[1]}[$lang_id])) ?
-                                                $temporaryObject[$associateName[0]]->{$associateName[1]}[$lang_id] : '') :
+                                            ((isset($temporaryObject[$associateName[0]]->{$associateName[1]}[$langId])) ?
+                                                $temporaryObject[$associateName[0]]->{$associateName[1]}[$langId] : '') :
                                             $temporaryObject[$associateName[0]]->{$associateName[1]};
                                 }
                             }
@@ -480,6 +481,41 @@ class JeproshopAddressFormatModelAddressFormat extends JeproshopModel {
                 }
             }
         }
+    }
+
+    /**
+     * Generates the full address text
+     * @param is|JeproshopAddressModelAddress $address is an instantiate object of Address class
+     * @param array $patternRules
+     * @param is|string $newLine is a string containing the newLine format
+     * @param is|string $separator is a string containing the separator format
+     * @param array $style
+     * @return string
+     */
+    public static function generateAddress(JeproshopAddressModelAddress $address, $patternRules = array(), $newLine = "\r\n", $separator = ' ', $style = array()){
+        $addressFields = JeproshopAddressFormatModelAddressFormat::getOrderedAddressFields($address->country_id);
+        $addressFormattedValues = JeproshopAddressFormatModelAddressFormat::getFormattedAddressFieldsValues($address, $addressFields);
+
+        $addressText = '';
+        foreach ($addressFields as $line)
+            if (($patternsList = preg_split(self::_CLEANING_REGEX_, $line, -1, PREG_SPLIT_NO_EMPTY)))
+            {
+                $tmpText = '';
+                foreach ($patternsList as $pattern)
+                    if ((!array_key_exists('avoid', $patternRules)) ||
+                        (array_key_exists('avoid', $patternRules) && !in_array($pattern, $patternRules['avoid'])))
+                        $tmpText .= (isset($addressFormattedValues[$pattern]) && !empty($addressFormattedValues[$pattern])) ?
+                            (((isset($style[$pattern])) ?
+                                    (sprintf($style[$pattern], $addressFormattedValues[$pattern])) :
+                                    $addressFormattedValues[$pattern]).$separator) : '';
+                $tmpText = trim($tmpText);
+                $addressText .= (!empty($tmpText)) ? $tmpText.$newLine: '';
+            }
+
+        $addressText = preg_replace('/'.preg_quote($newLine,'/').'$/i', '', $addressText);
+        $addressText = rtrim($addressText, $separator);
+
+        return $addressText;
     }
 
 }

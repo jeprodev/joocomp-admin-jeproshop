@@ -144,13 +144,13 @@ class JeproshopCartRuleModelCartRule extends JeproshopModel
         }
         unset($cart_rule);
 
-        foreach ($result as $cart_rule){
+        foreach ($result as $key =>  $cart_rule){
             if ($cart_rule->shop_restriction){
                 $query = "SELECT shop_id FROM " . $db->quoteName('#__jeproshop_cart_rule_shop') . " WHERE cart_rule_id = " . (int)$cart_rule->cart_rule_id;
                 $db->setQuery($query);
                 $cartRuleShops = $db->loadObjectList();
                 foreach ($cartRuleShops as $cartRuleShop){
-                    if (JeproshopShopModelShop::isFeatureActive() && ($cartRuleShop->shop_id == JeproshopContext::getContext()->shop->shop_id)){
+                    if (JeproshopShopModelShop::isFeaturePublished() && ($cartRuleShop->shop_id == JeproshopContext::getContext()->shop->shop_id)){
                         continue 2;
                     }
                 }
@@ -176,4 +176,28 @@ class JeproshopCartRuleModelCartRule extends JeproshopModel
         }
         return $result;
     }
+
+    /**
+     * Retrieves the CartRule ID associated with the given voucher code
+     *
+     * @param string $code Voucher code
+     *
+     * @return int|bool CartRule ID
+     *                  false if not found
+     */
+    public static function getCartRuleIdByCode($code) {
+        if (!JeproshopTools::isCleanHtml($code)) {
+            return false;
+        }
+
+        $db = JFactory::getDBO();
+
+        $query = "SELECT " . $db->quoteName('cart_rule_id') . " FROM " . $db->quoteName('#__jeproshop_cart_rule');
+        $query .= " AS WHERE " . $db->quoteName('code') . " = " . $db->quote($db->escape($code));
+
+        $db->setQuery($query);
+        $data = $db->loadObject();
+        return isset($data) ? (int)$data->cart_rule_id : 0;
+    }
+
 }

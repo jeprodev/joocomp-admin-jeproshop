@@ -81,4 +81,58 @@ class JeproshopMessageModelMessage extends JeproshopModel
         $db->setQuery($query);
         return $db->loadObjectList();
     }
+
+    /**
+     * Return the last message from cart
+     *
+     * @param int $cartId Cart ID
+     * @return array Message
+     */
+    public static function getMessageByCartId($cartId){
+        $db = JFactory::getDBO();
+
+        $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_message') . " WHERE " . $db->quoteName('cart_id')  . " = " .(int)$cartId;
+
+        $db->setQuery($query);
+        return $db->loadObject();
+    }
+
+    /**
+     * Return messages from Cart ID
+     *
+     * @param int $cartId ID
+     * @param bool $private return WITH private messages
+     * @param JeproshopContext $context
+     * @return array Messages
+     */
+    public static function getMessagesByCartId($cartId, $private = false, JeproshopContext $context = null)
+    {
+        if (!JeproshopTools::isBool($private)) {
+            JeproshopTools::displayError(500, "");
+            die();
+        }
+
+        if (!$context) {
+            $context = JeproshopContext::getContext();
+        }
+
+        $db = JFactory::getDBO();
+
+        $query = "SELECT message.*, customer." . $db->quoteName('firstname') . " AS first_name, customer." . $db->quoteName('lastname');
+        $query .= " AS last_name, employee." . $db->quoteName('username') . " AS firstname, employee." . $db->quoteName('name');
+        $query .= " AS lastname, (COUNT(read_message." . $db->quoteName('message_id') . ") = 0 AND message."  . $db->quoteName('customer_id');
+        $query .= " != 0) AS is_new_for_me FROM " . $db->quoteName('#__jeproshop_message') . " AS message LEFT JOIN ";
+        $query .= $db->quoteName('#__jeproshop_customer') . " AS customer ON message." . $db->quoteName('customer_id') . " = customer.";
+        $query .= $db->quoteName('customer_id') . " LEFT JOIN " . $db->quoteName('#__jeproshop_message_readed') . " AS read_message ON (";
+        $query .= " read_message." . $db->quoteName('message_id') . " = message." . $db->quoteName('message_id') . " AND read_message." ;
+        $query .= $db->quoteName('employee_id') . " = " . (int)$context->employee->employee_id . ") LEFT OUTER JOIN  ";
+        $query .= $db->quoteName('#__users') . " AS employee ON (employee." . $db->quoteName('id') . " = message.";
+        $query .= $db->quoteName('employee_id') . ") WHERE " . $db->quoteName('cart_id') . " = " . (int)$cartId ;
+        $query .= (!$private ? " AND message." . $db->quoteName('private') . " = 0 "  : "") . "	GROUP BY message." . $db->quoteName('message_id');
+        $query .= "	ORDER BY message." . $db->quoteName('date_add') . " DESC ";
+//echo $query; exit();
+        $db->setQuery($query);
+
+        return $db->loadObjectList();
+    }
 }

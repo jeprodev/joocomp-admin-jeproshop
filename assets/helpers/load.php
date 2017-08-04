@@ -30,6 +30,7 @@ require_once 'context.php';
 require_once 'cookie.php';
 require_once 'customization.php';
 require_once 'defines.inc.php';
+require_once 'settings.inc.php';
 require_once 'tools.php';
 require_once 'render' . DIRECTORY_SEPARATOR. 'helper.php';
 require_once 'render' . DIRECTORY_SEPARATOR. 'calendar.php';

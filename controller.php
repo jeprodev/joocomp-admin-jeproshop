@@ -77,7 +77,7 @@ class JeproshopController extends JControllerLegacy
         $view = $app->input->get('view');
         $viewClass = $this->getView($view, JFactory::getDocument()->getType());
 
-        if($task == 'edit' || $task == 'add'){
+        if($task == 'edit' || $task == 'add'){ 
             if(!$viewClass->loadObject(true)){ return false; }
             $viewClass->setLayout('edit');
             $viewClass->renderEditForm(); 
@@ -317,7 +317,9 @@ class JeproshopController extends JControllerLegacy
         return preg_match('#\{([^{}]*:)?'.preg_quote($keyword, '#').'(:[^{}]*)?\}#', $this->routes[$shop_id][$lang_id][$route_id]['rule']);
     }
 
-
+    public function getPageLink($view, $useSsl = null, $langId = null, $request = null, $encodedRequest = false, $shopId = null, $relativeProtocol = false){
+        return JRoute::_('index.php?option=com_jeproshop&view=' . $view );
+    }
 
 }
 

@@ -1166,7 +1166,7 @@ class JeproshopCartModelCart extends JeproshopModel {
     }
 
     /**
-     * Get the delivery option selected, or if no delivery option was selected, the cheapest option for each address
+     * Get the delivery selected, or if no delivery option was selected, the cheapest option for each address
      * @param null $defaultCountry
      * @param bool $doNotAutoSelectOptions
      * @param bool $useCache
@@ -1535,5 +1535,80 @@ class JeproshopCartModelCart extends JeproshopModel {
             else
                 return ($option1['position'] >= $option2['position']) * 2 - 1; // return -1 or 1
     }
+
+    public function save(){
+        return ($this->cart_id > 0) ? $this->update() : $this->add();
+    }
+
+    /**
+     * Set the delivery option and Carrier ID, if there is only one Carrier
+     *
+     * @param array $deliveryOption Delivery option array
+     */
+    public function setDeliveryOption($deliveryOption = null)
+    {
+        if (empty($deliveryOption) || count($deliveryOption) == 0) {
+            $this->delivery_option = '';
+            $this->carrier_id = 0;
+            return;
+        }
+        JeproshopCache::clean('jeproshop_get_contextual_value_*');
+        $deliveryOptionList = $this->getDeliveryOptionList(null, true);
+
+        foreach ($deliveryOptionList as $addressId => $options) {
+            if (!isset($deliveryOption[$addressId])) {
+                foreach ($options as $key => $option) {
+                    if ($option->is_best_price) {
+                        $deliveryOption[$addressId] = $key;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (count($deliveryOption) == 1) {
+            $this->carrier_id = $this->getCarrierIdFromDeliveryOption($deliveryOption);
+        }
+
+        $this->delivery_option = serialize($deliveryOption);
+    }
+
+    /**
+     * Get Carrier ID from Delivery Option
+     *
+     * @param array $deliveryOption Delivery options array
+     *
+     * @return int|mixed Carrier ID
+     */
+    protected function getCarrierIdFromDeliveryOption($deliveryOption){
+        $deliveryOptionList = $this->getDeliveryOptionList();
+        foreach ($deliveryOption as $key => $value) {
+            if (isset($deliveryOptionList[$key]) && isset($deliveryOptionList[$key][$value])) {
+                if (count($deliveryOptionList[$key][$value]->carrier_list) == 1) {
+                    return current(array_keys($deliveryOptionList[$key][$value]->carrier_list));
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Check if order has already been placed
+     *
+     * @return boolean result
+     */
+    public function orderExists(){
+        $cacheKey = 'jeproshop_cart_model_order_exists_'.(int)$this->cart_id;
+        if (!JeproshopCache::isStored($cacheKey)){
+            $db = JFactory::getDBO();
+
+            $query = "SELECT count(*) total FROM " . $db->quoteName('#__jeproshop_orders') . " WHERE " . $db->quoteName('cart_id') . " = " .(int)$this->cart_id;
+            $db->setQuery($query);
+            $result = (bool)$db->loadObject()->total;
+            JeproshopCache::store($cacheKey, $result);
+        }
+        return JeproshopCache::retrieve($cacheKey);
+    }
 }
+
 

@@ -100,3 +100,5 @@ ul.tree{ list-style: none;}
 }
 
 #jform-carrier-size-setting input[type="text"]{}
+
+#jform_edit_delivery_address, #jform_edit_invoice_address{ float:right;  margin-right:60px; }

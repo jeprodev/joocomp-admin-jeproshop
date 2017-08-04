@@ -1029,7 +1029,7 @@ class JeproshopProductModelProduct extends JeproshopModel{
      * @param integer $decimals Number of decimals returned
      * @param boolean $onlyReduction Returns only the reduction amount
      * @param boolean $useReduction Set if the returned amount will include reduction
-     * @param boolean $withEcotaxInsertEcotax in price output.
+     * @param boolean $withEcoTax InsertEcotax in price output.
      * @param $specificPrice
      * @param $useGroupReduction
      * @param int $customerId
@@ -1391,14 +1391,18 @@ class JeproshopProductModelProduct extends JeproshopModel{
     /*
 	 ** Customization management
 	 */
-    public static function getAllCustomizedData($cartId, $langId = null, $onlyInCart = true){
+    public static function getAllCustomizedData($cartId, $langId = null, $onlyInCart = true, $shopId = null, $customizationId = null){
         if (!JeproshopCustomization::isFeaturePublished()){ return false; }
+
+        $db = JFactory::getDBO();
 
         // No need to query if there isn't any real cart!
         if (!$cartId){ return false; }
         if (!$langId){	$langId = JeproshopContext::getContext()->language->lang_id; }
 
-        $db = JFactory::getDBO();
+        if(JeproshopShopModelShop::isFeaturePublished() && !$shopId){
+            $shopId = JeproshopContext::getContext()->shop->shop_id;
+        }
 
         $query = "SELECT customized_data." . $db->quoteName('customization_id') . ", customization." . $db->quoteName('delivery_address_id');
         $query .= ", customization." . $db->quoteName('product_id') . ", customization_field_lang." . $db->quoteName('customization_field_id');
@@ -1407,8 +1411,10 @@ class JeproshopProductModelProduct extends JeproshopModel{
         $query .= "customization_field_lang." . $db->quoteName('name') . " FROM " . $db->quoteName('#__jeproshop_customized_data') . " AS ";
         $query .= " customized_data NATURAL JOIN " . $db->quoteName('#__jeproshop_customization') . " AS customization LEFT JOIN ";
         $query .= $db->quoteName('#__jeproshop_customization_field_lang') . " AS customization_field_lang ON (customization_field_lang.";
-        $query .= "customization_field_id = customized_data." . $db->quoteName('index') . " AND lang_id = " .(int)$langId . ") WHERE ";
+        $query .= "customization_field_id = customized_data." . $db->quoteName('index') . " AND lang_id = " .(int)$langId ;
+        $query .= ((int)$shopId ? " AND customized_field." . $db->quoteName('shop_id') . " = " . $shopId : "" ) . ") WHERE ";
         $query .= "customization." . $db->quoteName('cart_id') . " = " . (int)$cartId . ($onlyInCart ? " AND customization." .$db->quoteName('in_cart') . " = 1"  : "");
+        $query .= ($customizationId ? " AND customized_data." . $db->quoteName('customization_id') . " = " . (int)$customizationId : " ");
         $query .= " ORDER BY " . $db->quoteName('product_id'). ", " . $db->quoteName('product_attribute_id') . ", " . $db->quoteName('type') . ", " . $db->quoteName('index');
 
         $db->setQuery($query);
@@ -1423,24 +1429,26 @@ class JeproshopProductModelProduct extends JeproshopModel{
         }
 
         $query = "SELECT " . $db->quoteName('product_id') . ", " . $db->quoteName('product_attribute_id') . ", " . $db->quoteName('customization_id');
-        $query .= ", " . $db->quoteName('address_delivery_id') . ", " . $db->quoteName('quantity') . ", " . $db->quoteName('quantity_refunded') . ", ";
+        $query .= ", " . $db->quoteName('delivery_address_id') . ", " . $db->quoteName('quantity') . ", " . $db->quoteName('quantity_refunded') . ", ";
         $query .= $db->quoteName('quantity_returned') . " FROM " . $db->quoteName('#__jeproshop_customization') . " WHERE " . $db->quoteName('cart_id');
         $query .= " = " . (int)($cartId) . ($onlyInCart ? " AND " . $db->quoteName('in_cart') . " = 1"  : "");
+        $query .= ($customizationId ? " AND " . $db->quoteName('customization_id') . " = " . (int)$customizationId : " ");
 
         $db->seQuery($query);
         $result = $db->loadObjectList();
         if (!$result ){ return false; }
 
         foreach ($result as $row){
-            $customizedData[(int)$row->product_id][(int)$row->product_attribute_id][(int)$row->address_delivery_id][(int)$row->customization_id]['quantity'] = (int)$row->quantity;
-            $customizedData[(int)$row->product_id][(int)$row->product_attribute_id][(int)$row->address_delivery_id][(int)$row->customization_id]['quantity_refunded'] = (int)$row->quantity_refunded;
-            $customizedData[(int)$row->product_id][(int)$row->product_attribute_id][(int)$row->address_delivery_id][(int)$row->customization_id]['quantity_returned'] = (int)$row->quantity_returned;
+            $customizedData[(int)$row->product_id][(int)$row->product_attribute_id][(int)$row->delivery_address_id][(int)$row->customization_id]['quantity'] = (int)$row->quantity;
+            $customizedData[(int)$row->product_id][(int)$row->product_attribute_id][(int)$row->delivery_address_id][(int)$row->customization_id]['quantity_refunded'] = (int)$row->quantity_refunded;
+            $customizedData[(int)$row->product_id][(int)$row->product_attribute_id][(int)$row->delivery_address_id][(int)$row->customization_id]['quantity_returned'] = (int)$row->quantity_returned;
         }
 
         return $customizedData;
     }
 
-    public static function addCustomizationPrice(&$products, &$customizedData){ 
+
+    public static function addCustomizationPrice(&$products, &$customizedData){
         /*if (!$customizedData) {
             return;
         } */
@@ -1499,4 +1507,170 @@ class JeproshopProductModelProduct extends JeproshopModel{
         $db->setQuery($query);
         return $db->loadObject();
     }
+
+    /**
+     * Admin panel product search
+     *
+     * @param int $langId Language id
+     * @param string $search Search query
+     * @param JeproshopContext $context
+     * @return array Matching products
+     */
+    public static function searchProductsByName($langId, $search, JeproshopContext $context = null){
+        if (!$context) {
+            $context = JeproshopContext::getContext();
+        }
+
+        $db = JFactory::getDBO();
+
+        $search = $db->quote('%' . $db->escape($search) . '%');
+
+        $query = "SELECT product." . $db->quoteName('product_id') . ", product_lang." . $db->quoteName('name') . ", product.";
+        $query .= $db->quoteName('ean13') . ", product."  . $db->quoteName('upc') . ", product." . $db->quoteName('reference');;
+        $query .= ", manufacturer." . $db->quoteName('name') . " AS manufacturer_name, stock." . $db->quoteName('quantity');
+        $query .= ", product_shop." . $db->quoteName('advanced_stock_management') . ", product." . $db->quoteName('customizable') ;
+        $query .= " FROM " . $db->quoteName('#__jeproshop_product') . " AS product " . JeproshopShopModelShop::addSqlAssociation('product');
+        $query .= " LEFT JOIN " . $db->quoteName('#__jeproshop_product_lang') . " AS product_lang ON (product." . $db->quoteName('product_id');
+        $query .= " = product_lang." . $db->quoteName('product_id') . " AND product_lang." . $db->quoteName('lang_id') . " = " . $langId;
+        $query .= JeproshopShopModelShop::addSqlRestrictionOnLang('product_lang') . ") LEFT JOIN " . $db->quoteName('#__jeproshop_manufacturer');
+        $query .= " AS manufacturer ON (manufacturer." . $db->quoteName('manufacturer_id') . " = product." . $db->quoteName('manufacturer_id') . ")";
+        $query .= JeproshopProductModelProduct::sqlStock('product', 0) . " WHERE product_lang." . $db->quoteName('name') . " LIKE ";
+        $query .= $search . " OR product." . $db->quoteName('ean13') . " LIKE " . $search . " OR product." . $db->quoteName('upc');
+        $query .= " LIKE " . $search . " OR product." . $db->quoteName('reference') . " LIKE " . $search . " OR product.";
+        $query .= $db->quoteName('supplier_reference') . " LIKE " . $search . " OR EXISTS (SELECT * FROM " . $db->quoteName('#__jeproshop_product_supplier');
+        $query .= " AS product_supplier WHERE product_supplier." . $db->quoteName('product_id') . " = product." . $db->quoteName('product_id') . " AND product_supplier.";
+        $query .= $db->quoteName('product_supplier_reference') . " LIKE " . $search . ")";
+
+        if(JeproshopCombinationModelCombination::isFeaturePublished()){
+            $query .= " OR EXISTS (SELECT * FROM " . $db->quoteName('#__jeproshop_product_attribute') . " AS product_attribute ";
+            $query .= " WHERE product_attribute." . $db->quoteName('product_id') . " = product." . $db->quoteName('product_id');
+            $query .= " AND (product_attribute." . $db->quoteName('reference') . " LIKE " . $search . " OR product_attribute.";
+            $query .= $db->quoteName('ean13') . " LIKE " . $search . " OR product_attribute." . $db->quoteName('upc') . " LIKE ";
+            $query .= $search . ") )";
+        }
+
+
+        $db->setQuery($query);
+
+        $result = $db->loadObjectList();
+
+        if (!$result) {
+            return false;
+        }
+
+        $resultsArray = array();
+        foreach ($result as $row) {
+            $row->price_tax_incl = JeproshopProductModelProduct::getStaticPrice($row->product_id, true, null, 2);
+            $row->price_tax_excl = JeproshopProductModelProduct::getStaticPrice($row->product_id, false, null, 2);
+            $resultsArray[] = $row;
+        }
+        return $resultsArray;
+    }
+
+    /**
+     * Get the default attribute for a product
+     *
+     * @param $productId
+     * @param int $minimumQuantity
+     * @param bool $reset
+     * @return int Attributes list
+     */
+    public static function getDefaultAttribute($productId, $minimumQuantity = 0, $reset = false){
+        static $combinations = array();
+
+        if (!JeproshopCombinationModelCombination::isFeaturePublished()) {
+            return 0;
+        }
+
+        if ($reset && isset($combinations[$productId])) {
+            unset($combinations[$productId]);
+        }
+
+        if (!isset($combinations[$productId])) {
+            $combinations[$productId] = array();
+        }
+        if (isset($combinations[$productId][$minimumQuantity])) {
+            return $combinations[$productId][$minimumQuantity];
+        }
+
+        $db = JFactory::getDBO();
+
+        $query = "SELECT product_attribute_shop." . $db->quoteName('product_attribute_id') . " FROM " . $db->quoteName('#__jeproshop_product_attribute');
+        $query .= " AS product_attribute " . JeproshopShopModelShop::addSqlAssociation('product_attribute') . " WHERE product_attribute.";
+        $query .= $db->quoteName('product_id') . " = " .(int)$productId;
+
+        $db->setQuery($query);
+        $productAttribute = $db->loadObject();
+
+        $resultNoFilter = (is_object($productAttribute) ? $productAttribute->product_attribute_id : 0);
+
+        if (!$resultNoFilter) {
+            $combinations[$productId][$minimumQuantity] = 0;
+            return 0;
+        }
+
+        $query = "SELECT product_attribute_shop." . $db->quoteName('product_attribute_id') . " FROM " . $db->quoteName('#__jeproshop_product_attribute');
+        $query .= " AS product_attribute " . JeproshopShopModelShop::addSqlAssociation('product_attribute');
+        $query .= ($minimumQuantity > 0 ? JeproshopProductModelProduct::sqlStock('product_attribute') : "");
+        $query .= " WHERE product_attribute_shop." . $db->quoteName('default_on') . " = 1 " . ($minimumQuantity > 0 ? " AND IFNULL(stock." . $db->quoteName('quantity') .  ", 0) >= " . (int)$minimumQuantity : "");
+        $query .= " AND product_attribute." . $db->quoteName('product_id') . " = " . (int)$productId;
+
+        $db->setQuery($query);
+        $productAttribute = $db->loadObject();
+        $result = (is_object($productAttribute) ? $productAttribute->product_attribute_id : 0);
+
+        if (!$result) {
+            $query = "SELECT product_attribute_shop." . $db->quoteName('product_attribute_id') . " FROM " . $db->quoteName('#__jeproshop_product_attribute') . " AS product_attribute ";
+            $query .= JeproshopShopModelShop::addSqlAssociation('product_attribute') . ($minimumQuantity > 0 ? JeproshopProductModelProduct::sqlStock('product_attribute') : "");
+            $query .= " WHERE product_attribute." . $db->quoteName('product_id') . " = " . (int)$productId . ($minimumQuantity > 0 ? " AND IFNULL(stock." . $db->quoteName('quantity') .  ", 0) >= " . (int)$minimumQuantity : "");
+
+            $db->setQuery($query);
+            $productAttribute = $db->loadObject();
+            $result = (is_object($productAttribute) ? $productAttribute->product_attribute_id : 0);
+        }
+
+        if (!$result) {
+            $query = "SELECT product_attribute_shop." . $db->quoteName('product_attribute_id') . " FROM " ;
+            $query .= $db->quoteName('#__jeproshop_product_attribute') . " AS product_attribute ";
+            $query .= JeproshopShopModelShop::addSqlAssociation('product_attribute') . " WHERE product_attribute_shop.";
+            $query .= $db->quoteName('default_on') . " = 1  AND product_attribute." . $db->quoteName('product_id') . " = " . (int)$productId;
+
+            $db->setQuery($query);
+            $productAttribute = $db->loadObject();
+            $result = (is_object($productAttribute) ? $productAttribute->product_attribute_id : 0);
+        }
+
+        if (!$result) {
+            $result = $resultNoFilter;
+        }
+
+        $combinations[$productId][$minimumQuantity] = $result;
+        return $result;
+    }
+
+    /**
+     * For a given product, returns its real quantity
+     *
+     * @param int $productId
+     * @param int $productAttributeId
+     * @param int $warehouseId
+     * @param int $shopId
+     * @return int realQuantity
+     */
+    public static function getRealQuantity($productId, $productAttributeId = 0, $warehouseId = 0, $shopId = null){
+        static $manager = null;
+
+        if (JeproshopSettingModelSetting::getValue('advanced_stock_management') && is_null($manager)) {
+            $manager = JeproshopStockManagerFactory::getManager();
+        }
+
+        if (JeproshopSettingModelSetting::getValue('advanced_stock_management') && JeproshopProductModelProduct::usesAdvancedStockManagement($productId) &&
+            JeproshopStockAvailableModelStockAvailable::dependsOnStock($productId, $shopId)) {
+            return $manager->getProductRealQuantities($productId, $productAttributeId, $warehouseId, true);
+        } else {
+            return JeproshopStockAvailableModelStockAvailable::getQuantityAvailableByProduct($productId, $productAttributeId, $shopId);
+        }
+    }
+
+
 }

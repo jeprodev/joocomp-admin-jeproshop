@@ -375,9 +375,11 @@ class JeproshopCustomerModelCustomer extends JeproshopModel {
         $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_customer') . " WHERE ( " . $db->quoteName('email') ;
         $query .= " LIKE " . $db->quote($sql) . " OR " . $db->quoteName('customer_id') . " LIKE " . $db->quote($sql);
         $query .= " OR "  . $db->quoteName('lastname') . " LIKE " . $db->quote($sql) ." OR " . $db->quoteName('firstname');
-        $query .= " LIKE " . $db->quote($sql). " ) " ; // . JeproshopShopModelShop::addSqlRestriction(JeproshopShopModelShop::SHARE_CUSTOMER);
+        $query .= " LIKE " . $db->quote($sql). " ) "  . JeproshopShopModelShop::addSqlRestriction(JeproshopShopModelShop::SHARE_CUSTOMER); 
         $db->setQuery($query);
         return $db->loadObjectList();
     }
+    
+    
 
 }
