@@ -113,6 +113,165 @@ class JeproshopStockAvailableModelStockAvailable extends JeproshopModel {
 
         return (isset($data->depends_on_stock) ? $data->depends_on_stock : 0);
     }
+
+    /**
+     * For a given product id, sets if stock available depends on stock
+     *
+     * @param int $product_id
+     * @param bool|int $depends_on_stock Optional : true by default
+     * @param int $shop_id Optional : gets context by default
+     * @param int $product_attribute_id
+     * @return bool
+     */
+    public static function setProductDependsOnStock($product_id, $depends_on_stock = true, $shop_id = null, $product_attribute_id = 0){
+        if (!JeproshopTools::isUnsignedInt($product_id)){ return false; }
+
+        $existing_id = JeproshopStockAvailableModelStockAvailable::getStockAvailableIdByProductId((int)$product_id, (int)$product_attribute_id, $shop_id);
+        $db = JFactory::getDBO();
+        if ($existing_id > 0){
+            $query = "UPDATE " . $db->quoteName('#__jeproshop_stock_available') . " SET " . $db->quoteName('depends_on_stock') . " = ";
+            $query .= (int)$depends_on_stock . " WHERE " . $db->quoteName('stock_available_id') . " = " .(int)$existing_id;
+
+            $db->setQuery($query);
+            $db->query();
+        }else{
+            $context = JeproshopContext::getContext();
+            $groupOk = false;
+
+            if($shop_id === null){
+                if(JeproshopShopModelShop::getShopContext() == JeproshopShopModelShop::CONTEXT_GROUP){
+                    $shop_group = JeproshopShopModelShop::getContextShopGroup();
+                }else{
+                    $shop_group = $context->shop->getShopGroup();
+                    $shop_id = $context->shop->shop_id;
+                }
+            }else{
+                $shop = new JeproshopShopModelShop($shop_id);
+                $shop_group = $shop->getShopGroup();
+            }
+
+            if($shop_group->share_stock){
+                $shop_group_id = $shop_group->shop_group_id;
+                $shop_id = 0;
+                $groupOk = true;
+            }else{
+                $shop_group_id = 0;
+            }
+
+            $query = "INSERT INTO " . $db->quoteName('#__jeproshop_stock_available') . "(" . $db->quoteName('depends_on_stock') . ", ";
+            $query .= $db->quoteName('product_id') . ", " . $db->quoteName('product_attribute_id') . ", " . $db->quoteName('shop_id');
+            $query .= ", " . $db->quoteName('shop_group_id') . ") VALUES(" . (int)$depends_on_stock . ", " . (int)$product_id . ", ";
+            $query .= (int)$product_attribute_id . ", " . (int)$shop_id . ", " . (int)$shop_group_id . ")";
+
+            $db->setQuery($query);
+            $db->query();
+        }
+
+        // depends on stock.. hence synchronizes
+        if ($depends_on_stock){
+            JeproshopStockAvailableModelStockAvailable::synchronize($product_id);
+        }
+    }
+
+    /**
+     * For a given product id, sets if product is available out of stocks
+     *
+     * @param int $product_id
+     * @param bool $out_of_stock Optional false by default
+     * @param int $shop_id Optional gets context by default
+     * @param int $product_attribute_id
+     * @return bool
+     */
+    public static function setProductOutOfStock($product_id, $out_of_stock = false, $shop_id = null, $product_attribute_id = 0){
+        if (!JeproshopTools::isUnsignedInt($product_id)){ return false; }
+
+        $db = JFactory::getDBO();
+
+        $existing_id = JeproshopStockAvailableModelStockAvailable::getStockAvailableIdByProductId((int)$product_id, (int)$product_attribute_id, $shop_id);
+        if ($existing_id > 0){
+            $query = "UPDATE " . $db->quoteName('#__jeproshop_stock_available') . " SET " . $db->quoteName('out_of_stock') . " = " . (int)$out_of_stock ;
+            $query .= " WHERE " . $db->quoteName('product_id') . " = " . (int)$product_id . (($product_attribute_id) ? " AND " . $db->quoteName('product_attribute_id') . " = " . (int)$product_attribute_id : " ");
+            $query .= JeproshopStockAvailableModelStockAvailable::addShopRestriction($shop_id);
+
+            $db->setQuery($query);
+            $db->query();
+        }
+        else
+        {
+            $context = JeproshopContext::getContext();
+            $groupOk = false;
+            // get shop group too
+            if ($shop_id === null){
+                if (JeproshopShopModelShop::getShopContext() == JeproshopShopModelShop::CONTEXT_GROUP)
+                    $shop_group = JeproshopShopModelShop::getContextShopGroupID();
+                else{
+                    $shop_group = $context->shop->getShopGroup();
+                    $shop_id = $context->shop->shop_id;
+                }
+            } else{
+                $shop = new JeproshopShopModelShop($shop_id);
+                $shop_group = $shop->getShopGroup();
+            }
+
+            // if quantities are shared between shops of the group
+            if ($shop_group->share_stock){
+                $fields = ", " . $db->quoteName('shop_group_id') . ", " . $db->quoteName('shop_d');
+                $values = ", " .  (int)$shop_group->shop_group_id . ", 0";
+                $groupOk = true;
+            }else {
+                $fields = ", " . $db->quoteName('shop_group_id');
+                $values = ", 0";
+            }
+            // if no group specific restriction, set simple shop restriction
+            if (!$groupOk) {
+                $fields = ", " . $db->quoteName('shop_id');
+                $values = ", " . (int)$shop_id;
+            }
+
+            $query = "INSERT INTO " . $db->quoteName('#__jeproshop_stock_available') . "(" . $db->quoteName('out_of_stock') . ", " . $db->quoteName('product_id');
+            $query .= ", " . $db->quoteName('product_attribute_id') . $fields .  ") VALUES (" . (int)$out_of_stock . ", " . (int)$product_id . ", " . $product_attribute_id . $values . ")";
+
+            $db->setQuery($query);
+            $db->query();
+        }
+    }
+
+    /**
+     * Removes all product quantities from all a group of shops
+     * If stocks are shared, remoe all old available quantities for all shops of the group
+     * Else remove all available quantities for the current group
+     *
+     * @param JeproshopShopGroupModelShopGroup $shopGroup the ShopGroup object
+     * @return bool
+     */
+    public static function resetProductFromStockAvailableByShopGroup(JeproshopShopGroupModelShopGroup $shopGroup){
+        $db = JFactory::getDBO();
+        if ($shopGroup->share_stock){
+            $shopList = JeproshopShopModelShop::getShops(false, $shopGroup->shop_group_id, true);
+
+            if (count($shopList) > 0) {
+                $shopListIds = implode(', ', $shopList);
+
+                $query = "DELETE FROM " . $db->quoteName('#__jeproshop_stock_available') . " WHERE " . $db->quoteName('shop_id');
+                $query .= " IN (" . $shopListIds . ") ";
+
+                $db->setQuery($query);
+
+                if($db->query()){ return true; }
+                return false;
+            }
+        } else {
+            $query = "DELETE FROM " . $db->quoteName('#__jeproshop_stock_available') . " WHERE " . $db->quoteName('shop_group_id');
+            $query .= " = " . $shopGroup->shop_group_id;
+
+            $db->setQuery($query);
+
+            if($db->query()){ return true; }
+            return false;
+        }
+        return false;
+    }
+
 }
 
 
@@ -642,18 +801,18 @@ class JeproshopStockManager  implements JeproshopStockManagerInterface{
 
     /**
      * @see StockManagerInterface::transferBetweenWarehouses()
-     * @param int $product_id
-     * @param $product_attribute_id
+     * @param int $productId
+     * @param $productAttributeId
      * @param int $quantity
-     * @param int $warehouse_from_id
-     * @param int $warehouse_to_id
-     * @param bool $usable_from
-     * @param bool $usable_to
+     * @param int $warehouseFromId
+     * @param int $warehouseToId
+     * @param bool $usableFrom
+     * @param bool $usableTo
      * @return bool
      */
-    public function transferBetweenWarehouses($product_id, $product_attribute_id, $quantity, $warehouse_from_id, $warehouse_to_id, $usable_from = true, $usable_to = true){
+    public function transferBetweenWarehouses($productId, $productAttributeId, $quantity, $warehouseFromId, $warehouseToId, $usableFrom = true, $usableTo = true){
         // Checks if this transfer is possible
-        if ($this->getProductPhysicalQuantities($id_product, $id_product_attribute, array($id_warehouse_from), $usable_from) < $quantity)
+        if ($this->getProductPhysicalQuantities($id_product, $productAttributeId, array($id_warehouse_from), $usable_from) < $quantity)
             return false;
 
         if ($id_warehouse_from == $id_warehouse_to && $usable_from == $usable_to)
@@ -706,12 +865,16 @@ class JeproshopStockManager  implements JeproshopStockManagerInterface{
     /**
      * @see StockManagerInterface::getProductCoverage()
      * Here, $coverage is a number of days
+     * @param int $productId
+     * @param int $productAttributeId
+     * @param int $coverage
+     * @param null $warehouseId
      * @return int number of days left (-1 if infinite)
      */
-    public function getProductCoverage($id_product, $id_product_attribute, $coverage, $id_warehouse = null)
+    public function getProductCoverage($productId, $productAttributeId, $coverage, $warehouseId = null)
     {
-        if (!$id_product_attribute)
-            $id_product_attribute = 0;
+        if (!$productAttributeId)
+            $productAttributeId = 0;
 
         if ($coverage == 0 || !$coverage)
             $coverage = 7; // Week by default

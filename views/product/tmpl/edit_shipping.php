@@ -27,7 +27,7 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <div id="product-shipping" class="panel product-tab">
     <div class="panel-title" ><?php echo JText::_('COM_JEPROSHOP_SHIPPING_LABEL'); ?></div>
-    <div class="panel-content well" >
+    <div class="panel-content" >
         <?php if(isset($this->display_common_field) && $this->display_common_field){ ?>
             <div class="alert alert-info"><?php echo JText::_('COM_JEPROSHOP_MESSAGE'); ?>{l s='Warning, if you change the value of fields with an orange bullet %s, the value will be changed for all other shops for this product' sprintf=$bullet_common_field}</div>
         <?php }?>

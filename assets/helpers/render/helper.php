@@ -33,9 +33,9 @@ class JeproshopHelper {
         $this->context = JeproshopContext::getContext();
     }
 
-    public function multiLanguageInputField($fieldName, $wrapper, $type, $required = false, $content = null, $maxLength = null, $hint = ''){
+    public function multiLanguageInputField($fieldName, $wrapper, $type, $required = false, $content = null, $maxLength = null, $hint = '', $width = '650', $height = '150'){
         if(!isset($this->languages) || !$this->languages){
-            $this->languages = JeproshopLanguageModelLanguage::getLanguages();
+            $this->languages = JeproshopLanguageModelLanguage::getLanguages(false);
         }
         ob_start();
         include(__DIR__ . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'multi_lang_field.php');
@@ -52,7 +52,7 @@ class JeproshopHelper {
         return $var;
     }
 
-    public function radioButton($fieldName, $layout = 'add', $state = 1){
+    public function radioButton($fieldName, $wrapper = 'jform', $layout = 'add', $state = 1, $disable = false){
         ob_start();
         include (__DIR__ . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'radio.php');
         $var=ob_get_contents();

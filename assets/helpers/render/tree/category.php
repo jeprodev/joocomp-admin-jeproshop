@@ -28,25 +28,25 @@ require_once  'tree.php';
 
 class JeproshopCategoriesTree extends JeproshopTree {
     const DEFAULT_TEMPLATE             = 'tree_categories';
-    const DEFAULT_NODE_FOLDER_TEMPLATE = 'tree_node_folder_radio';
-    const DEFAULT_NODE_ITEM_TEMPLATE   = 'tree_node_item_radio';
+    /*const DEFAULT_NODE_FOLDER_TEMPLATE = 'tree_node_folder_radio';
+    const DEFAULT_NODE_ITEM_TEMPLATE   = 'tree_node_item_radio';*/
 
     private $disabled_categories;
     private $input_name;
     private $lang;
-    private $root_category;
+    private $root_category_id;
     private $selected_categories;
     private $shop;
     private $use_checkbox;
     private $use_search;
     private $use_shop_restriction;
 
-    public function __construct($treeId, $title = null, $rootCategory = null, $lang = null, $useShopRestriction = true){
+    public function __construct($treeId, $title = null, $rootCategoryId = null, $lang = null, $useShopRestriction = true){
         parent::__construct($treeId);
 
         if (isset($title)){ $this->setTreeTitle($title); }
 
-        if (isset($rootCategory)){ $this->setRootCategory($rootCategory); }
+        if (isset($rootCategoryId)){ $this->setRootCategoryId($rootCategoryId); }
 
         $this->setLang($lang);
         $this->setUseShopRestriction($useShopRestriction);
@@ -57,11 +57,11 @@ class JeproshopCategoriesTree extends JeproshopTree {
         return $this;
     }
 
-    public function setRootCategory($value){
-        if (!JeproshopTools::isInt($value)){
+    public function setRootCategoryId($value){
+        if (!JeproshopTools::isUnsignedInt($value)){
             JError::raiseWarning(500, JText::_('COM_JEPROSHOP_ROOT_CATEGORY_MUST_BE_AN_INTEGER_VALUE_MESSAGE'));
         }
-        $this->root_category = $value;
+        $this->root_category_id = (int)$value;
         return $this;
     }
 
@@ -98,8 +98,8 @@ class JeproshopCategoriesTree extends JeproshopTree {
         return $this;
     }
 
-    public function getRootCategory(){
-        return $this->root_category;
+    public function getRootCategoryId(){
+        return $this->root_category_id;
     }
 
     public function useShopRestriction(){
@@ -109,7 +109,7 @@ class JeproshopCategoriesTree extends JeproshopTree {
     public function getData(){
         if(!isset($this->data)){
             $this->setTreeData(JeproshopCategoryModelCategory::getNestedCategories(
-                $this->getRootCategory(), $this->getLang(), false, null, $this->useShopRestriction()));
+                $this->getRootCategoryId(), $this->getLang(), false, null, $this->useShopRestriction()));
         }
         return $this->data;
     }
@@ -122,21 +122,21 @@ class JeproshopCategoriesTree extends JeproshopTree {
     }
 
     private function getSelectedChildNumbers(&$categories, $selected, &$parent = null){
-        $selected_children = 0;
+        $selectedChildren = 0;
 
         foreach ($categories as $key => &$category)	{
-            if (isset($parent) && in_array($category->category_id, $selected)){	$selected_children++; }
+            if (isset($parent) && in_array($category->category_id, $selected)){	$selectedChildren++; }
 
             if (isset($category->children) && !empty($category->hildren))
-                $selected_children += $this->getSelectedChildNumbers($category->children, $selected, $category);
+                $selectedChildren += $this->getSelectedChildNumbers($category->children, $selected, $category);
         }
 
         if(!isset($parent)){ $parent = new  JeproshopCategoryModelCategory(); }
         if (!isset($parent->selected_childs))
             $parent->selected_childs = 0;
 
-        $parent->selected_childs = $selected_children;
-        return $selected_children;
+        $parent->selected_childs = $selectedChildren;
+        return $selectedChildren;
     }
 
     public function getSelectedCategories(){
@@ -165,15 +165,16 @@ class JeproshopCategoriesTree extends JeproshopTree {
         return (isset($this->use_checkbox) && $this->use_checkbox);
     }
 
-    private function disableCategories(&$categories, $disabled_categories = null){
-        foreach ($categories as &$category){
-            if (!isset($disabled_categories) || in_array($category->category_id, $disabled_categories)){
-                $category->disabled = true;
-                if (array_key_exists('children', $category) && is_array($category->children))
-                    self::disableCategories($category->children);
+    private function disableCategories(&$categories, $disabledCategories = null){
+        if($disabledCategories != null && is_array($disabledCategories)) {
+            foreach ($categories as &$category) {
+                if (!isset($disabledCategories) || in_array($category->category_id, $disabledCategories)) {
+                    $category->disabled = true;
+                    if (array_key_exists('children', $category) && is_array($category->children))
+                        self::disableCategories($category->children);
+                } else if (array_key_exists('children', $category) && is_array($category->children))
+                    self::disableCategories($category->children, $disabledCategories);
             }
-            else if (array_key_exists('children', $category) && is_array($category->children))
-                self::disableCategories($category->children, $disabled_categories);
         }
     }
 
@@ -187,11 +188,39 @@ class JeproshopCategoriesTree extends JeproshopTree {
     public function getInputName(){
         if (!isset($this->input_name))
             $this->setInputName('category_box');
-
-        return $this->input_name;
+        
+        return $this->getTreeWrapper() . '[' . $this->input_name . '[]]';
     }
 
-    public function render(){
+    public function renderNodes($data){
+        ob_start();
+        include (dirname(__DIR__) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . $this->template . '_nodes.php');
+        $var=ob_get_contents();
+        ob_end_clean();
+        return $var;
+    }
 
+    public function render($data = null){
+        if (!isset($data)){ $data = $this->getData(); }
+
+        if (!is_array($data) && !$data instanceof Traversable)
+            throw new JException('Data value must be an traversable array');
+
+
+        if (isset($this->disabled_categories) && !empty($this->disabled_categories))
+            $this->setDisableCategories($data, $this->getDisabledCategories());
+
+        if (isset($this->selected_categories) && !empty($this->selected_categories)) {
+            $this->getSelectedChildNumbers($data, $this->getSelectedCategories());
+        }
+
+        if ($this->useSearch()){
+            $this->addAction(new JeproshopTreeToolbarSearchCategories(
+                    JText::_('COM_JEPROSHOP_FIND_A_CATEGORY_LABEL'), $this->getTreeId().'_categories_search')
+            );
+            $this->setTreeAttribute('use_search', $this->useSearch());
+        }
+
+        return parent::render($data);
     }
 }

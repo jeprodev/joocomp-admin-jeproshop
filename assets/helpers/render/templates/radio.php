@@ -37,9 +37,9 @@ if($layout == 'add'){
     }
 }
 ?>
-<fieldset class="btn-group radio" >
-    <input type="radio" id="jform_<?php echo $fieldName; ?>_1" name="jform[<?php echo $fieldName; ?>]" value="1" <?php echo $state_published; ?> />
+<fieldset class="btn-group radio" <?php if($disable){ ?> disabled="disabled" <?php } ?> >
+    <input type="radio" id="jform_<?php echo $fieldName; ?>_1" name="<?php echo isset($wrapper) ? $wrapper . '[' . $fieldName . ']' : $fieldName; ?>" value="1" <?php echo $state_published; ?> />
     <label for="jform_<?php echo $fieldName; ?>_1" ><?php echo JText::_('COM_JEPROSHOP_YES_LABEL'); ?></label>
-    <input type="radio" id="jform_<?php echo $fieldName; ?>_0" name="jform[<?php echo $fieldName; ?>]" value="0" <?php echo $state_unpublished; ?> />
+    <input type="radio" id="jform_<?php echo $fieldName; ?>_0" name="<?php echo isset($wrapper) ? $wrapper . '[' . $fieldName . ']' : $fieldName; ?>" value="0" <?php echo $state_unpublished; ?> />
     <label for="jform_<?php echo $fieldName; ?>_0" ><?php echo JText::_('COM_JEPROSHOP_NO_LABEL'); ?></label>
 </fieldset>

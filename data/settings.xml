@@ -25,18 +25,18 @@
     <setting name="cart_rule_feature_active" value="1" group="feature" />
     <setting name="virtual_product_feature_active" value="1" group="feature" />
     <setting name="cart_rule_feature_active" value="1" group="feature" />
-    <setting name="activate_multishop" value="0'" group="generals" />
+    <setting name="activate_multishop" value="0" group="generals" />
     <setting name="display_suppliers_and_manufacturers" value="1" group="generals" />
     <setting name="shop_activity" value="0" group="generals" />
     <setting name="allow_iframes_on_html_fields" value="1" group="generals" />
     <setting name="increase_front_office_security" value="0" group="generals" />
     <setting name="round_mode" value="1" group="generals" />
     <setting name="products_per_page" value="20" group="layout" />
-    <setting name="display_quantities', 1" group="layout" />
+    <setting name="display_quantities" value="1" group="layout" />
     <setting name="help_box" value="1" group="layout" />
-    <setting name="cart_block_use_ajax', 1" group="layout" />
+    <setting name="cart_block_use_ajax" value="1" group="layout" />
     <setting name="product_picture_max_size" value="8388608" group="layout" />
-    <setting name="enable_jqzoom', 0, 'layout" />
+    <setting name="enable_jqzoom" value="0" group="layout" />
     <setting name="product_picture_height" value="64" group="layout" />
     <setting name="display_bestsellers_block" value="0" group="layout" />
     <setting name="display_new_products_block" value="0" group="layout" />
@@ -81,7 +81,7 @@
     <setting name="shipping_free_weight" value="0" group="shipping" />
     <setting name="improve_front_safety" value="0" group="system" />
     <setting name="number_of_decimals" value="2" group="shipping" />
-    <setting name="stock_management" value="1, 'stock" />
+    <setting name="stock_management" value="1" group="stock" />
     <setting name="advanced_stock_management" value="1" group="stock" />
     <setting name="last_quantities" value="5" group="stock" />
     <setting name="default_stock_mvt_reason" value="3" group="stock" />
@@ -130,5 +130,26 @@
     <setting name="jpeg_quality" value="80" group="image" />
     <setting name="image_quality" value="jpg" group="image" />
     <setting name="image_quality" value="jpg" group="image" />
+    <setting name="order_status_cheque" value="1" group="order" />
+    <setting name="order_status_payment" value="2" group="order" />
+    <setting name="order_status_on_preparation" value="3" group="order" />
+    <setting name="order_status_shipping" value="4" group="order" />
+    <setting name="order_status_delivered" value="5" group="order" />
+    <setting name="order_status_canceled" value="6" group="order" />
+    <setting name="order_status_refunded" value="7" group="order" />
+    <setting name="order_status_error" value="8" group="order" />
+    <setting name="order_status_bank_wire" value="10" group="order" />
+    <setting name="order_status_pay_pal" value="11" group="order" />
+    <setting name="order_status_warehouse_payment" value="12" group="order" />
+    <setting name="order_status_out_of_stock_unpaid" value="13" group="order" />
+    <setting name="order_status_out_of_stock_paid" value="9" group="order" />
+    <setting name="order_status_on_validation" value="14" group="order" />
+    <setting name="detect_country" value="1" group="ceolocation" />
+    <setting name="search_indexation" value="0" group="system" />
+    <setting name="" value="" group="" />
+    <setting name="image_quality" value="" group="image" />
     <setting name="qty_discount_on_combination" value="0" group="order" />
 </settings>
+
+
+

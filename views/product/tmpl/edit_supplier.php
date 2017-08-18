@@ -27,15 +27,15 @@ defined('_JEXEC') or die('Restricted access');
 if(isset($this->product->product_id)){ ?>
     <div id="product-suppliers" class="panel">
         <div class="panel-title" ><?php echo JText::_('COM_JEPROSHOP_SUPPLIERS_OF_THE_CURRENT_PRODUCT_LABEL'); ?></div>
-        <div class="panel-content well" >
+        <div class="panel-content" >
             <div class="alert alert-info">
                 <?php
                 echo JText::_('COM_JEPROSHOP_THIS_INTERFACE_ALLOWS_YOU_TO_SPECIFY_THE_SUPPLIERS_OF_THE_CURRENT_PRODUCT_AND_EVENTUALLY_ITS_COMBINATIONS_MESSAGE') . '<br /> ' .
-                    JText::_('COM_JEPROSHOP_IT_IS_ALSO_POSSIBLE_TO_SPECIFY__SUPPLIER_REFERENCES_ACCORDING_TO_PREVIOUSLY_ASSOCIATED_SUPPLIERS_MESSAGE') . '<br /> ' . '<br />' .
+                    JText::_('COM_JEPROSHOP_IT_IS_ALSO_POSSIBLE_TO_SPECIFY_SUPPLIER_REFERENCES_ACCORDING_TO_PREVIOUSLY_ASSOCIATED_SUPPLIERS_MESSAGE') . '<br /> ' . '<br />' .
                     JText::_('COM_JEPROSHOP_WHEN_USING_ADVANCED_STOCK_MANAGEMENT_TOOL_SEE_PRODUCT_PREFERENCES_THE_VALUES_YOU_DEFINE_PRICE_REFERENCES_WILL_BE_USED_IN_SUPPLY_ORDER_MESSAGE');
                 ?>
             </div>
-            <label><?php echo JText::_('COM_JEPROSHOP_PLEASE_CHOSE_THE_SUPPLIERS_ASSOCIATED_WITH_THIS_PLEASE_SELECT_DEFAULT_SUPPLIER_AS_WELL_LABEL'); ?></label>
+            <label><?php echo JText::_('COM_JEPROSHOP_PLEASE_CHOOSE_THE_SUPPLIERS_ASSOCIATED_WITH_THIS_PRODUCT_AND_THEN_SELECT_DEFAULT_SUPPLIER_AS_WELL_LABEL'); ?></label>
 
             <table class="table">
                 <thead>
@@ -57,9 +57,10 @@ if(isset($this->product->product_id)){ ?>
                 } ?>
                 </tbody>
             </table>
-            <a class="btn btn-default btn-link bt-icon confirm_leave" href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=supplier&t&task=add&' . JeproshopTools::getSupplierToken() . '=1'); ?>">
+            <div class="control-group" >
+            <a class="btn btn-default  bt-icon confirm_leave" href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=supplier&t&task=add&' . JeproshopTools::getSupplierToken() . '=1'); ?>">
                 <i class="icon-plus"></i> <?php echo JText::_('COM_JEPROSHOP_CREATE_NEW_SUPPLIER_LABEL'); ?> <i class="icon-external-link-sign"></i>
-            </a>
+            </a></div>
             <div class="control-group">
                 <div class="controls" >
                     <a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=product'); ?>" class="btn btn-default"><i class="process-icon-cancel"></i> <?php echo JText::_('COM_JEPROSHOP_CANCEL_LABEL'); ?></a>
@@ -70,20 +71,20 @@ if(isset($this->product->product_id)){ ?>
     </div>
     <div class="panel" >
         <div class="panel-title" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_REFERENCES_LABEL'); ?></div>
-        <div class="panel-content well" >
+        <div class="panel-content " >
             <div class="alert alert-info">
                 <?php if(count($this->associated_suppliers) == 0){
                     echo JText::_('COM_JEPROSHOP_YOU_MUST_SPECIFY_THE_SUPPLIERS_ASSOCIATED_WITH_THIS_PRODUCT_YOU_MUST_ALSO_BEFORE_SETTING_REFERENCES_LABEL');
                 }else{
                     echo JText::_('COM_JEPROSHOP_YOU_CAN_SPECIFY_PRODUCT_REFERENCES_FOREACH_ASSOCIATED_SUPPLIER_LABEL');
                 }
-                echo JText::_('COM_JEPROSHOP_CLICK_SAVE_AND_STAY_AFTER_CHANGING_ASSOCIATED_SELECTED_SUPPLIER_TO_DISPLAY_THE_ASSOCIATED_PRODUCT_REFERENCES_LABEL');  ?>
+                echo '<br />' . JText::_('COM_JEPROSHOP_CLICK_SAVE_AND_STAY_AFTER_CHANGING_ASSOCIATED_SELECTED_SUPPLIER_TO_DISPLAY_THE_ASSOCIATED_PRODUCT_REFERENCES_LABEL');  ?>
             </div>
             <div id="accordion-supplier" >
                 <?php foreach($this->associated_suppliers as $supplier){ ?>
                     <div class="panel" >
                         <div class="panel-title"><i class="icon-supplier" ></i> <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-supplier" href="#jform_supplier_<?php echo $supplier->supplier_id; ?>"> <?php if(isset($supplier->name)){ echo $supplier->name; } ?> </a></div>
-                        <div id="jform_supplier_<?php echo $supplier->supplier_id; ?>" class="panel-content well" >
+                        <div id="jform_supplier_<?php echo $supplier->supplier_id; ?>" class="panel-content " >
                             <table class="table table-stripped">
                                 <thead>
                                 <tr>

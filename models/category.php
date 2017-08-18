@@ -609,8 +609,8 @@ class JeproshopCategoryModelCategory extends JeproshopModel {
     }
 
     public function getGroups(){
-        $cache_id = 'jeproshop_category::getGroups_'.(int)$this->category_id;
-        if (!JeproshopCache::isStored($cache_id)){
+        $cacheKey = 'jeproshop_category::getGroups_'.(int)$this->category_id;
+        if (!JeproshopCache::isStored($cacheKey)){
             $db = JFactory::getDBO();
             $query = "SELECT category_group." . $db->quoteName('group_id') . " FROM " . $db->quoteName('#__jeproshop_category_group');
             $query .= " AS category_group WHERE category_group." . $db->quoteName('category_id') . " = " .(int)$this->category_id;
@@ -618,8 +618,73 @@ class JeproshopCategoryModelCategory extends JeproshopModel {
             $db->setQuery($query);
             $groups = $db->loadObjectList();
 
-            JeproshopCache::store($cache_id, $groups);
+            JeproshopCache::store($cacheKey, $groups);
         }
-        return JeproshopCache::retrieve($cache_id);
+        return JeproshopCache::retrieve($cacheKey);
+    }
+
+    public static function getNestedCategories($rootCategoryId = null, $langId = false, $published = true, $groups = null,
+                                               $useShopRestriction = true, $sqlFilter = '', $sqlSort = '', $sqlLimit = '')
+    {
+        $db = JFactory::getDBO();
+
+        if (isset($rootCategoryId) && !JeproshopTools::isInt($rootCategoryId))
+            die(Tools::displayError());
+
+        if (!JeproshopTools::isBool($published))
+            die(Tools::displayError());
+
+        if(isset($groups) && JeproshopGroupModelGroup::isFeaturePublished() && !is_array($groups)){
+            $groups = (array)$groups;
+        }
+
+        $cacheKey = 'jeproshop_category_model_get_nested_categories_'.md5((int)$rootCategoryId . '_' .(int)$langId . '_' .(int)$published
+                . (isset($groups) && JeproshopGroupModelGroup::isFeaturePublished() ? implode('', $groups) : ''));
+
+        if (!JeproshopCache::isStored($cacheKey)){
+            $query = "SELECT category.*, category_lang.* FROM " . $db->quoteName('#__jeproshop_category') . " AS category ";
+            $query .= ($useShopRestriction ? JeproshopShopModelShop::addSqlAssociation('category') : "") . " LEFT JOIN ";
+            $query .= $db->quoteName('#__jeproshop_category_lang') . " AS category_lang ON category." . $db->quoteName('category_id');
+            $query .= " = category_lang." . $db->quoteName('category_id') . JeproshopShopModelShop::addSqlRestrictionOnLang('category_lang');
+            $selector = " LEFT JOIN " . $db->quoteName('#__jeproshop_category_group') . " AS category_group ON category.";
+            $selector .= $db->quoteName('category_id') . " = category_group." . $db->quoteName('category_id');
+            $query .= (isset($groups) && JeproshopGroupModelGroup::isFeaturePublished() ? $selector : "");
+            $selector = " RIGHT JOIN " . $db->quoteName('#__jeproshop_category') . " AS category_2 ON category_2." . $db->quoteName('category_id');
+            $selector .= " = " . (int)$rootCategoryId . " AND category." . $db->quoteName('n_left') . " >= category_2." . $db->quoteName('n_left');
+            $selector .= " AND category." . $db->quoteName('n_right') . " <= category_2." . $db->quoteName('n_right');
+            $query .= (isset($root_category) ? $selector : "") . " WHERE 1 " . $sqlFilter . ($langId ? " AND " . $db->quoteName('lang_id') . " = " .(int)$langId : "");
+            $query .= ($published ? " AND category." . $db->quoteName('published') . " = 1" : "") ;
+
+            $query .= (isset($groups) && JeproshopGroupModelGroup::isFeaturePublished() ? " AND category_group." . $db->quoteName('group_id') . " IN (" . implode(',',  $groups). ") " : "");
+            $selector = " GROUP BY category." . $db->quoteName('category_id');
+            $query .= (!$langId || (isset($groups) && JeproshopGroupModelGroup::isFeaturePublished()) ? $selector : "");
+            $query .= ($sqlSort != "" ? $sqlSort : " ORDER BY category." . $db->quoteName('depth_level') . " ASC");
+            $query .= ($sqlSort == "" && $useShopRestriction ? ", category_shop." . $db->quoteName('position') . " ASC" : "");
+            $query .= ($sqlLimit != "" ? $sqlLimit : "");
+
+            $db->setQuery($query);
+            $result = $db->loadObjectList();
+
+            $categories = array();
+            $buff = array();
+
+            if (!isset($rootCategoryId)){
+                $rootCategoryId = JeproshopCategoryModelCategory::getRootCategory()->category_id;
+            }
+
+            foreach ($result as $row){
+                $current = &$buff[$row->category_id];
+                $current = $row;
+
+                if ($row->category_id == $rootCategoryId)
+                    $categories[$row->category_id] = &$current;
+                else
+                    $buff[$row->parent_id]->children[$row->category_id] = &$current;
+            }
+
+            JeproshopCache::store($cacheKey, $categories);
+        }
+
+        return JeproshopCache::retrieve($cacheKey);
     }
 }

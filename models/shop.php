@@ -651,4 +651,40 @@ class JeproshopShopModelShop extends JeproshopModel{
         return $db->loadObjectList();
     }
 
+    /**
+     * @param bool $published
+     * @param null $shopGroupId
+     * @return int Total of shops
+     *
+     */
+    public static function getTotalShops($published = true, $shopGroupId = null){
+        return count(JeproshopShopModelShop::getShops($published, $shopGroupId));
+    }
+
+    /**
+     *
+     */
+    public function getShopList(){
+        $db = JFactory::getDBO();
+
+        $context = JeproshopContext::getContext();
+
+        $langId = $context->language->lang_id;
+        $shopGroupId = 0;
+        $deleted = 0;
+
+        $query = "SELECT SQL_CALC_FOUND_ROWS shop.*, shop_group." . $db->quoteName('name') . " AS shop_group_name, category_lang.";
+        $query .= $db->quoteName('name') . " AS category_name, CONCAT('http://', shop_url." . $db->quoteName('domain') . ", shop_url.";
+        $query .= $db->quoteName('physical_uri') . ", shop_url." . $db->quoteName('virtual_uri') . ") AS url  FROM " . $db->quoteName('#__jeproshop_shop');
+        $query .= " AS shop LEFT JOIN " . $db->quoteName('#__jeproshop_shop_group') . " AS shop_group ON (shop." . $db->quoteName('shop_group_id');
+        $query .= " = shop_group." . $db->quoteName('shop_group_id') . ") LEFT JOIN " . $db->quoteName('#__jeproshop_category_lang');
+        $query .= " AS category_lang ON (shop." . $db->quoteName('category_id') . " = category_lang." . $db->quoteName('category_id');
+        $query .= " AND category_lang." . $db->quoteName('lang_id') . " = " . $langId . ") LEFT JOIN " .$db->quoteName('#__jeproshop_shop_url');
+        $query .= " AS shop_url ON (shop." . $db->quoteName('shop_id') . " = shop_url." . $db->quoteName('shop_id') . " AND shop_url.";
+        $query .= $db->quoteName('main') . " = 1 ) WHERE 1 " . ($shopGroupId ? " AND shop." . $db->quoteName('shop_group_id') . " = " . $shopGroupId : "");
+        $query .= ($deleted ? " AND shop." . $db->quoteName('deleted') . " = 0" : "") . " ORDER BY shop." . $db->quoteName('shop_id') . " DESC";
+
+        $db->setQuery($query);
+        return $db->loadObjectList();
+    }
 }

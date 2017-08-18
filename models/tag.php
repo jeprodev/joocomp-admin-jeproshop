@@ -88,4 +88,60 @@ class JeproshopTagModelTag extends JeproshopModel {
         }while(empty($tags));
         return $tags;
     }
+
+    public static function deleteTagsForProduct($product_id){
+        $db = JFactory::getDBO();
+
+        $query = "DELETE FROM " . $db->quoteName('#__jeproshop_product_tag') . " WHERE " . $db->quoteName('product_id') . " = " .(int)$product_id;
+
+        $db->setQuery($query);
+        return $db->query();
+    }
+
+    /**
+     * Add several tags in database and link it to a product
+     *
+     * @param integer $langId Language id
+     * @param integer $productId Product id to link tags with
+     * @param string|array $tagList List of tags, as array or as a string with comas
+     * @param string $separator
+     * @return bool Operation success
+     */
+    public static function addTags($langId, $productId, $tagList, $separator = ','){
+        $db = JFactory::getDBO();
+
+        if (!JeproshopTools::isUnsignedInt($langId)){ return false; }
+
+        if (!is_array($tagList)){
+            $tagList = array_filter(array_unique(array_map('trim', preg_split('#\\'.$separator.'#', $tagList, null, PREG_SPLIT_NO_EMPTY))));
+        }
+        $list = array();
+        if (is_array($tagList)){
+            foreach ($tagList as $tag){
+                if (!JeproshopTools::isGenericName($tag)){ return false; }
+                $tag = trim(substr($tag, 0, 32));
+                $tag_obj = new JeproshopTagModelTag(null, $tag, (int)$langId);
+
+                /* Tag does not exist in database */
+                if (!JeproshopTools::isLoadedObject($tag_obj, 'tag_id')){
+                    $tag_obj->name = $tag;
+                    $tag_obj->lang_id = (int)$langId;
+                    $tag_obj->add();
+                }
+                if (!in_array($tag_obj->tag_id, $list))
+                    $list[] = $tag_obj->tag_id;
+            }
+        }
+        $data = '';
+        $result = true;
+        foreach ($list as $tag_id){
+            $query = "INSERT INTO " . $db->quoteName('#__jeproshop_product_tag') . " ( " . $db->quoteName('tag_id') . ", ";
+            $query .= $db->quoteName('product_id') . ") VALUES (" . (int)$tag_id . ", " . (int)$productId . ")";
+
+            $db->setQuery($query);
+            $result &= $db->query();
+        }
+
+        return $result;
+    }
 }

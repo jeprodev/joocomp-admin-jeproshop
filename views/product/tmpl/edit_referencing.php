@@ -29,7 +29,7 @@ defined('_JEXEC') or die('Restricted access');
     <div id="step-referencing" >
         <div class="panel" >
             <div class="panel-title"><?php echo JText::_('COM_JEPROSHOP_PRODUCT_EDIT_REFERENCING_TITLE'); ?></div>
-            <div class="panel-content well">
+            <div class="panel-content">
                 <div class="control-group" >
                     <div class="control-label">
                         <?php echo $this->productMultiShopCheckbox('meta_title', 'default', true); ?>

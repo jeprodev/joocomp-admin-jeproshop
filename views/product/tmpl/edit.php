@@ -23,44 +23,60 @@
  */
 // no direct access
 defined('_JEXEC') or die('Restricted access');
+
+JHtml::_('jquery.framework');
+JHtml::_('jquery.ui');
+
 $app = JFactory::getApplication();
 $document = JFactory::getDocument();
 $themeDir = isset(JeproshopContext::getContext()->shop->theme->directory) ? JeproshopContext::getContext()->shop->theme->directory : 'default';
 $document->addScript(JURI::base(). 'components/com_jeproshop/assets/javascript/jquery/plugins/jquery.tablednd.js');
+$document->addScript(JURI::base(). 'components/com_jeproshop/assets/javascript/jquery/ui/jquery.ui.datepicker.min.js');
 $document->addScript(JURI::base(). 'components/com_jeproshop/assets/themes/' . $themeDir. '/js/tools.js');
 $document->addScript(JURI::base(). 'components/com_jeproshop/assets/themes/' . $themeDir. '/js/product.js');
 
 
 $script = 'jQuery(document).ready(function() {' ;
 $script .= 'var taxesArray = [], productImages = [], assoc; ';
-foreach($this->taxesRatesByGroup as $taxByGroup){
-    $script .= 'taxesArray[' . $taxByGroup['tax_rules_group_id'] . '] = ' . json_encode($taxByGroup) . '; ';
-}
-
-foreach($this->images as $image){
-    $script .= ' assoc = "{"; ';
-    if($this->shops != null){
-        foreach($this->shops as $shop){
-            $script .= ' assoc += "' . $shop->shop_id . '" : ' .(($image->isAssociatedToShop($shop->shop_id)) ? 1 : 0) . ', ';
-        }
+if($this->product->product_id) {
+    foreach ($this->taxesRatesByGroup as $taxByGroup) {
+        $script .= 'taxesArray[' . $taxByGroup['tax_rules_group_id'] . '] = ' . json_encode($taxByGroup) . '; ';
     }
 
-    $script .= ' if(assoc != "{"){ assoc = assoc.slice(0, -1) +  "}"; }else{ assoc = false; } ';
-    $script .= 'var imageParams = {"icon_checked" : ' . (($image->cover == 1) ? '\'icon-check-sign\'' : '\'icon-check-empty\'')  . ', ';
-    $script .= '"image_id" : parseInt(' . $image->image_id . '), "path" : "' . $this->context->controller->getProductImageLink("", $this->product->product_id . '_' . $image->image_id, "default_cart") . '", "position" : parseInt(' ;
-    $script .= $image->position . ') , assoc, "legend" : "' . $image->legend[$this->context->language->lang_id] . '" };';
+    foreach ($this->images as $image) {
+        $script .= ' assoc = "{"; ';
+        if ($this->shops != null) {
+            foreach ($this->shops as $shop) {
+                $script .= ' assoc += "' . $shop->shop_id . '" : ' . (($image->isAssociatedToShop($shop->shop_id)) ? 1 : 0) . ', ';
+            }
+        }
 
-    $script .= 'productImages.push(imageParams);  ';
+        $script .= ' if(assoc != "{"){ assoc = assoc.slice(0, -1) +  "}"; }else{ assoc = false; } ';
+        $script .= 'var imageParams = {"icon_checked" : ' . (($image->cover == 1) ? '\'icon-check-sign\'' : '\'icon-check-empty\'') . ', ';
+        $script .= '"image_id" : parseInt(' . $image->image_id . '), "path" : "' . $this->context->controller->getProductImageLink("", $this->product->product_id . '_' . $image->image_id, "default_cart") . '", "position" : parseInt(';
+        $script .= $image->position . ') , assoc, "legend" : "' . $image->legend[$this->context->language->lang_id] . '" };';
 
+        $script .= 'productImages.push(imageParams);  ';
+    }
 }
 
-$script  .=  ' jQuery("#jform_product_edit_form").JeproProduct({ ' .
+$currencies =  array();
+foreach(JeproshopCurrencyModelCurrency::getStaticCurrencies() as $currency){
+    $currencyData = array();
+    $currencyData['currency_id'] = $currency->currency_id;
+    $currencyData['name'] = $currency->name;
+    $currencyData['sign'] = $currency->sign;
+    $currencyData['format'] = $currency->format;
+    $currencies[$currency->currency_id] = $currencyData;
+}
+
+$script  .= ' jQuery("#jform_product_edit_form").JeproProduct({ ' .
     'product_id : parseInt(' . $this->product->product_id . '), ' .
-    'no_tax : '  . ($this->tax_exclude_tax_option ? 1 : 0) . ', ' .
-    'eco_tax_tax_rate : '  . ($this->ecotaxTaxRate / 100) . ', ' .
-    'eco_tax_tax_excluded : parseFloat(' . $this->ecotax_tax_excluded . '), ' .
+    'no_tax : '  . (isset($this->tax_exclude_tax_option) ? 1 : 0) . ', ' .
+    'eco_tax_tax_rate : '  . (isset($this->ecotaxTaxRate) ? ($this->ecotaxTaxRate / 100) : 0.00). ', ' .
+    'eco_tax_tax_excluded : parseFloat(' . (isset($this->ecotax_tax_excluded) ? $this->ecotax_tax_excluded : 0.00) . '), ' .
     'price_display_precision : parseInt(' .  (int)JeproshopSettingModelSetting::getValue('price_display_precision') . '), ' .
-    'currencies : ' . json_encode(JeproshopCurrencyModelCurrency::getStaticCurrencies()) . ', ' .
+    'currencies : ' . json_encode($currencies) . ', ' .
     'taxes : taxesArray, ' .
     'all_customers_label  : "' . JText::_('COM_JEPROSHOP_ALL_CUSTOMERS_LABEL') . '", ' .
     'no_customers_label : "' . JText::_('COM_JEPROSHOP_NO_CUSTOMERS_LABEL') . '", ' .

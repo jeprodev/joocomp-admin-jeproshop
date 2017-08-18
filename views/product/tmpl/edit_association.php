@@ -28,7 +28,7 @@ defined('_JEXEC') or die('Restricted access');
 <div class="form-box-wrapper"  id="product-association" >
     <div id="step_association" class="panel" >
         <div class="panel-title" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_EDIT_ASSOCIATION_TITLE'); ?></div>
-        <div class="panel-content well" >
+        <div class="panel-content" >
             <div id="jform_no_default_category" class="alert alert-info center" ><?php echo JText::_('COM_JEPROSHOP_PLEASE_SELECT_DEFAULT_CATEGORY_LABEL')?></div>
             <div class="control-group" >
                 <div class="control-label">
@@ -42,7 +42,7 @@ defined('_JEXEC') or die('Restricted access');
                     <label title="<?php echo JText::_('COM_JEPROSHOP_PRODUCT_TITLE_DESC'); ?>" >&nbsp;</label>
                 </div>
                 <div class="controls">
-                    <a class="button btn btn-icon confirm_leave" href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=category&task=add') ?>">
+                    <a class="button btn btn-icon confirm-leave" href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=category&task=add') ?>">
                         <i class="add-icon" ></i> <span><?php echo JText::_('COM_JEPROSHOP_CREATE_NEW_CATEGORY_LABEL'); ?></span>
                     </a>
                 </div>
@@ -76,7 +76,7 @@ defined('_JEXEC') or die('Restricted access');
                         <p style="clear: both; margin-top: 0;">
                             <?php echo JText::_('COM_JEPROSHOP_PRODUCT_BEGIN_TYPING_THE_FIRST_LETTERS_MESSAGE'); ?>
                         </p>
-                        <p class="preference_description"><?php echo JText::_('COM_JEPROSHOP_PRODUCT_DO_NOT_FORGET_TO_SAVE_MESSAGE'); ?></p>
+                        <p class="preference_description small"><?php echo JText::_('COM_JEPROSHOP_PRODUCT_DO_NOT_FORGET_TO_SAVE_MESSAGE'); ?></p>
                     </div>
                     <div id="jform_div_accessories">
                         <?php foreach($this->accessories as $accessory){
@@ -95,13 +95,13 @@ defined('_JEXEC') or die('Restricted access');
                 </div>
                 <div class="controls">
                     <select name="association[manufacturer_id]" id="jform_manufacturer_id" >
-                        <!--option value="0" disabled><?php echo JText::_('COM_JEPROSHOP_CHOOSE_MANUFACTURER_OPTIONAL_LABEL'); ?></option-->
+                        <option value="0" disabled><?php echo JText::_('COM_JEPROSHOP_CHOOSE_MANUFACTURER_OPTIONAL_LABEL'); ?></option>
                         <?php foreach($this->manufacturers as $manufacturer){ ?>
                             <option value="<?php echo $manufacturer->manufacturer_id; ?>" <?php if($manufacturer->manufacturer_id == $this->product->manufacturer_id){ ?> selected="selected" <?php } ?> ><?php echo $manufacturer->name; ?></option>
                         <?php } ?>
                         <option disabled="disabled">--</option>
                     </select>&nbsp; &nbsp; &nbsp;
-                    <a class="button btn btn-icon confirm_leave"  style="margin-bottom:0;" href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=manufacturer&task=add&' . JSession::getFormToken() . '=1'); ?>" >
+                    <a class="button btn btn-icon confirm_leave"  style="margin-bottom:0;" href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=manufacturer&task=add&' . JeproshopTools::getManufacturerFormToken() . '=1'); ?>" >
                         <i class="add-icon" ></i><span><?php echo JText::_('COM_JEPROSHOP_CREATE_NEW_MANUFACTURER_LABEL'); ?></span>
                     </a>
                 </div>

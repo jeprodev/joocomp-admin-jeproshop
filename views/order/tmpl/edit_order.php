@@ -27,25 +27,32 @@ defined('_JEXEC') or die('Restricted access');
 $document = JFactory::getDocument();
 
 $script = 'jQuery(document).ready(function(){
-    jQuery("#jform_order_form_wrapper").JeproOrder({
+    var defaultOrderStatues = ' . json_encode($this->defaults_order_statues) . ';
+    ';
+foreach($this->defaults_order_statues as $orderStatus){
+
+}
+$script .= 'jQuery("#jform_order_form_wrapper").JeproOrder({
         cart :{
             cart_id : parseInt(' . $this->cart->cart_id . '),
             token : "' . JeproshopTools::getCartToken() . '"
         }, 
         customer : {
-            customer_id : 2
+            customer_id : parseInt(' . $this->context->cart->customer_id . ')
         },
         changed_chipping_price: false,
         chipping_price_selected_carrier : "",
         currencies : [],
         cart_quantity : [],
-        currency : {
+        currency :{
             currency_id : 0,
-            blank : false, 
-            sign : ""
+            format : 5,
+            sign : "",
+            blank : false,
+            decimals : parseInt(' . JeproshopSettingModelSetting::getValue('price_display_precision') . ')
         },
         lang_id : 0,
-        default_order_status : [],
+        default_order_statues : defaultOrderStatues,
         customization_errors : false,
         price_display_precision : parseInt(' . JeproshopSettingModelSetting::getValue('price_display_precision') . '),
         layout: "add"
@@ -350,7 +357,7 @@ $document->addScriptDeclaration($script);
                             </div>
                         </div>
                         <div class="half-wrapper left" >
-                            <div class="panel" id="jform_summary_part" style="display:none;">
+                            <div class="panel" id="jform_summary_part" style="display:none; ">
                                 <div class="panel-title"> <i class="icon-align-justify"></i>  <?php echo JText::_('COM_JEPROSHOP_SUMMARY_LABEL'); ?></div>
                                 <div class="panel-content" >
                                     <div id="jform_send_email_feedback" class="hide alert"></div>

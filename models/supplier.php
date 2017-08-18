@@ -34,6 +34,10 @@ class JeproshopSupplierModelSupplier extends JeproshopModel {
     /** @var string A short description for the discount */
     public $description;
 
+    public $short_description;
+
+    public $lang_id;
+
     /** @var string Object creation date */
     public $date_add;
 
@@ -54,6 +58,67 @@ class JeproshopSupplierModelSupplier extends JeproshopModel {
 
     /** @var boolean active */
     public $published;
+
+
+    public function __construct($supplierId = null, $langId = null) {
+        if ($langId !== null) {
+            $this->lang_id = (JeproshopLanguageModelLanguage::getLanguage($langId) !== false) ? $langId : JeproshopSettingModelSetting::getValue('default_lang');
+        }
+
+        if ($supplierId) {
+            // Load object from database if object id is present
+            $cacheKey = 'jeproshop_supplier_model_' . (int)$supplierId . '_' . (int)$langId;
+            $db = JFactory::getDBO();
+            if (!JeproshopCache::isStored($cacheKey)){
+                $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_supplier') . " AS supplier ";
+
+                // Get lang information
+                if ($langId){
+                    $query .= " LEFT JOIN " . $db->quoteName('#__jeproshop_supplier_lang') . " AS supplier_lang ON (supplier." . $db->quoteName('supplier_id');
+                    $query .= " = supplier_lang." . $db->quoteName('supplier_id') . " AND supplier_lang." . $db->quoteName('lang_id') . " = " . (int)$langId . ")";
+                }
+                $query .= " WHERE supplier." . $db->quoteName('supplier_id') . " = " . (int)$supplierId;
+
+                $db->setQuery($query);
+                $supplierData = $db->loadObject();
+                if ($supplierData){
+                    if (!$langId ){
+                        $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_supplier_lang')  . " WHERE " . $db->quoteName('supplier_id') . " = " . (int)$supplierId;
+
+                        $db->setQuery($query);
+                        $supplierDataLang = $db->loadObjectList();
+                        if ($supplierDataLang)
+                            foreach ($supplierDataLang as $row)
+                                foreach ($row as $key => $value){
+                                    if (array_key_exists($key, $this) && $key != 'supplier_id'){
+                                        if (!isset($supplierData->{$key}) || !is_array($supplierData->{$key}))
+                                            $supplierData->{$key} = array();
+                                        $supplierData->{$key}[$row->lang_id] = $value;
+                                    }
+                                }
+                    }
+                    JeproshopCache::store($cacheKey, $supplierData);
+                }
+            } else {
+                $supplierData = JeproshopCache::retrieve($cacheKey);
+            }
+
+            if ($supplierData){
+                //$this->id = (int)$id;
+                foreach ($supplierData as $key => $value) {
+                    if (array_key_exists($key, $this)) {
+                        $this->{$key} = $value;
+                    }
+                }
+            }
+        }
+
+        $this->link_rewrite = $this->getLink();
+    }
+
+    public function getLink(){
+        return JeproshopTools::str2url($this->name);
+    }
 
     /**
      * Return suppliers
@@ -171,6 +236,53 @@ class JeproshopSupplierModelSupplier extends JeproshopModel {
 
         $db->setQuery($query);
         return $db->loadObject();
+    }
+
+    /**
+	 * Tells if a supplier exists
+	 *
+	 * @param $supplierId JeproshopSupplierModelSupplier id
+	 * @return boolean
+	 */
+    public static function supplierExists($supplierId){
+        $db = JFactory::getDBO();
+        $query = "SELECT " . $db->quoteName('supplier_id') . " FROM  " . $db->quoteName('#__jeproshop_supplier') . " WHERE ";
+        $query .= $db->quoteName('supplier_id') . " = " . (int)$supplierId;
+
+        $db->setQuery($query);
+        $res = $db->loaObject();
+
+        return (isset($res) && ($res->supplier_id > 0));
+    }
+
+    public function add($fromPost = true){
+        if($fromPost){
+            $this->copyFromPost();
+        }
+
+        $db = JFactory::getDBO();
+
+        $query = "INSERT INTO " . $db->quoteName('#__jeproshop_supplier') . "(" . $db->quoteName('name') . ", " . $db->quoteName('date_add');
+        $query .= ", " . $db->quoteName('published') . ", " . $db->quoteName('date_upd') . ") VALUES (" . $db->quote($this->name) . ", ";
+        $query .= $db->quote($this->date_add) . ", " . ($this->published ? 1 : 0) . ", " . $db->quote($this->date_upd) . ")";
+
+        $db->setQuery($query);
+        if($db->query()){
+            $this->supplier_id = $db->insertid();
+            $languages = JeproshopLanguageModelLanguage::getLanguages(true);
+
+            foreach($languages as $language){
+                $query = "INSERT INTO " . $db->quoteName('#__jeproshop_supplier_lang') . "(" . $db->quoteName('description') . ", ";
+                $query .= $db->quoteName('short_description') . ", " . $db->quoteName('meta_title') . ", " . $db->quoteName('meta_keywords') ;
+                $query .= ", " . $db->quoteName('meta_description') . ", " . $db->quoteName('supplier_id'). ", " . $db->quoteName('lang_id');
+                $query .= ") VALUES (" . $db->quote($this->description[$language->lang_id]) . ", " . $db->quote($this->short_description[$language->lang_id]);
+                $query .= ", " . $db->quote($this->meta_title[$language->lang_id]) . ", " . $db->quote($this->meta_keywords[$language->lang_id]);
+                $query .= ", " . $db->quote($this->meta_description[$language->lang_id]) . ", " . ($this->supplier_id) . ", " . $db->quote($language->lang_id) . ")";
+
+                $db->setQuery($query);
+                $db->query();
+            }
+        }
     }
 
 }

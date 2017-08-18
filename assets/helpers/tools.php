@@ -239,6 +239,10 @@ class JeproshopTools {
         return((string)(int)$value === (string)$value || $value === false);
     }
 
+    public static function isNumeric($value){
+        return is_numeric($value) && ((string)(int)$value === (string)$value || $value === false);
+    }
+
     /**
      * return converted price
      * @param $price
@@ -259,12 +263,12 @@ class JeproshopTools {
         }elseif(is_numeric($currency)){
             $currency = JeproshopCurrencyModelCurrency::getCurrencyInstance($currency);
         }
-        $currency_id = (is_object($currency) ? $currency->currency_id : $currency['currency_id']);
-        $conversion_rate = (is_object($currency) ? $currency->conversion_rate : $currency['conversion_rate']);
+        $currencyId = (is_object($currency) ? $currency->currency_id : $currency['currency_id']);
+        $conversionRate = (is_object($currency) ? $currency->conversion_rate : $currency['conversion_rate']);
 
-        if($currency_id != $default_currency){
-            if($to_currency) {$price *= $conversion_rate; }
-            else { $price /= $conversion_rate; }
+        if($currencyId != $default_currency){
+            if($to_currency) {$price *= $conversionRate; }
+            else { $price /= $conversionRate; }
         }
         return $price;
     }
@@ -469,6 +473,78 @@ class JeproshopTools {
     public static function isDateFormat($date){
         return (bool)preg_match('/^([0-9]{4})-((0?[0-9])|(1[0-2]))-((0?[0-9])|([1-2][0-9])|(3[01]))( [0-9]{2}:[0-9]{2}:[0-9]{2})?$/', $date);
     }
+
+    /**
+     * Check for price validity
+     *
+     * @param string $price Price to validate
+     * @return bool Validity is ok or not
+     */
+    public static function isPrice($price){
+        return preg_match('/^[0-9]{1,10}(\.[0-9]{1,9})?$/', $price);
+    }
+
+    /**
+     * Check for price validity (including negative price)
+     *
+     * @param string $price Price to validate
+     * @return bool Validity is ok or not
+     */
+    public static function isNegativePrice($price){
+        return preg_match('/^[-]?[0-9]{1,10}(\.[0-9]{1,9})?$/', $price);
+    }
+
+    /**
+     * Check if the data is a reduction type (amout or percentage)
+     *
+     * @param string $data Data to validate
+     * @return bool Validity is ok or not
+     */
+    public static function isReductionType($data){
+        return ($data === 'amount' || $data === 'percentage');
+    }
+
+    /**
+     * Check for product reference validity
+     *
+     * @param string $reference Product reference to validate
+     * @return bool Validity is ok or not
+     */
+    public static function isReference($reference)
+    {
+        return preg_match(JeproshopTools::cleanNonUnicodeSupport('/^[^<>;={}]*$/u'), $reference);
+    }
+
+    /**
+     * Check for barcode validity (EAN-13)
+     *
+     * @param string $ean13 Barcode to validate
+     * @return bool Validity is ok or not
+     */
+    public static function isEan13($ean13){
+        return !$ean13 || preg_match('/^[0-9]{0,13}$/', $ean13);
+    }
+
+    /**
+     * Check for barcode validity (UPC)
+     *
+     * @param string $upc Barcode to validate
+     * @return bool Validity is ok or not
+     */
+    public static function isUpc($upc){
+        return !$upc || preg_match('/^[0-9]{0,12}$/', $upc);
+    }
+
+    /**
+     * Check for ISBN
+     *
+     * @param string $isbn validate
+     * @return bool Validity is ok or not
+     */
+    public static function isIsbn($isbn){
+        return preg_match(JeproshopTools::cleanNonUnicodeSupport('/^[^<>;={}]*$/u'), $isbn);
+    }
+
 
     /**
      * Change language in cookie while clicking on a flag
@@ -1028,4 +1104,18 @@ class JeproshopTools {
     public static function getDocumentToken(){ return 'a'; }
 
     public static function checkDocumentToken(){ return true; }
+
+    public static function getManufacturerFormToken(){ return 'b'; }
+
+    public static function checkManufacturerFormToken(){ return true; }
+
+    public static function getPriceFormToken(){ return 'b'; }
+
+    public static function checkPriceFormToken(){ return true; }
+
+    public static function getShopToken(){ return 'b'; }
+
+    public static function checkShopToken(){ return true; }
 }
+
+class Tools{}

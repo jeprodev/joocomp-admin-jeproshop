@@ -410,14 +410,7 @@ class JeproshopTaxModelTax extends JeproshopModel
         }
         return true;
     }
-
-    private function clearCache($all = FALSE){
-        if($all){
-            JeproshopCache::clean('jeproshop_tax_model_*');
-        }elseif($this->tax_id){
-            JeproshopCache::clean('jeproshop_tax_model_' . $this->tax_id . '_*');
-        }
-    }
+    
 }
 
 class JeproshopTaxRuleModelTaxRule extends JeproshopModel

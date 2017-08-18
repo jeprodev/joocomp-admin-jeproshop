@@ -30,7 +30,7 @@ defined('_JEXEC') or die('Restricted access');
         <div class="panel-title" >
             <?php echo ($this->product->product_id ? JText::_('COM_JEPROSHOP_PRODUCT_EDIT_INFORMATION_TITLE') : JText::_('COM_JEPROSHOP_PRODUCT_ADD_INFORMATION_TITLE')); ?>
         </div>
-        <div class="panel-content well" >
+        <div class="panel-content " >
             <?php if(isset($this->display_common_field) && $this->display_common_field){ ?>
                 <div class="warning" style="display: block"><?php echo JText::_('COM_JEPROSHOP_PRODUCT_EDIT_WARNING_LABEL'); ?></div>
                 <div class="separation"></div>
@@ -69,9 +69,9 @@ defined('_JEXEC') or die('Restricted access');
                         </div>
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><label title="<?php echo JText::_('COM_JEPROSHOP_PRODUCT_EAN_13_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_EAN_13_LABEL'); ?></label></div>
+                        <div class="control-label"><label for="jform_ean13" title="<?php echo JText::_('COM_JEPROSHOP_PRODUCT_EAN_13_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_EAN_13_LABEL'); ?></label></div>
                         <div class="controls">
-                            <input type="text" maxlength="13" name="information[ean13]" value="<?php echo htmlentities($this->product->ean13); ?>" />
+                            <input type="text" maxlength="13" id="jform_ean13" name="information[ean13]" value="<?php echo htmlentities($this->product->ean13); ?>" />
                             <p class=" help-box small"><?php echo JText::_('COM_JEPROSHOP_EUROPE_JAPAN_LABEL'); ?></p>
                         </div>
                     </div>
@@ -79,7 +79,13 @@ defined('_JEXEC') or die('Restricted access');
                         <div class="control-label"><label for="jform_upc" title="<?php echo JText::_('COM_JEPROSHOP_PRODUCT_UPC_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_UPC_LABEL'); ?></label></div>
                         <div class="controls">
                             <input type="text" id="jform_upc" maxlength="12" name="information[upc]" value="<?php echo htmlentities($this->product->upc); ?>" />
-                            <p class="help-box small" ><?php echo JText::_('COM_JEPROSHOP_US_CANADA_LABEL'); ?></p></div>
+                            <p class="small" ><?php echo JText::_('COM_JEPROSHOP_US_CANADA_LABEL'); ?></p></div>
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><label for="jform_isbn" title="<?php echo JText::_('COM_JEPROSHOP_PRODUCT_ISBN_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_ISBN_LABEL'); ?></label></div>
+                        <div class="controls">
+                            <input type="text" id="jform_isbn" maxlength="12" name="information[isbn]" value="<?php echo htmlentities($this->product->isbn); ?>" />
+                            <p class="help-box small" ><?php echo JText::_('COM_JEPROSHOP_ISBN_LABEL'); ?></p></div>
                     </div>
                     <div class="control-group">
                         <div class="control-label">
@@ -184,7 +190,7 @@ defined('_JEXEC') or die('Restricted access');
                     <div class="control-label">
                         <?php echo $this->productMultiShopCheckbox('short_description', 'tinymce'); ?>
                         <label title="<?php echo JText::_('COM_JEPROSHOP_PRODUCT_SHORT_DESCRIPTION_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_SHORT_DESCRIPTION_LABEL'); ?><br /></label>
-                        <p class="product_description"><?php echo JText::_('COM_JEPROSHOP_PRODUCT_SHORT_DESCRIPTION_DESCRIPTION'); ?></p>
+                        <p class="product_description small"><?php echo JText::_('COM_JEPROSHOP_PRODUCT_SHORT_DESCRIPTION_DESCRIPTION'); ?></p>
                     </div>
                     <div class="controls"><?php echo $this->helper->multiLanguageInputField('short_description', 'information', 'textarea', $this->product->short_description); ?></div>
                 </div>
@@ -192,7 +198,7 @@ defined('_JEXEC') or die('Restricted access');
                     <div class="control-label">
                         <?php echo $this->productMultiShopCheckbox('description', 'tinymce'); ?>
                         <label title="<?php echo JText::_('COM_JEPROSHOP_PRODUCT_DESCRIPTION_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_DESCRIPTION_LABEL'); ?><br /></label>
-                        <p class="product_description small" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_DESCRIPTION_DESCRIPTION'); ?></p>
+                        <p class=" small" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_DESCRIPTION_DESCRIPTION'); ?></p>
                     </div>
                     <div class="controls"><?php echo $this->helper->multiLanguageInputField('description', 'information', 'textarea', $this->product->description); ?></div>
                 </div>

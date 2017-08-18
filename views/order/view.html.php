@@ -76,25 +76,35 @@ class JeproshopOrderViewOrder extends JeproshopViewLegacy {
     private function renderOrderEditForm(){
         if(!isset($this->context) || $this->context == null){ $this->context = JeproshopContext::getContext(); }
 
+        if($this->context->shop->getShopContext() != JeproshopShopModelShop::CONTEXT_SHOP && JeproshopShopModelShop::isFeaturePublished()){
+            JError::raiseWarning(500, JText::_('COM_JEPROSHOP_YOU_HAVE_TO_SELECT_A_SHOP_BEFORE_CREATING_NEW_ORDERS_MESSAGE'));
+        }
+
         $app = JFactory::getApplication();
 
         $cartId = $app->input->get('cart_id');
-        $cart = new JeproshopCartModelCart($cartId);
+        $this->context->cart = new JeproshopCartModelCart($cartId);
 
         $this->context->controller->has_errors = false;
 
-        if($cartId && !JeproshopTools::isLoadedObject($cart, 'cart_id')) {
+        if($cartId && !JeproshopTools::isLoadedObject($this->context->cart, 'cart_id')) {
             JeproshopTools::displayError(JText::_('COM_JEPROSHOP_THE_CART_DOES_NOT_EXISTS_MESSAGE'));
             $this->context->controller->has_errors = true;
         }
 
-        if($cartId && JeproshopTools::isLoadedObject($cart, 'cart_id') && !$cart->customer_id){
+        if($cartId && JeproshopTools::isLoadedObject($this->context->cart, 'cart_id') && !$this->context->cart->customer_id){
             JeproshopTools::displayError(JText::_('COM_JEPROSHOP_THE_CART_MUST_HAVE_A_CUSTOMER'));
             $this->context->controller->has_errors = true;
         }
 
         if($this->context->controller->has_errors){ return false; }
-        $defaultsOrderStatues = array();
+
+        $defaultsOrderStatues = array(
+            'cheque' => (int)JeproshopSettingModelSetting::getValue('order_status_cheque'),
+            'bank_wire' => (int)JeproshopSettingModelSetting::getValue('order_status_bank_wire'),
+            'cash_on_delivery' => ((int)JeproshopSettingModelSetting::getValue('order_status_on_validation') ? (int)JeproshopSettingModelSetting::getValue('order_status_on_validation') : (int)JeproshopSettingModelSetting::getValue('order_status_on_preparation')),
+            'other' => (int)JeproshopSettingModelSetting::getValue('order_status_payment')
+        );
 
         $paymentModules = array();
 
@@ -102,13 +112,13 @@ class JeproshopOrderViewOrder extends JeproshopViewLegacy {
         $this->assignRef('recyclable_pack', $useRecyclePackage);
         $useGiftWrapping = (int)JeproshopSettingModelSetting::getValue('offer_gift_wrapping');
         $this->assignRef('gift_wrapping', $useGiftWrapping);
-        $this->assignRef('cart', $cart);
-        $currencies = JeproshopCurrencyModelCurrency::getCurrenciesByShopId(JeproshopContext::getContext()->shop->shop_id);
+        $this->assignRef('cart', $this->context->cart);
+        $currencies = JeproshopCurrencyModelCurrency::getCurrenciesByShopId($this->context->shop->shop_id);
         $this->assignRef('currencies', $currencies);
-        $languages = JeproshopLanguageModelLanguage::getLanguages(true, JeproshopContext::getContext()->shop->shop_id);
+        $languages = JeproshopLanguageModelLanguage::getLanguages(true, $this->context->shop->shop_id);
         $this->assignRef('languages', $languages);
         $this->assignRef('payment_modules', $paymentModules);
-        $orderStatues = JeproshopOrderStatusModelOrderStatus::getOrderStatus((int)JeproshopContext::getContext()->language->lang_id);
+        $orderStatues = JeproshopOrderStatusModelOrderStatus::getOrderStatus((int)$this->context->language->lang_id);
         $this->assignRef('order_statues', $orderStatues);
         $this->assignRef('defaults_order_statues', $defaultsOrderStatues);
         /*$this->assignRef('show_toolbar' => $this->show_toolbar,

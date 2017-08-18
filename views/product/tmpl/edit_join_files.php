@@ -28,7 +28,7 @@ if(isset($this->product->product_id)){
     ?>
     <div id="product-attachments" class="panel" >
         <div class="panel-title" ><?php echo JText::_('COM_JEPROSHOP_ATTACHMENTS_LABEL'); ?></div>
-        <div class="panel-content well" >
+        <div class="panel-content" >
             <div class="control-group" >
                 <div class="control-label"><label title="<?php echo JText::_('COM_JEPROSHOP_FILENAME_TITLE_DESC') . '<br />' . JText::_('COM_JEPROSHOP_MAXIMUM_CHARACTERS_TITLE_DESC'); ?>"><?php echo JText::_('COM_JEPROSHOP_FILENAME_LABEL'); ?></label></div>
                 <div class="controls" ><?php echo $this->helper->multiLanguageInputField('attachment_name', 'attachments', 'text', true, $this->attachment_name); ?></div>
@@ -67,7 +67,7 @@ if(isset($this->product->product_id)){
                     </div>
                 </div>
             </div>
-            <input type="hidden" name="jform[array_attachments]" id="jform_array_attachments" value="<?php foreach($this->attachments_1 as $attachment){ echo $attachment->attachment_id . ', '; } ?>" />
+            <input type="hidden" name="attachments[array_attachments]" id="jform_array_attachments" value="<?php foreach($this->attachments_1 as $attachment){ echo $attachment->attachment_id . ', '; } ?>" />
         </div>
     </div>
 <?php }

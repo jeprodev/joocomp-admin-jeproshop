@@ -40,11 +40,14 @@ class JeproshopTree {
     protected $template;
     private   $tree_title;
     private   $toolbar;
+    private $wrapper;
 
-    public function __construct($id, $data = null){
-        $this->setTreeId($id);
+    public function __construct($treeId, $data = null, $wrapper = null){
+        $this->setTreeId($treeId);
 
         if (isset($data)){ 	$this->setTreeData($data); }
+
+        if(isset($wrapper)){ $this->setTreeWrapper($wrapper); }
     }
 
     /**
@@ -121,6 +124,18 @@ class JeproshopTree {
     public function setTreeTemplate($value){
         $this->template = $value;
         return $this;
+    }
+
+    public function setTreeWrapper($wrapper){
+        $this->wrapper = $wrapper;
+        return $this;
+    }
+
+    public function getTreeWrapper(){
+        if(!isset($this->wrapper)){
+            $this->wrapper = 'jform';
+        }
+        return $this->wrapper;
     }
 
     public function setTreeToolbar($value){
@@ -224,6 +239,22 @@ class JeproshopTree {
             $this->setNodeItemTemplate(self::DEFAULT_NODE_ITEM_TEMPLATE);
 
         return $this->node_item_template;
+    }
+
+    public function getItemNodeTemplate(){
+        if(!isset($this->node_item_template)){
+            $this->setNodeItemTemplate(self::DEFAULT_NODE_ITEM_TEMPLATE);
+        }
+        return $this->node_item_template;
+    }
+
+    public function render($data = null){
+        //if (!isset($data)){ $data = $this->getData(); }
+        ob_start();
+        include (dirname(__DIR__) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . $this->template . '.php');
+        $var=ob_get_contents();
+        ob_end_clean();
+        return $var;
     }
 
 }

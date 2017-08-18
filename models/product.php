@@ -179,6 +179,8 @@ class JeproshopProductModelProduct extends JeproshopModel{
     /** @var string Upc barcode */
     public $upc;
 
+    public $isbn;
+
     /** @var boolean Product status */
     public $quantity_discount = 0;
 
@@ -571,7 +573,6 @@ class JeproshopProductModelProduct extends JeproshopModel{
     /**
      * Gets the name of a given product, in the given lang
      *
-     * @since 1.5.0
      * @param $productId
      * @param null $productAttributeId
      * @param null $langId
@@ -833,7 +834,7 @@ class JeproshopProductModelProduct extends JeproshopModel{
 
     public function getCustomizationFieldIds()
     {
-        if (!JeproshopCustomization::isFeaturePublished()) {
+        if (!JeproshopCustomizationModelCustomization::isFeaturePublished()) {
             return array();
         }
 
@@ -853,7 +854,7 @@ class JeproshopProductModelProduct extends JeproshopModel{
     }
 
     public function getCustomizationFields($langId = false){
-        if (!JeproshopCustomization::isFeaturePublished()){ return false; }
+        if (!JeproshopCustomizationModelCustomization::isFeaturePublished()){ return false; }
 
         $db = JFactory::getDBO();
 
@@ -1392,7 +1393,7 @@ class JeproshopProductModelProduct extends JeproshopModel{
 	 ** Customization management
 	 */
     public static function getAllCustomizedData($cartId, $langId = null, $onlyInCart = true, $shopId = null, $customizationId = null){
-        if (!JeproshopCustomization::isFeaturePublished()){ return false; }
+        if (!JeproshopCustomizationModelCustomization::isFeaturePublished()){ return false; }
 
         $db = JFactory::getDBO();
 
@@ -1454,7 +1455,7 @@ class JeproshopProductModelProduct extends JeproshopModel{
         } */
 
         foreach ($products as &$productUpdate){
-            if (!JeproshopCustomization::isFeaturePublished()){
+            if (!JeproshopCustomizationModelCustomization::isFeaturePublished()){
                 $productUpdate->customization_quantity_total = 0;
                 $productUpdate->customization_quantity_refunded = 0;
                 $productUpdate->customization_quantity_returned = 0;
@@ -1672,5 +1673,1636 @@ class JeproshopProductModelProduct extends JeproshopModel{
         }
     }
 
+    /**
+     * Get all available product attributes combinations
+     *
+     * @param int $langId Language id
+     * @param bool $groupByIdAttributeGroup
+     * @return array Product attributes combinations
+     */
+    public function getAttributeCombinations($langId, $groupByIdAttributeGroup = true)
+    {
+        if (!JeproshopCombinationModelCombination::isFeaturePublished()) {
+            return array();
+        }
 
+        $db = JFactory::getDBO();
+        $query = "SELECT product_attribute.*, product_attribute_shop.*, attribute_group." . $db->quoteName('attribute_group_id');
+        $query .= ", attribute_group." . $db->quoteName('is_color_group') . ", attribute_group_lang." . $db->quoteName('name');
+        $query .= " AS group_name, attribute_lang." . $db->quoteName('name') . " AS attribute_name, attribute." . $db->quoteName('attribute_id');
+        $query .= " FROM " . $db->quoteName('#__jeproshop_product_attribute') . " AS product_attribute " . JeproshopShopModelShop::addSqlAssociation('product_attribute');
+        $query .= " LEFT JOIN " . $db->quoteName('#__jeproshop_product_attribute_combination') . " AS product_attribute_combination ON (product_attribute_combination.";
+        $query .= $db->quoteName('product_attribute_id') . " = product_attribute." . $db->quoteName('product_attribute_id') . ") LEFT JOIN ";
+        $query .= $db->quoteName('#__jeproshop_attribute') . " AS attribute ON (attribute." . $db->quoteName('attribute_id') . " = product_attribute_combination.";
+        $query .= $db->quoteName('attribute_id') . ") LEFT JOIN " . $db->quoteName('#__jeproshop_attribute_group') . " AS attribute_group ON (attribute_group.";
+        $query .= $db->quoteName('attribute_group_id') . " = attribute." . $db->quoteName('attribute_group_id') . ") LEFT JOIN " . $db->quoteName('#__jeproshop_attribute_lang');
+        $query .= " AS attribute_lang ON (attribute." . $db->quoteName('attribute_id') . " = attribute_lang." . $db->quoteName('attribute_id') . " AND attribute_lang.";
+        $query .= $db->quoteName('lang_id') . " = " . (int)$langId . ") LEFT JOIN " . $db->quoteName('#__jeproshop_attribute_group_lang') . " AS attribute_group_lang ";
+        $query .= " ON (attribute_group." . $db->quoteName('attribute_group_id') . " = attribute_group_lang." . $db->quoteName('attribute_group_id') ;
+        $query .= " AND attribute_group_lang." . $db->quoteName('lang_id') . " = " .(int)$langId . ") WHERE product_attribute." . $db->quoteName('product_id') ;
+        $query .= " = " . (int)$this->product_id . " GROUP BY product_attribute." . $db->quoteName('product_attribute_id') ;
+        $query .= ($groupByIdAttributeGroup ? ", attribute_group." . $db->quoteName('attribute_group_id') : '') . " ORDER BY product_attribute.";
+        $query .= $db->quoteName('product_attribute_id');
+
+        $db->setQuery($query);
+
+        $res = $db->loadObjectList();
+
+        //Get quantity of each variations
+        foreach ($res as $key => $row) {
+            $cacheKey = $row->product_id.'_'.$row->product_attribute_id .'_quantity';
+            if (!JeproshopCache::isStored($cacheKey)) {
+                JeproshopCache::store(
+                    $cacheKey,
+                    JeproshopStockAvailableModelStockAvailable::getQuantityAvailableByProduct($row->product_id, $row->product_attribute_id)
+                );
+            }
+
+            $res[$key]->quantity = JeproshopCache::retrieve($cacheKey);
+        }
+
+        return $res;
+    }
+
+    public function add(){
+        $context = JeproshopContext::getContext();
+        $db = JFactory::getDBO();
+        $data = JRequest::get('post');
+
+        $informationData = $data['information'];
+
+        $this->date_add = date('Y-m-d H:i:s');
+        $this->date_upd = date('Y-m-d H:i:s');
+
+        $shopListIds = array();
+        if(JeproshopShopModelShop::isTableAssociated('product')){
+            $shopListIds = JeproshopShopModelShop::getContextListShopIds();
+            if(count($this->shop_list_id) > 0){ $shopListIds = $this->shop_list_id; }
+        }
+
+        if(JeproshopShopModelShop::checkDefaultShopId('product')){
+            $this->default_shop_id = min($shopListIds);
+        }
+
+        $languages = JeproshopLanguageModelLanguage::getLanguages(false);
+
+        $this->copyFromPost($data);
+
+        $isVirtual = ($informationData['product_type'] == JeproshopProductModelProduct::VIRTUAL_PRODUCT) ? 1 : 0;
+
+        $query = "INSERT INTO " . $db->quoteName('#__jeproshop_product') . "(" . $db->quoteName('supplier_id') . ", " . $db->quoteName('developer_id');
+        $query .= ", " . $db->quoteName('manufacturer_id') . ", " . $db->quoteName('default_category_id') . ", " . $db->quoteName('default_shop_id') . ", ";
+        $query .= $db->quoteName('tax_rules_group_id') . ", " . $db->quoteName('on_sale') . ", " . $db->quoteName('online_only') . ", " . $db->quoteName('ean13') . ", " . $db->quoteName('upc');
+        $query .= ", " . $db->quoteName('isbn') . ", " . $db->quoteName('ecotax') . ", " . $db->quoteName('quantity') . ", " . $db->quoteName('minimal_quantity');
+        $query .= ", " . $db->quoteName('price') . ", " . $db->quoteName('wholesale_price') . ", " . $db->quoteName('unity') . ", " . $db->quoteName('reference');
+        $query .= ", " . $db->quoteName('unit_price_ratio') . ", " . $db->quoteName('additional_shipping_cost') . ", " . $db->quoteName('supplier_reference');
+        $query .= ", " . $db->quoteName('location') . ", " . $db->quoteName('width') . ", " . $db->quoteName('height') . ", " . $db->quoteName('depth');
+        $query .= ", " . $db->quoteName('weight') . ", " . $db->quoteName('out_of_stock') . ", " . $db->quoteName('quantity_discount') . ", ";
+        $query .= $db->quoteName('customizable') . ", " . $db->quoteName('uploadable_files') . ", " . $db->quoteName('text_fields') . ", " ;
+        $query .= $db->quoteName('published') . ", " . $db->quoteName('redirect_type') . ", " . $db->quoteName('product_redirected_id') . ", ";
+        $query .= $db->quoteName('available_for_order') . ", " . $db->quoteName('available_date') . ", " . $db->quoteName('condition') . ", ";
+        $query .= $db->quoteName('show_price') . ", " . $db->quoteName('indexed') . ", " . $db->quoteName('visibility') . ", " . $db->quoteName('cache_is_pack');
+        $query .= ", " . $db->quoteName('cache_has_attachments') . "," . $db->quoteName('is_virtual') . ", " . $db->quoteName('cache_default_attribute') . ", ";
+        $query .= $db->quoteName('date_add') . ", " . $db->quoteName('date_upd') . ", " . $db->quoteName('advanced_stock_management') ;
+        $query .= " ) VALUES( ";
+        $query .= (int)$this->supplier_id . ", " . (int)$this->developer_id . ", " . (int)$this->manufacturer_id . ", " . (int)$this->default_category_id;
+        $query .= ", " . (int)$this->default_shop_id . ", " . (int)$this->tax_rules_group_id . ", " . ($this->on_sale ? 1 : 0) . ", " . ($this->online_only ? 1 : 0);
+        $query .= ", " . $db->quote($this->ean13, true) . ", " . $db->quote($this->upc, true) . ", " . $db->quote($this->isbn, true) . ", " . (float)$this->ecotax;
+        $query .= ", " . (int)$this->quantity . ", " . (int)$this->minimal_quantity . ", " . (float)$this->price . ", " . (float)$this->wholesale_price . ", ";
+        $query .= $db->quote($this->unity) . ", " . $db->quote($this->reference) . ", " . (float)$this->unit_price_ratio . ", " . (float)$this->additional_shipping_cost;
+        $query .= ", " . $db->quote($this->supplier_reference) . ", " . $db->quote($this->location) . ", " . (float)$this->width . ", " . (float)$this->height ;
+        $query .= ", " . (float)$this->depth . ", " . (float)$this->weight . ", " . (int)$this->out_of_stock . ", " . (int)$this->quantity_discount . ", ";
+        $query .= ($this->customizable ? 1 : 0) . ", " . (int)$this->uploadable_files . ", " . (int)$this->text_fields . ", " . ($this->published ? 1 : 0) . ", ";
+        $query .= $db->quote($this->redirect_type, true) . ", " . (int)$this->product_redirected_id . ", " . ($this->available_for_order ? 1 : 0) . ", ";
+        $query .= $db->quote($this->available_date) . ", " . $db->quote($this->condition) . ", " . ($this->show_price ? 1 : 0) . ", " . ($this->indexed ? 1 : 0);
+        $query .= ", " . $db->quote($this->visibility) . ", " . ($this->cache_is_pack ? 1 : 0) . ", " . ($this->cache_has_attachments ? 1 : 0) . ", ";
+        $query .= ($isVirtual ? 1 : 0) . ", " . ($this->cache_default_attribute ? 1 : 0) . ", " .  $db->quote($this->date_add) . ", " . $db->quote($this->date_upd) ;
+        $query .= ", " . ($this->advanced_stock_management ? 1 : 0) ;
+        $query .= ") ";
+
+        $db->setQuery($query);
+
+        if($db->query()){
+            $this->product_id = $db->insertid();
+            /** Update shop fields */
+            if(JeproshopShopModelShop::isTableAssociated('product')){
+                $result = true;
+                foreach($shopListIds as $shopId) {
+                    $query = "SELECT " . $db->quoteName('product_id') . " FROM " . $db->quoteName('#__jeproshop_product_shop') . " WHERE ";
+                    $query .= $db->quoteName('product_id') . " = " . $this->product_id . " AND " . $db->quoteName('shop_id') . " = " . $shopId;
+                    $db->setQuery($query);
+                    $shopData = $db->loadObject();
+                    $shopExists = (isset($shopData) ? ($shopData->product_id > 0) : false);
+
+                    if ($shopExists) {
+                        $result &= $this->updateProductShopData($shopId);
+                    } else {
+                        $result &= (bool)$this->insertProductShopData($shopId);
+                    }
+
+                }
+            }
+        }
+        return true;
+    }
+
+
+    public function update(){
+        $context = JeproshopContext::getContext();
+
+        $data = JRequest::get('post');
+
+        $existingProduct = $this;
+
+        $informationData = $data['information'];
+        $priceData = $data['price_field'];
+
+        if(isset($priceData['ecotax'])){
+            $ecoTaxWithoutTax = JeproshopTools::roundPrice($priceData['ecotax']/ (1 + JeproshopTaxModelTax::getProductEcotaxRate()/100), 6);
+        }else{
+            $ecoTaxWithoutTax = 0;
+        }
+        $this->ecotax = $ecoTaxWithoutTax;
+        $productTypeBeforeUpdate = $this->getType();
+        $this->indexed = 0;
+
+        $this->copyFromPost($data);
+
+        if(JeproshopShopModelShop::isFeaturePublished() && JeproshopShopModelShop::getShopContext() != JeproshopShopModelShop::CONTEXT_SHOP){
+
+        }
+
+        if($context->shop->getShopContext() == JeproshopShopModelShop::CONTEXT_SHOP && !$this->isAssociatedToShop()){
+            $isAssociatedToShop = false;
+            $combinations = JeproshopProductModelProduct::getProductAttributesIds($this->product_id);
+            if($combinations){
+                foreach($combinations as $combinationId){
+                    $combination = new JeproshopCombinationModelCombination($combinationId);
+                    $defaultCombination = new JeproshopCombinationModelCombination($combinationId, $this->default_shop_id);
+
+                    $combination->product_id = $defaultCombination->product_id;
+                    $combination->location = $defaultCombination->location;
+                    $combination->ean13 = $defaultCombination->ean13;
+                    $combination->isbn = $defaultCombination->isbn;
+                    $combination->upc = $defaultCombination->upc;
+                    $combination->quantity = $defaultCombination->quantity;
+                    $combination->reference = $defaultCombination->reference;
+                    $combination->supplier_reference = $defaultCombination->supplier_reference;
+
+                    $combination->wholesale_price = $defaultCombination->wholesale_price;
+                    $combination->price = $defaultCombination->price;
+                    $combination->ecotax = $defaultCombination->ecotax;
+                    $combination->weight = $defaultCombination->weight;
+                    $combination->unit_price_impact = $defaultCombination->unit_price_impact;
+                    $combination->minimal_quantity = $defaultCombination->minimal_quantity;
+                    $combination->default_on = $defaultCombination->default_on;
+                    $combination->available_date = $defaultCombination->available_date;
+                    $combination->save();
+                }
+            }
+        }else{
+            $isAssociatedToShop = true;
+        }
+
+        $db = JFactory::getDBO();
+
+        /*** updating data for the object **/
+        $this->clearCache('product', $this->product_id);
+
+        $this->date_upd = date('Y-m-d H:i:s');
+
+        if($this->date_add == null){ $this->date_add = date('Y-m-d H:is'); }
+
+        $shopListIds = JeproshopShopModelShop::getContextListShopIds();
+        if(count($shopListIds) > 0){ $shopListIds = $this->shop_list_id; }
+
+        if(!$this->default_shop_id){
+            $this->default_shop_id = (in_array(JeproshopSettingModelSetting::getValue('default_shop'), $shopListIds) == true) ?
+                JeproshopSettingModelSetting::getValue('default_shop') : min($shopListIds);
+        }
+
+        /** update database */
+        $query = "UPDATE " . $db->quoteName('#__jeproshop_product') . " SET " . $db->quoteName('ean13') . " = " . $db->quote($this->ean13);
+        $query .= ", " . $db->quoteName('upc') . " = " . $db->quote($this->upc) . ", " . $db->quoteName('isbn') . " = " . $db->quote($this->isbn);
+        $query .= ", " . $db->quoteName('published') . " = " . ($this->published ? 1 : 0) . ", " . $db->quoteName('redirect_type')  . " = ";
+        $query .= $db->quote($this->redirect_type) . ", " . $db->quoteName('product_redirected_id') . " = " . (int)$this->product_redirected_id;
+        $query .= ", " . $db->quoteName('visibility') . " = " . $db->quote($this->visibility) . ", " . $db->quoteName('available_for_order');
+        $query .= " = " . ($this->available_for_order ? 1 : 0) . ", " . $db->quoteName('show_price') . " = " . ($this->show_price ? 1 : 0) . ", ";
+        $query .= $db->quoteName('online_only') . " = " . ($this->online_only ? 1 : 0) . ", " . $db->quoteName('condition') . " = " ;
+        $query .= $db->quote($this->condition) . ", " . $db->quoteName('default_shop_id') . " = " . (int)$this->default_shop_id . ", ";
+        $query .= $db->quoteName('supplier_id') . " = " . (int)$this->supplier_id . ", " . $db->quoteName('manufacturer_id') . " = ";
+        $query .= (int)$this->manufacturer_id . ", " . $db->quoteName('developer_id') . " = " . (int)$this->developer_id . ", ";
+        $query .= $db->quoteName('default_category_id') . " = " . (int)$this->default_category_id . ", " . $db->quoteName('on_sale') . " = ";
+        $query .= ($this->on_sale ? 1 : 0) .", " . $db->quoteName('tax_rules_group_id') . " = " . (int)$this->tax_rules_group_id . ", ";
+        $query .= $db->quoteName('isbn') . " = " . $db->quote($this->isbn) . ", " . $db->quoteName('ecotax') . " = " . (float)$this->ecotax . ", ";
+        $query .= $db->quoteName('quantity') . " = " . (int)$this->quantity . ", " . $db->quoteName('minimal_quantity') . " = " ;
+        $query .= (int)$this->minimal_quantity . ", " . $db->quoteName('price') . " = " . (float)$this->price . ", " . $db->quoteName('unit_price_ratio');
+        $query .= " = " . (float)$this->unit_price_ratio . ", " . $db->quoteName('additional_shipping_cost') . " = " . (float)$this->additional_shipping_cost;
+        $query .= ", " . $db->quoteName('reference') . " = " . $db->quote($this->reference) . ", " . $db->quoteName('supplier_reference') . " = ";
+        $query .= $db->quote($this->supplier_reference) . ", " . $db->quoteName('location') . " = " . $db->quote($this->location) . ", ";
+        $query .= $db->quoteName('width') . " = " . (float)$this->width . ", " . $db->quoteName('height') . " = " . (float)$this->height . ", ";
+        $query .= $db->quoteName('depth') . " = " . (float)$this->depth . ", " . $db->quoteName('weight') . " = " . (float)$this->weight . ", ";
+        $query .= $db->quoteName('out_of_stock') . " = " . ($this->out_of_stock ? 1 : 0) . ", " . $db->quoteName('quantity_discount') . " = ";
+        $query .= (int)$this->quantity_discount . ", " . $db->quoteName('customizable') . " = " . ($this->customizable ? 1 : 0) . ", ";
+        $query .= $db->quoteName('uploadable_files') . " = " . (int)$this->uploadable_files . ", " . $db->quoteName('text_fields') . " = " . (int)$this->text_fields . ", ";
+        $query .= $db->quoteName('available_date') . " = " . $db->quote($this->available_date) . ", " . $db->quoteName('cache_is_pack') . " = ";
+        $query .= ($this->cache_is_pack ? 1 : 0) . ", " . $db->quoteName('cache_has_attachments') . " = " . ($this->cache_has_attachments ? 1 : 0);
+        $query .= ", " . $db->quoteName('date_add') . " = " . $db->quote($this->date_add) . ", " . $db->quoteName('date_upd') . " = ";
+        $query .= $db->quote($this->date_upd) . ", " . $db->quoteName('advanced_stock_management') . " = " . ($this->advanced_stock_management ? 1 : 0);
+        $query .= " WHERE " . $db->quoteName('product_id') . " = " . (int)$this->product_id;
+
+        $db->setQuery($query);
+
+        if($db->query()){
+            /** Update shop fields */
+            if(JeproshopShopModelShop::isTableAssociated('product')){
+                $result = true;
+                foreach($shopListIds as $shopId){
+                    $query = "SELECT " . $db->quoteName('product_id') . " FROM " . $db->quoteName('#__jeproshop_product_shop') . " WHERE " ;
+                    $query .= $db->quoteName('product_id') . " = " . $this->product_id . " AND " . $db->quoteName('shop_id') . " = " . $shopId;
+                    $db->setQuery($query);
+                    $shopData = $db->loadObject();
+                    $shopExists = (isset($shopData) ? ($shopData->product_id > 0) : false);
+
+                    if($shopExists){
+                        $result &= $this->updateProductShopData($shopId);
+                    }else{
+                        $result &= $this->insertProductShopData($shopId);
+                    }
+
+                    $result &= $this->setProductLanguageInformation($shopId);
+                }
+            }
+
+        }
+
+        $this->setGroupReduction();
+        /** synchronizing stock reference **/
+        if(JeproshopSettingModelSetting::getValue('advanced_stock_management') && JeproshopStockAvailableModelStockAvailable::dependsOnStock($this->product_id, $context->shop->shop_id)){
+            $query = "UPDATE " . $db->quoteName('#__jeproshop_stock') . " SET " . $db->quoteName('reference') . " = " . $db->quote($this->reference);
+            $query .= ", " . $db->quoteName('ean13') . " = " . $db->quote($this->ean13) . ", " . $db->quoteName('isbn') . " = " . $db->quote($this->isbn);
+            $query .= ", " . $db->quoteName('upc') . " = " . $db->quote($this->upc) . " WHERE "  . $db->quoteName('product_id') . " = " . $this->product_id;
+            $query .= " AND " . $db->quoteName('product_attribute_id') . " = 0";
+
+            $db->setQuery($query);
+            $db->query();
+        }
+
+        if($this->getType() == JeproshopProductModelProduct::VIRTUAL_PRODUCT && $this->published && !JeproshopSettingModelSetting::getValue('virtual_product_feature_active')){
+            JeproshopSettingModelSetting::updateValue('virtual_product_feature_active', 1);
+        }
+
+        if(JeproshopShopModelShop::getShopContext() == JeproshopShopModelShop::CONTEXT_SHOP && !$existingProduct->isAssociatedToShop($context->shop->shop_id)){
+            $outOfStock = JeproshopStockAvailableModelStockAvailable::outOfStock($existingProduct->product_id, $existingProduct->default_shop_id);
+            $dependsOnStock = JeproshopStockAvailableModelStockAvailable::dependsOnStock($existingProduct->product_id, $existingProduct->default_shop_id);
+            JeproshopStockAvailableModelStockAvailable::setProductOutOfStock((int)$this->product_id, $outOfStock, $context->shop->shop_id);
+            JeproshopStockAvailableModelStockAvailable::setProductDependsOnStock((int)$this->product_id, $dependsOnStock, $context->shop->shop_id);
+        }
+
+        if (in_array($context->shop->getShopContext(), array(JeproshopShopModelShop::CONTEXT_SHOP, JeproshopShopModelShop::CONTEXT_ALL))) {
+            if(isset($data['shipping'])) {
+                $this->setCarriers($data['shipping']);
+            }
+            if(isset($data['association'])) {
+                $this->updateAccessories($data['association']);
+            }
+            if (isset($data['supplier'])) {
+                $this->updateSuppliers($data['supplier']);
+            }
+            if (isset($data['feature'])) {
+                //todo analyze $this->updateFeatures($data['feature']);
+            }
+            if (isset($data['declination'])) {
+                $this->updateProductAttribute($data['declination']);
+            }
+            if (isset($data['price_field'])) {
+                $this->updatePriceAddition($data['price_field']);
+                $this->updateSpecificPricePriorities($data['price_field']);
+            }
+            if (isset($data['customization'])) {
+                $this->updateCustomizationConfiguration($data['customization']);
+            }
+            if (isset($data['attachment'])) {
+                $this->updateAttachments($data['attachment']);
+            }
+            if (isset($data['images'])) {
+                $this->updateImageLegends($data['images']);
+            }
+
+            $this->updatePackItems();
+            // Disable advanced stock management if the product become a pack
+            if ($productTypeBeforeUpdate == JeproshopProductModelProduct::SIMPLE_PRODUCT && $this->getType() == JeproshopProductModelProduct::PACKAGE_PRODUCT) {
+                JeproshopStockAvailableModelStockAvailable::setProductDependsOnStock((int)$this->product_id, false);
+            }
+            $this->updateDownloadProduct(1);
+            $this->updateTags();
+
+            $categoryBox = (isset($data['association']['category_box']) ? $data['association']['category_box'] : null);
+
+            if (isset($categoryBox) && !$this->updateCategories($categoryBox)) {
+                JeproshopTools::raiseError(500, 'An error occurred while linking the  <b> product object</b>');
+                JeproshopTools::raiseError(500, 'To categories');
+            }
+        }
+
+        if (isset($data['warehouses'])) {
+            $this->updateWarehouses($data['warehouses']);
+        }
+        return true;
+    }
+
+    private function updateProductShopData($shopId){
+        $db = JFactory::getDBO();
+
+        $query = "UPDATE " . $db->quoteName('#__jeproshop_product_shop') . " SET " . $db->quoteName('on_sale') . "= ";
+        $query .= ($this->on_sale ? 1 : 0) . ", " . $db->quoteName('online_only') . " = " . ($this->online_only ? 1 : 0);
+        $query .= ", " . $db->quoteName('tax_rules_group_id') . " = " . (int)$this->tax_rules_group_id .  $db->quoteName('ecotax');
+        $query .= " = " . (float)$this->ecotax . ", " . $db->quoteName('default_category_id') . " = " . (int)$this->default_category_id;
+        $query .= ", " . $db->quoteName('minimal_quantity') . " = " . (int)$this->minimal_quantity . ", " . $db->quoteName('price');
+        $query .= " = " . $this->price . ", ". $db->quoteName('wholesale_price') . " = " . (float)$this->wholesale_price . ", " ;
+        $query .= $db->quoteName('unity') . " = " . $db->quote($this->unity) . ", " . $db->quoteName('unit_price_ratio') . " = ";
+        $query .= (float)$this->unit_price_ratio . ", " . $db->quoteName('additional_price_ratio') . " = " . (float)$this->additional_shipping_cost;
+        $query .= ", " . $db->quoteName('customizable') . " = " . ($this->customizable ? 1 : 0) . ", " . $db->quoteName('uploadable_files') ;
+        $query .= " = " . (int)$this->uploadable_files . ", " . $db->quoteName('text_files') . " = " . (int)$this->text_fields . ", ";
+        $query .= $db->quoteName('published') . " = " . ($this->published ? 1 : 0) . " = " . $db->quoteName('redirected_type');
+        $query .= " = " . $db->quote($this->redirect_type) . ", " . $db->quoteName('product_redirected_id') . " = " . (int)$this->product_redirected_id;
+        $query .= ", " . $db->quoteName('available_for_order') . " = " . ($this->available_for_order ? 1 : 0) . ", " . $db->quoteName('available_date');
+        $query .= ", " . $db->quoteName('condition') . " = " . $db->quote($this->condition) . ", " . $db->quoteName('show_price') . " = ";
+        $query .= ($this->show_price ? 1 : 0) . ", " . $db->quoteName('indexed') . " = " . ($this->indexed ? 1 : 0) . ", " . $db->quoteName('visibility');
+        $query .= " = " . $db->quote($this->visibility) . ", " . $db->quoteName('cache_default_attribute') . " = " . ($this->cache_default_attribute ? 1: 0);
+        $query .= ", " . $db->quoteName('advanced_stock_management') . " = " . ($this->advanced_stock_management ? 1 : 0) . ", " . $db->quoteName('date_add');
+        $query .= " = " . $db->quote($this->date_add) . ", " . $db->quoteName('date_upd') . " = " . $db->quote($this->date_upd) ;
+        $query .=" WHERE " . $db->quoteName('product_id') . " = " . (int)$this->product_id . " AND " . $db->quoteName('shop_id') . " = " . $shopId;
+
+        $db->setQuery($query);
+        return $db->query();
+    }
+
+    public function insertProductShopData($shopId){
+        $db = JFactory::getDBO();
+
+        $query = "INSERT INTO " . $db->quoteName('#__jeproshop_product_shop') . "(" . $db->quoteName('product_id') . ", ";
+        $query .= $db->quoteName('shop_id') . ", " . $db->quoteName('default_category_id')  . ", " . $db->quoteName('tax_rules_group_id');
+        $query .= ", " . $db->quoteName('on_sale') . ", " . $db->quoteName('online_only') . ", " . $db->quoteName('ecotax') . ", ";
+        $query .= $db->quoteName('minimal_quantity') . ", " . $db->quoteName('price') . ", " . $db->quoteName('wholesale_price') . ", ";
+        $query .= $db->quoteName('unity') . ", " . $db->quoteName('unit_price_ratio') . ", " . $db->quoteName('additional_shipping_cost');
+        $query .= ", " . $db->quoteName('customizable')  . ", " . $db->quoteName('text_fields') . ", " . $db->quoteName('uploadable_files');
+        $query .= ", " . $db->quoteName('published') . ", " . $db->quoteName('redirect_type') . ", " . $db->quoteName('product_redirected_id');
+        $query .= ", " . $db->quoteName('available_for_order') . ", " . $db->quoteName('available_date') . ", " . $db->quoteName('condition');
+        $query .= ", " . $db->quoteName('indexed') . ", " . $db->quoteName('visibility') . ", " . $db->quoteName('cache_default_attribute');
+        $query .= ", " . $db->quoteName('advanced_stock_management') . ", " . $db->quoteName('date_add') . ", " . $db->quoteName('date_upd');
+        $query .= ") VALUES (" . (int)$this->product_id . ", " . (int)$shopId . ", " . (int)$this->default_category_id . ", ";
+        $query .= (int)$this->tax_rules_group_id . ", " . ($this->on_sale ? 1 : 0) . ", " . ($this->online_only ? 1 : 0) . ", ";
+        $query .= (float)$this->ecotax . ", " . (int)$this->minimal_quantity . ", " . (float)$this->price . ", " . (float)$this->wholesale_price;
+        $query .= ", " . $db->quote($this->unity) . ", " . (float)$this->unit_price_ratio . ", " . (float)$this->additional_shipping_cost;
+        $query .= ", " . ($this->customizable ? 1 : 0) . ", " . (int)$this->text_fields . ", " . (int)$this->uploadable_files . ", " ;
+        $query .= ($this->published ? 1 : 0) . ", " . $db->quote($this->redirect_type) . ", " . (int)$this->product_redirected_id . ", ";
+        $query .= ($this->available_for_order ? 1 : 0) . ", " . $db->quote($this->available_date) . ", " . $db->quote($this->condition) . ", ";
+        $query .= (int)$this->indexed . ", " . $db->quote($this->visibility) . ", " . ($this->cache_default_attribute ? 1 : 0) . ", " ;
+        $query .= ($this->advanced_stock_management ? 1 : 0) . ", " . $db->quote($this->date_add) . ", " . $db->quote($this->date_upd) . ") ";
+
+        $db->setQuery($query);
+        return $db->query();
+    }
+
+    private function setProductLanguageInformation($shopId){
+        $db = JFactory::getDBO();
+        $data = JRequest::get('post');
+        $informationData = $data['information'];
+        $result = true;
+        foreach(JeproshopLanguageModelLanguage::getLanguages(true) as $language){
+            $whereClause = $db->quoteName('product_id') . " = " . $this->product_id . " AND " . $db->quoteName('lang_id') . " = ";
+            $whereClause .= (int)$language->lang_id . " AND " . $db->quoteName('shop_id') . " = " . $shopId;
+
+            $query = "SELECT COUNT(*) AS langs FROM " . $db->quoteName('#__jeproshop_product_lang') . " WHERE " . $whereClause;
+
+            $db->setQuery($query);
+            $langData = $db->loadObject();
+
+            if(isset($langData) && $langData->langs > 0){
+                $query = "UPDATE " . $db->quoteName('#__jeproshop_product_lang') . " SET " . $db->quoteName('description') . " = ";
+                $query .= $db->quote($informationData['description_' . $language->lang_id]) . ", " . $db->quoteName('short_description');
+                $query .= " = " . $db->quote($informationData['short_description_' . $language->lang_id]) . ", " . $db->quoteName('name');
+                $query .= " = " . $db->quote($informationData['name_' . $language->lang_id]) . " WHERE " . $db->quoteName('product_id');
+                $query .= " = " . (int)$this->product_id . " AND " . $db->quoteName('shop_id') . " = " . (int)$shopId . " AND ";
+                $query .= $db->quoteName('lang_id') . " = " . (int)$language->lang_id;
+            }else{
+                $query = "INSERT INTO " . $db->quoteName('#__jeproshop_product_lang') . "(" . $db->quoteName('product_id') . ", ";
+                $query .= $db->quoteName('shop_id') . ", " . $db->quoteName('lang_id') . ", "  . $db->quoteName('description');
+                $query .= ", " . $db->quoteName('short_description') . ", " . $db->quoteName('link_rewrite') . ", " ;
+                $query .= $db->quoteName('meta_description') . ", " . $db->quoteName('meta_keywords') . ", "  . $db->quoteName('meta_title');
+                $query .= ", " . $db->quoteName('name') . ", " . $db->quoteName('available_now') . ", " . $db->quoteName('available_later');
+                $query .= ") VALUES (" . (int)$this->product_id . ", " . (int)$this->shop_id . ", " . (int)$this->lang_id . ", ";
+                $query .= $db->quote($informationData['description_' . $language->lang_id]) . ", " . $db->quote($informationData['short_description_' . $language->lang_id]);
+                $query .= ", " . (isset($metaData['link_rewrite_' . $language->lang_id]) ? $db->quote($metaData['link_rewrite_' . $language->lang_id]) : '') ;
+                $query .= ", " . (isset($metaData['meta_description_' . $language->lang_id]) ? $db->quote($metaData['meta_description_' . $language->lang_id]) : '');
+                $query .= ", " . (isset($metaData['meta_keywords_' . $language->lang_id]) ? $db->quote($metaData['meta_keywords_' . $language->lang_id]) : '');
+                $query .= ", " . (isset($metaData['meta_title_' . $language->lang_id]) ? $db->quote($metaData['meta_title_' . $language->lang_id]) : '');
+                $query .= ", " . (isset($informationData['name_' . $language->lang_id]) ? $db->quote($informationData['name_' . $language->lang_id]) : '');
+                $query .= ", " . $db->quote('') . ", " . $db->quote('') . ")";
+            }
+
+            $db->setQuery($query);
+            $result &= $db->query();
+        }
+        return $result;
+    }
+
+    /**
+     * Set Group reduction if needed
+     */
+    public function setGroupReduction(){
+        return JeproshopGroupReductionModelGroupReduction::setProductReduction($this->product_id, null, $this->default_category_id);
+    }
+
+    public function updateFeatures($featureData = null)    {
+        if (!JeproshopFeatureModelFeature::isFeaturePublished()) {
+            return;
+        }
+
+        if($this->product_id <=  0) { return; }
+
+        if(isset($featureData) || $featureData == null){
+            $request = JRequest::get('post');
+            $featureData = $request['feature'];
+        }
+
+
+        // delete all objects
+        $this->deleteFeatures();
+
+        // add new objects
+        $languages = JeproshopLanguageModelLanguage::getLanguages(false);
+        foreach ($featureData as $key => $val) {
+            if (preg_match('/^feature_([0-9]+)_value/i', $key, $match)) {
+                if ($val) {
+                    $this->addFeatures($match[1], $val);
+                } else {
+                    if ($defaultValue = $this->checkFeatures($languages, $match[1])) {
+                        $valueId = $this->addFeatures($match[1], 0, 1);
+                        foreach ($languages as $language) {
+                            if ($customData = $featureData['custom_' . $match[1] . '_' . (int)$language->lang_id]){
+                                $this->addCustomFeatures($valueId, (int)$language->lang_id, $customData);
+                            }else {
+                                $this->addCustomFeatures($valueId, (int)$language->lang_id, $defaultValue);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        /*} else {
+            $this->errors[] = Tools::displayError('A product must be created before adding features.');
+        }*/
+    }
+
+    /**
+     * Checking customs feature
+     * @param $languages
+     * @param $featureId
+     * @return int
+     */
+    protected function checkFeatures($languages, $featureId){
+        $rules = call_user_func(array('JeproshopFeatureValueModelFeatureValue', 'getValidationRules'), 'FeatureValue');
+        $feature = JeproshopFeatureModelFeature::getFeature((int)JeproshopSettingModelSetting::getValue('default_lang'), $featureId);
+
+        $request = JRequest::get('post');
+        $featureData = $request['feature'];
+        foreach ($languages as $language) {
+            if (isset($featureData['custom_'.$featureId.'_'.$language->lang_id])){
+                $val = $featureData['custom_'.$featureId.'_'.$language->lang_id];
+                $currentLanguage = new JeproshopLanguageModelLanguage($language->lang_id);
+                if (JeproshopTools::strlen($val) > $rules['sizeLang']['value']) {
+                    /*$this->errors[] = sprintf(
+                        Tools::displayError('The name for feature %1$s is too long in %2$s.'),
+                        ' <b>'.$feature['name'].'</b>',
+                        $currentLanguage->name
+                    ); */
+                } elseif (!call_user_func(array('Validate', $rules['validateLang']['value']), $val)) {
+                    /*$this->errors[] = sprintf(
+                        Tools::displayError('A valid name required for feature. %1$s in %2$s.'),
+                        ' <b>'.$feature['name'].'</b>',
+                        $currentLanguage->name
+                    );*/
+                }
+                if (count($this->errors)) {
+                    return 0;
+                }
+                // Getting default language
+                if ($language->lang_id == (int)JeproshopSettingModelSetting::getValue('default_lang')) {
+                    return $val;
+                }
+            }
+        }
+        return 0;
+    }
+
+
+    /**
+     * Add new feature to product
+     * @param $valueId
+     * @param $langId
+     * @param $custom
+     * @return
+     */
+    public function addCustomFeatures($valueId, $langId, $custom){
+        $db = JFactory::getDBO();
+
+        $query = "INSERT INTO " . $db->quoteName('#__jeproshop_feature_value_lang') . "(" . $db->quoteName('feature_value_id') . ", ";
+        $query .= $db->quoteName('lang_id') . ", " . $db->quoteName('custom') . ") VALUES  (" . (int)$valueId . ", " . (int)$langId;
+        $query .= ", " . ($custom ? 1 : 0) . ")";
+
+        $db->setQuery($query);
+        return $db->query();
+    }
+
+    public function addFeatures($featureId, $valueId, $custom = 0){
+        $db = JFactory::getDBO();
+        if ($custom){
+            $query = "INSERT INTO " . $db->quoteName('#__jeproshop_feature_value') . "(" . $db->quoteName('feature_value_id') . ", ";
+            $query .= $db->quoteName('custom') . ") VALUES (" . (int)$featureId . ", 1)";
+
+            $db->setQuery($query);
+            $db->query();
+            $valueId = $db->insertId();
+        }
+        $query = "INSERT INTO " . $db->quoteName('#__jeproshop_feature_product') . "(" . $db->quoteName('feature_id') . ", ";
+        $query .= $db->quoteName('feature_value_id') . ", " . $db->quoteName('product_id') . ") VALUES (" . (int)$featureId ;
+        $query .= ", " . (int) $valueId . ", " . (int)$this->product_id . ")";
+
+        $db->setQuery($query);
+        $db->query();
+        JeproshopSpecificPriceRuleModelSpecificPriceRule::applyAllRules(array((int)$this->product_id));
+        if ($valueId) {
+            return ($valueId);
+        }
+    }
+
+    /**
+     * Delete features
+     *
+     */
+    public function deleteFeatures(){
+        $db = JFactory::getDBO();
+        // List products features
+        $query = "SELECT product.*, feature.* FROM " . $db->quoteName('#__jeproshop_feature_product') . " AS product LEFT JOIN ";
+        $query .= $db->quoteName('#__jeproshop_feature_value') . " AS feature ON (feature." . $db->quoteName('feature_value_id');
+        $query .= " = product." . $db->quoteName('feature_value_id') . ") WHERE " . $db->quoteName('product_id') . " = " .(int)$this->product_id;
+
+        $db->setQuery($query);
+        $features = $db->loadObjectList();
+
+        foreach ($features as $feature) {
+            // Delete product custom features
+            if ($feature->custom){
+                $query = "DELETE FROM " . $db->quoteName('#__jeproshop_feature_value') . " WHERE " . $db->quoteName('feature_value_id') . " = " . (int)$feature->feature_value_id;
+
+                $db->setQuery($query);
+                $db->query();
+
+                $query = "DELETE FROM " . $db->quoteName('#__jeproshop_feature_value_lang') . " WHERE " . $db->quoteName('feature_value_id') . " = " . (int)$feature->feature_value_id;
+
+                $db->setQuery($query);
+                $db->query();
+            }
+        }
+        // Delete product features
+        $query = "DELETE FROM " . $db->quoteName('#__jeproshop_feature_product') . " WHERE " . $db->quoteName('product_id') . " = " .(int)$this->product_id;
+
+        $db->setQuery($query);
+        $result = $db->query();
+
+        JeproshopSpecificPriceRuleModelSpecificPriceRule::applyAllRules(array((int)$this->product_id));
+        return ($result);
+    }
+
+
+    /**
+     * Delete product accessories.
+     * Wrapper to static method deleteAccessories($product_id).
+     *
+     * @return mixed Deletion result
+     */
+    public function deleteAccessories(){
+        $db = JFactory::getDBO();
+
+        $query = "DELETE FROM " . $db->quoteName('#__jeproshop_accessory') . " WHERE " . $db->quoteName('product_1_id') . " = " . $this->product_id;
+
+        $db->setQuery($query);
+        return $db->query();
+    }
+
+
+    public function setCarriers($shippingData = null){
+        if($this->product_id == null || $this->product_id <= 0){ return; }
+
+        if(JeproshopTools::isLoadedObject($this, 'product_id')){
+            if(!isset($shippingData)){
+                $request = JRequest::get('post');
+                $shippingData = $request['shipping'];
+            }
+
+            if(isset($shippingData['selected_carrier'])){
+                /** cleaning previous data**/
+                $db = JFactory::getDBO();
+
+                $query = "DELETE FROM " . $db->quoteName('#__jeproshop_product_carrier') . " WHERE " . $db->quoteName('product_id');
+                $query .= " = " . $this->product_id . " AND " . $db->quoteName('shop_id') . " = " . (int)$this->shop_id;
+
+                $db->setQuery($query);
+                $db->query();
+
+                $uniqueArray = array();
+                foreach($shippingData['selected_carrier'] as $carrierId){
+                    if(!in_array($carrierId, $uniqueArray)){
+                        $uniqueArray[] =$carrierId;
+                        $query = "INSERT INTO  " . $db->quoteName('#__jeproshop_product_carrier') . "(" . $db->quoteName('product_id') . ", ";
+                        $query .= $db->quoteName('carrier_reference_id') . ", " . $db->quoteName('shop_id') . ") VALUES (" . (int)$this->product_id;
+                        $query .= ", " . (int)$this->shop_id . ", " . (int)$carrierId . ")";
+
+                        $db->setQuery($query);
+                        $db->query();
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Post treatment for suppliers
+     * @param $supplierData
+     */
+    public function updateSuppliers($supplierData){
+        if($this->product_id == null || $this->product_id <= 0){ return; }
+        
+        $request = JRequest::get('post');
+
+        if(isset($request['supplier_loaded']) && (int)$request['supplier_loaded'] === 1 ) {
+            // Get all product_attribute_id
+            $context = JeproshopContext::getContext();
+            $attributes = $this->getAttributesResume($context->language->lang_id);
+            if (empty($attributes)) {
+                $attributes[] = array(
+                    'product_attribute_id' => 0,
+                    'attribute_designation' => ''
+                );
+            }
+
+            // Get all available suppliers
+            $suppliers = JeproshopSupplierModelSupplier::getSuppliers();
+
+            // Get already associated suppliers
+            $associatedSuppliers = JeproshopProductSupplierModelProductSupplier::getSuppliers($this->product_id);
+
+            $suppliersToAssociate = array();
+            $newDefaultSupplierId = 0;
+
+            if ($supplierData['default_supplier']) {
+                $newDefaultSupplierId = (int)$supplierData['default_supplier'];
+            }
+
+            // Get new associations
+            foreach ($suppliers as $supplier) {
+                if (isset($supplierData['check_supplier_'.$supplier->supplier_id])) {
+                    $suppliersToAssociate[] = $supplier->supplier_id;
+                }
+            }
+
+            // Delete already associated suppliers if needed
+            foreach ($associatedSuppliers as $key => $associatedSupplier) {
+                /** @var JeproshopProductSupplierModelProductSupplier $associatedSupplier */
+                if (!in_array($associatedSupplier->supplier_id, $suppliersToAssociate)) {
+                    $associatedSupplier->delete();
+                    unset($associatedSuppliers[$key]);
+                }
+            }
+
+            // Associate suppliers
+            foreach ($suppliersToAssociate as $id) {
+                $toAdd = true;
+                foreach ($associatedSuppliers as $as) {
+                    /** @var JeproshopProductSupplierModelProductSupplier $as */
+                    if ($id == $as->supplier_id) {
+                        $toAdd = false;
+                    }
+                }
+
+                if ($toAdd) {
+                    $productSupplier = new JeproshopProductSupplierModelProductSupplier();
+                    $productSupplier->product_id = $this->product_id;
+                    $productSupplier->product_attribute_id = 0;
+                    $productSupplier->supplier_id = $id;
+                    if ($context->currency->currency_id) {
+                        $productSupplier->currency_id = (int)$context->currency->currency_id;
+                    } else {
+                        $productSupplier->currency_id = (int)JeproshopSettingModelSetting::getValue('default_currency');
+                    }
+                    $productSupplier->save(false);
+
+                    $associatedSuppliers[] = $productSupplier;
+                    foreach ($attributes as $attribute) {
+                        if ((int)$attribute->product_attribute_id > 0) {
+                            $productSupplier = new JeproshopProductSupplierModelProductSupplier();
+                            $productSupplier->product_id = $this->product_id;
+                            $productSupplier->product_attribute_id = (int)$attribute->product_attribute_id;
+                            $productSupplier->supplier_id = $id;
+                            $productSupplier->save(false);
+                        }
+                    }
+                }
+            }
+
+            // Manage references and prices
+            foreach ($attributes as $attribute) {
+                $db = JFactory::getDBO();
+                foreach ($associatedSuppliers as $supplier) {
+                    /** @var JeproshopProductSupplierModelProductSupplier $supplier */
+                    if (isset($supplierData['supplier_reference_' . $this->product_id . '_' . $attribute->product_attribute_id .'_'.$supplier->supplier_id]) ||
+                        (isset($supplierData['product_price_' . $this->product_id . '_' . $attribute->product_attribute_id . '_' . $supplier->supplier_id]) &&
+                            isset($supplierData['product_price_currency_' . $this->product_id . '_' .$attribute->product_attribute_id .'_'.$supplier->supplier_id]))) {
+                        $reference =
+                            isset($supplierData['supplier_reference_'.$this->product_id . '_' . $attribute->product_attribute_id . '_' . $supplier->supplier_id]) ?
+                            $supplierData['supplier_reference_'.$this->product_id . '_' . $attribute->product_attribute_id . '_' . $supplier->supplier_id] :
+                                '';
+                        $price = isset($supplierData['product_price_'.$this->product_id.'_'.$attribute->product_attribute_id.'_'.$supplier->supplier_id]) ?
+                            $supplierData['product_price_'.$this->product_id.'_'.$attribute->product_attribute_id.'_'.$supplier->supplier_id] : 0.00;
+
+                        $price = (float)str_replace(
+                            array(' ', ','),
+                            array('', '.'),
+                            $price
+                        );
+
+                        $price = JeproshopTools::roundPrice($price, 6);
+
+                        $currencyId = (int)
+                            isset($supplierData['product_price_currency_'.$this->product_id.'_'.$attribute->product_attribute_id.'_'.$supplier->supplier_id]) ?
+                            $supplierData['product_price_currency_'.$this->product_id.'_'.$attribute->product_attribute_id.'_'.$supplier->supplier_id] :
+                            0
+                        ;
+
+                        if ($currencyId <= 0 || (!($result = JeproshopCurrencyModelCurrency::getCurrencyInstance($currencyId)) || empty($result))) {
+                            JError::raiseError(500, 'The selected currency is not valid');
+                        }
+
+                        // Save product-supplier data
+                        $productSupplierId = (int)JeproshopProductSupplierModelProductSupplier::getProductSupplierIdByProductAndSupplier($this->product_id, $attribute->product_attribute_id, $supplier->supplier_id);
+
+                        if (!$productSupplierId) {
+                            $this->addSupplierReference($supplier->supplier_id, (int)$attribute->product_attribute_id, $reference, (float)$price, (int)$currencyId);
+                            if ($this->supplier_id == $supplier->supplier_id) {
+                                $this->supplier_reference = $reference;
+                                $this->wholesale_price = (float)JeproshopTools::convertPrice($price, $currencyId);
+
+                                $query = "UPDATE " . $db->quoteName('#__jeproshop_product_attribute') . " SET " . $db->quoteName('supplier_reference');
+                                $query .= " = " . $db->quote($reference) . ", " . $db->quoteName('wholesale_price') . " = ". $this->wholesale_price;
+                                $query .= " WHERE " . $db->quoteName('product_id') . " = " . (int)$this->product_id ;
+                                if ((int)$attribute->product_attribute_id > 0) {
+                                    $query .= " AND " . $db->quoteName('product_attribute_id') . " = " . (int)$attribute->product_attribute_id;
+                                }
+                                
+                                $db->setQuery($query);
+                                $db->query();
+                            }
+                        } else {
+                            $productSupplier = new JeproshopProductSupplierModelProductSupplier($productSupplierId);
+                            $productSupplier->currency_id = (int)$currencyId;
+                            $productSupplier->product_supplier_price_tax_excluded = (float)$price;
+                            $productSupplier->product_supplier_reference = $reference;
+                            $productSupplier->update(false);
+                        }
+                    } elseif (isset($supplierData['supplier_reference_'.$this->product_id.'_'.$attribute->product_attribute_id.'_'.$supplier->supplier_id])) {
+                        //int attribute with default values if possible
+                        if ((int)$attribute->product_attribute_id > 0) {
+                            $productSupplier = new JeproshopProductSupplierModelProductSupplier();
+                            $productSupplier->product_id = $this->product_id;
+                            $productSupplier->product_attribute_id = (int)$attribute->product_attribute_id;
+                            $productSupplier->supplier_id = $supplier->supplier_id;
+                            $productSupplier->save(false);
+                        }
+                    }
+                }
+            }
+            // Manage default supplier for product
+            if ($newDefaultSupplierId != $this->supplier_id) {
+                $this->supplier_id = $newDefaultSupplierId;
+                $query = "UPDATE " . $db->quoteName('#__jeproshop_product') . " SET " . $db->quoteName('supplier_id') . " = ";
+                $query .= (int)$this->supplier_id . " WHERE " . $db->quoteName('product_id') . " = " . (int)$this->supplier_id;
+
+                $db->setQuery($query);
+                $db->query();
+            }
+        }
+    }
+
+    /**
+     * Update product accessories
+     *
+     * @param $accessories
+     */
+    public function updateAccessories($accessories = null){
+        $this->deleteAccessories();
+
+        if(!isset($accessories)){
+            $request = JRequest::get('post');
+            if(isset($request['association'])){
+                $accessories = $request['association'];
+            }
+        }
+        if(isset($accessories)) {
+            $accessoriesIds = array_unique(explode('_', $accessories));
+            if (count($accessoriesIds)) {
+                array_pop($accessoriesIds);
+                JeproshopProductModelProduct::updateProductAccessories($accessoriesIds, $this->product_id);
+            }
+        }
+    }
+
+    public function copyFromPost($data = null){
+
+        if(!isset($data) || $data == null){ $data = JRequest::get('post'); }
+
+        $informationData = $data['information'];
+        if(!isset($informationData) || $informationData ==  null){ return; }
+        $this->reference = $informationData['reference'];
+        $this->ean13 = $informationData['ean13'];
+        $this->upc = $informationData['upc'];
+        $this->isbn = $informationData['isbn'];
+        $this->published = $informationData['published'];
+        $this->redirect_type = $informationData['redirect_type'];
+        $this->visibility = $informationData['visibility'];
+        $this->available_for_order = $informationData['available_for_order'];
+        $this->show_price = $informationData['show_price'];
+        $this->online_only = $informationData['online_only'];
+        $this->condition = $informationData['condition'];
+
+        if(isset($data['price_field'])) {
+            $priceData = $data['price_field'];
+            $this->wholesale_price = $priceData['wholesale_price'];
+            $this->price = $priceData['price'];
+            $this->tax_rules_group_id = $priceData['tax_rules_group_id'];
+            $this->ecotax = $priceData['ecotax'];
+            $this->unity = $priceData['unity'];
+            $this->on_sale = $priceData['on_sale'];
+        }
+
+        if(isset($data['association'])) {
+            $associationData = $data['association'];
+            $this->default_category_id = $associationData['default_category_id'];
+            $this->manufacturer_id = $associationData['manufacturer_id'];
+            /*$this-> = $associationData[''];
+            $this-> = $associationData[''];
+            $this-> = $associationData['']; */
+        }
+        
+        if(isset($data['declination'])){
+            $declinationData = $data['declination'];
+            /*$this-> = $declinationData[''];
+            $this-> = $declinationData[''];
+            $this-> = $declinationData[''];*/
+        }
+
+
+        //$metaData = $data['referencing'];
+    }
+
+    public function updateProductAttribute($attributeData = null){
+        if($attributeData == null){
+            $data = JRequest::get('post');
+            $attributeData = $data['declination'];
+        }
+
+        // Don't process if the combination fields have not been submitted
+        if (!JeproshopCombinationModelCombination::isFeaturePublished() || !isset($attributeData['attribute_combination_list'])) {
+            return;
+        }
+
+        if ((!isset($attributeData['attribute_price']) || $attributeData['attribute_price'] == null)) {
+            JError::raiseError(500, 'The price attribute is required.');
+        }
+        if(!isset($attributeData['attribute_combination_list']) || empty($attributeData['attribute_combination_list'])){
+            JError::raiseError(500, 'You must add at least one attribute.');
+        }
+
+        $attributeReference = (isset($attributeData['attribute_reference']) && JeproshopTools::isReference($attributeData['attribute_reference'])) ? $attributeData['attribute_reference'] : '';
+        $attributeSupplierReference = (isset($attributeData['']) && JeproshopTools::isReference($attributeData[''])) ? $attributeData[''] :'';
+        $attributeLocation = (isset($attributeData['']) && JeproshopTools::isReference($attributeData[''])) ? $attributeData[''] : '';
+        $attributeEan13 = (isset($attributeData['attribute_ean13']) && JeproshopTools::isEan13($attributeData['attribute_ean13'])) ? $attributeData['attribute_ean13'] : '';
+        $attributeIsbn = (isset($attributeData['attribute_isbn']) && JeproshopTools::isIsbn($attributeData['attribute_isbn'])) ? $attributeData['attribute_isbn'] : '';
+        $attributeUpc = (isset($attributeData['attribute_upc']) && JeproshopTools::isUpc($attributeData['attribute_upc'])) ? $attributeData['attribute_upc'] : '';
+        $attributeWholesalePrice = (isset($attributeData['attribute_wholesale_price']) && JeproshopTools::isPrice($attributeData['attribute_wholesale_price'])) ? $attributeData['attribute_wholesale_price'] : null;
+        $attributePrice = (isset($attributeData['attribute_price']) && JeproshopTools::isPrice($attributeData['attribute_price'])) ? $attributeData['attribute_price'] : 0.00;
+        $attributePriceWeight = (isset($attributeData['attribute_price_weight']) && JeproshopTools::isPrice($attributeData['attribute_price_weight'])) ? $attributeData['attribute_price_weight'] : 0.00;
+        $attributePriceImpact = (isset($attributeData['attribute_price_impact']) && JeproshopTools::isPrice($attributeData['attribute_price_impact'])) ? $attributeData['attribute_price_impact'] : 0.00;
+        $attributeEcotax = (isset($attributeData['attribute_ecotax_price']) && JeproshopTools::isPrice($attributeData['attribute_ecotax_price'])) ? $attributeData['attribute_ecotax_price'] : 0.00;
+        $attributeQuantity = (isset($attributeData['']) && JeproshopTools::isInt($attributeData[''])) ? $attributeData[''] : 1;
+        $attributeWeight = (isset($attributeData['']) && JeproshopTools::isUnsignedFloat($attributeData[''])) ? $attributeData[''] : 0.00;
+        $attributeUnitPriceImpact = (isset($attributeData['']) && JeproshopTools::isPrice($attributeData[''])) ? $attributeData[''] : 0.00;
+        $attributeDefaultOn = (isset($attributeData['']) && JeproshopTools::isBool($attributeData['default_attribute'])) ? 1 : 0;
+        $attributeMinimalQuantity = (isset($attributeData['attribute_minimal_quantity']) && JeproshopTools::isUnsignedInt($attributeData['attribute_minimal_quantity'])) ? $attributeData['attribute_minimal_quantity'] : 1;
+        $attributeAvailableDate = (isset($attributeData['attribute_available_date']) && JeproshopTools::isDateFormat($attributeData['attribute_available_date'])) ? $attributeData['attribute_available_date'] : date('Y-m-d m:i:s');
+
+
+        if($attributeDefaultOn){ $this->deleteDefaultAttributes(); }
+
+        // Change existing one
+        if (($productAttributeId = (int)$attributeData['product_attribute_id']) || ($productAttributeId = $this->productAttributeExists(Tools::getValue('attribute_combination_list'), false, null, true, true))) {
+            if ($this->access('edit')) {
+                if ($this->isProductFieldUpdated('available_date_attribute') && (Tools::getValue('available_date_attribute') != '' && !Validate::isDateFormat(Tools::getValue('available_date_attribute')))) {
+                    JError::raiseError(500, 'Invalid date format.');
+                } else {
+                    $this->updateAttribute((int)$productAttributeId, $attributeWholesalePrice,
+                        $attributePrice * $attributePriceImpact,
+                        $attributeWeight * $attributeWeightImpact,
+                        $attributePrice * $attributePriceImpact,
+                        $attributeEcotax,
+                        Tools::getValue('id_image_attr'),
+                        $attributeReference,
+                        $attributeEan13,
+                        $attributeDefaultOn,
+                        $attributeLocation,
+                        $attributeUpc,
+                        $attributeMinimalQuantity,
+                        $attributeAvailableDate,
+                        false,
+                        array(),
+                        $attributeIsbn);
+                    JeproshopStockAvailableModelStockAvailable::setProductDependsOnStock((int)$this->product_id, $this->depends_on_stock, null, (int)$productAttributeId);
+                    JeproshopStockAvailableModelStockAvailable::setProductOutOfStock((int)$this->product_id, $this->out_of_stock, null, (int)$productAttributeId);
+                }
+            } else {
+                JError::raiseError(500, 'You do not have permission to add this.');
+            }
+        } // Add new
+        else {
+            if ($this->access('add')) {
+                if ($this->productAttributeExists(Tools::getValue('attribute_combination_list'))) {
+                    JError::raiseError(500, 'This combination already exists.');
+                } else {
+                    $productAttributeId = $this->addCombinationEntity(
+                        $attributeWholesalePrice,
+                        $attributePrice * $attributePriceImpact,
+                        $attributeWeight * $attributeWeightImpact,
+                        $attributeUnity * $attributeUnitImpact,
+                        $attributeEcotax,
+                        0,
+                        Tools::getValue('id_image_attr'),
+                        $attributeReference,
+                        null,
+                        $attributeEan13,
+                        $attributeDefault,
+                        $attributeLocation,
+                        $attributeUpc,
+                        $attributeMinimalQuantity,
+                        array(),
+                        $attributeAvailableDate,
+                        $attributeIsbn
+                    );
+                    JeproshopStockAvailableModelStockAvailable::setProductDependsOnStock((int)$this->product_id, $this->depends_on_stock, null, (int)$productAttributeId);
+                    JeproshopStockAvailableModelStockAvailable::setProductOutOfStock((int)$this->product_id, $this->out_of_stock, null, (int)$productAttributeId);
+                }
+            } else {
+                JError::raiseError(500, 'You do not have permission to' . '<hr>' . 'edit here.');
+            }
+        }
+
+        if (!count($this->errors)) {
+            $combination = new JeproshopCombinationModelCombination((int)$productAttributeId);
+            $combination->setAttributes($attributeData['attribute_combination_list']);
+
+            // images could be deleted before
+            $imageIds = $attributeData['image_attribute_id'];
+            if (!empty($imageIds)) {
+                $combination->setImages($imageIds);
+            }
+
+            $this->checkDefaultAttributes();
+            if (isset($attributeDefault)) {
+                JeproshopProductModelProduct::updateDefaultAttribute((int)$this->product_id);
+                if (isset($productAttributeId)) {
+                    $this->cache_default_attribute = (int)$productAttributeId;
+                }
+
+                if (isset($attributeAvailableDate)) {
+                    $this->setAvailableDate($attributeAvailableDate);
+                } else {
+                    $this->setAvailableDate();
+                }
+            }
+        }        
+    }
+
+    public function updatePriceAddition($priceData = null)
+    {
+        // Check if a specific price has been submitted
+        if (!isset($priceData) || $priceData == null) {
+            $request = JRequest::get('post');
+            $priceData = $request['price_field'];
+        }
+
+        $productAttributeId = (isset($priceData['specific_price_product_attribute_id']) && JeproshopTools::isUnsignedInt($priceData['specific_price_product_attribute_id'])) ? $priceData['specific_price_product_attribute_id'] : 0;
+        $shopId = (isset($priceData['specific_price_shop_id']) && JeproshopTools::isUnsignedInt($priceData['specific_price_shop_id'])) ? $priceData['specific_price_shop_id'] : JeproshopSettingModelSetting::getValue('default_shop');
+        $currencyId = (isset($priceData['specific_price_currency_id']) && JeproshopTools::isUnsignedInt($priceData['specific_price_currency_id'])) ? $priceData['specific_price_currency_id'] : JeproshopSettingModelSetting::getValue('default_currency');
+        $countryId = (isset($priceData['specific_price_country_id']) && JeproshopTools::isUnsignedInt($priceData['specific_price_country_id'])) ? $priceData['specific_price_country_id'] : JeproshopSettingModelSetting::getValue('default_country');
+        $groupId = (isset($priceData['specific_price_group_id']) && JeproshopTools::isUnsignedInt($priceData['specific_price_group_id'])) ? $priceData['specific_price_group_id'] : JeproshopSettingModelSetting::getValue('customer_group');
+        $customerId = (isset($priceData['specific_price_customer_id']) && JeproshopTools::isUnsignedInt($priceData['specific_price_customer_id'])) ? $priceData['specific_price_customer_id'] : 0;
+        $price = (isset($priceData['leave_base_price']) && JeproshopTools::isBool($priceData['leave_base_price'])) ? '-1' : $priceData['specific_price_price'];
+        $fromQuantity = (isset($priceData['specific_price_from_quantity']) && JeproshopTools::isUnsignedInt($priceData['specific_price_from_quantity'])) ? $priceData['specific_price_from_quantity'] : 1;
+        $reduction = (isset($priceData['specific_price_reduction']) && JeproshopTools::isNumeric($priceData['specific_price_reduction'])) ? (float)$priceData['specific_price_reduction'] : 0.00;
+        $reductionTax = (isset($priceData['specific_price_reduction_tax']) && JeproshopTools::isNumeric($priceData['specific_price_reduction_tax'])) ? (float)$priceData['specific_price_reduction_tax'] : 0.00;
+        $reductionType = (isset($priceData['specific_price_reduction_type']) && in_array($priceData['specific_price_reduction_type'], array('amount', 'percentage', '--'))) ? $priceData['specific_price_reduction_type'] : '--';
+        $reductionType = !$reduction ? 'amount' : $reductionType;
+        $reductionType = $reductionType == '-' ? 'amount' : $reductionType;
+        $from = (isset($priceData['specific_price_from']) && JeproshopTools::isDate($priceData['specific_price_from'])) ? $priceData['specific_price_from'] : null;
+        if (!$from) {
+            $from = '0000-00-00 00:00:00';
+        }
+        $to = (isset($priceData['specific_price_to']) && JeproshopTools::isDate($priceData['specific_price_to'])) ? $priceData['specific_price_to'] : null;
+        if (!$to) {
+            $to = '0000-00-00 00:00:00';
+        }
+
+        if(!(($price == '-1') && ((float)$reduction == '0'))) {
+            if (($price == '-1') && ((float)$reduction == '0')) {
+                JError::raiseError(500, 'No reduction value has been submitted');
+            } elseif ($to != '0000-00-00 00:00:00' && strtotime($to) < strtotime($from)) {
+                JError::raiseError(500, 'Invalid date range');
+            } elseif ($reductionType == 'percentage' && ((float)$reduction <= 0 || (float)$reduction > 100)) {
+                JError::raiseError('Submitted reduction value (0-100) is out-of-range');
+            } elseif ($this->validateSpecificPrice($shopId, $currencyId, $countryId, $groupId, $customerId, $price, $fromQuantity, $reduction, $reductionType, $from, $to, $productAttributeId)) {
+                $specificPrice = new JeproshopSpecificPriceModelSpecificPrice();
+                $specificPrice->product_id = (int)$this->product_id;
+                $specificPrice->product_attribute_id = (int)$productAttributeId;
+                $specificPrice->shop_id = (int)$shopId;
+                $specificPrice->currency_id = (int)($currencyId);
+                $specificPrice->country_id = (int)($countryId);
+                $specificPrice->group_id = (int)($groupId);
+                $specificPrice->customer_id = (int)$customerId;
+                $specificPrice->price = (float)($price);
+                $specificPrice->from_quantity = (int)($fromQuantity);
+                $specificPrice->reduction = (float)($reductionType == 'percentage' ? $reduction / 100 : $reduction);
+                $specificPrice->reduction_tax = $reductionTax;
+                $specificPrice->reduction_type = $reductionType;
+                $specificPrice->from = $from;
+                $specificPrice->to = $to;
+                if (!$specificPrice->add()) {
+                    JError::raiseError('An error occurred while updating the specific price.');
+                }
+            }
+        }
+    }
+
+    protected  function validateSpecificPrice($shopId, $currencyId, $countryId, $groupId, $customerId, $price, $fromQuantity, $reduction, $reductionType, $from, $to, $productAttributeId){
+        if(!JeproshopTools::isUnsignedInt($shopId) || !JeproshopTools::isUnsignedInt($currencyId) || !JeproshopTools::isUnsignedInt($countryId) || !JeproshopTools::isUnsignedInt($groupId) || !JeproshopTools::isUnsignedInt($customerId)){
+            return false;
+        }else if(!isset($price) && !isset($reduction) || (isset($price) && !JeproshopTools::isNegativePrice($price)) || (isset($reduction) && !JeproshopTools::isPrice($reduction))){
+            return false;
+        }else if (!JeproshopTools::isUnsignedInt($fromQuantity)){
+            return false;
+        }else if ($reduction && !JeproshopTools::isReductionType($reductionType)){
+            return false;
+        }else if ($from && $to && (!JeproshopTools::isDateFormat($from) || !JeproshopTools::isDateFormat($to))){
+            return false;
+        }elseif (JeproshopSpecificPriceModelSpecificPrice::exists((int)$this->product_id, $productAttributeId, $shopId, $groupId, $countryId, $currencyId, $customerId, $fromQuantity, $from, $to, false)){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    /**
+     * This method allows to flush price cache
+     * @static
+     */
+    public static function flushPriceCache(){
+        self::$_prices = array();
+        self::$_pricesLevel2 = array();
+    }
+
+    public function updateSpecificPricePriorities($priorityData = null) {
+        if($priorityData == null){
+            $request = JRequest::get('post');
+            $priorityData = $request['price_field'];
+        }
+        $priorityArray = array('shop_id', 'country_id', 'currency_id', 'group_id');
+        $productAttributeId = (isset($priceData['specific_price_product_attribute_id']) && JeproshopTools::isUnsignedInt($priceData['specific_price_product_attribute_id'])) ? $priceData['specific_price_product_attribute_id'] : 0;
+        $priority1 = (isset($priorityData['specific_price_priority_1']) && in_array($priorityData['specific_price_priority_1'], $priorityArray)) ? $priorityData['specific_price_priority_1'] : null;
+        $priority2 = (isset($priorityData['specific_price_priority_2']) && in_array($priorityData['specific_price_priority_2'], $priorityArray)) ? $priorityData['specific_price_priority_2'] : null;
+        $priority3 = (isset($priorityData['specific_price_priority_3']) && in_array($priorityData['specific_price_priority_3'], $priorityArray)) ? $priorityData['specific_price_priority_3'] : null;
+        $priority4 = (isset($priorityData['specific_price_priority_4']) && in_array($priorityData['specific_price_priority_4'], $priorityArray)) ? $priorityData['specific_price_priority_4'] : null;
+        
+        $priorities = array($priority1, $priority2, $priority3, $priority4);
+        if ($priority1 == null || $priority2 == null || $priority3  == null || $priority4 == null) {
+            JError::raiseError(500, 'Please specify priorities.');
+        } elseif (!$productAttributeId) {
+            if (!JeproshopSpecificPriceModelSpecificPrice::setPriorities($priorities)) {
+                JError::displayError(500, 'An error occurred while updating priorities.');
+            } /* else {
+                $this->confirmations[] = $this->l('The price rule has successfully updated');
+            }*/
+        } elseif (!JeproshopSpecificPriceModelSpecificPrice::setSpecificPriority((int)$this->product_id, $priorities)) {
+            JError::raiseError('An error occurred while setting priorities.');
+        }
+    }
+
+    public function updateCustomizationConfiguration($customizationData = null){
+        if($customizationData == null){
+            $request = JRequest::get('post');
+            $customizationData = $request['customization'];
+        }
+        // Get the number of existing customization fields ($product->text_fields is the updated value, not the existing value)
+        $currentCustomization = $this->getCustomizationFieldIds();
+        $filesCount = 0;
+        $textCount = 0;
+        if (is_array($currentCustomization)) {
+            foreach ($currentCustomization as $field) {
+                if ($field->type == JeproshopProductModelProduct::CUSTOMIZE_TEXT_FIELD) {
+                    $textCount++;
+                } else {
+                    $filesCount++;
+                }
+            }
+        }
+
+        if (!$this->createLabels((int)$this->uploadable_files - $filesCount, (int)$this->text_fields - $textCount)) {
+            JError::raiseError(500, 'An error occurred while creating customization fields.');
+        }
+        if (!$this->updateLabels()) {
+            JError::raiseError(500, 'An error occurred while updating customization fields.');
+        }
+        $this->customizable = ($this->uploadable_files > 0 || $this->text_fields > 0) ? 1 : 0;
+        if (($this->uploadable_files != $filesCount || $this->text_fields != $textCount) &&  !$this->update()) {
+            JError::raiseError(500, 'An error occurred while updating the custom configuration.');
+        }
+    }
+
+
+    /**
+     * Attach an existing attachment to the product
+     *
+     * @param null $attachmentsData
+     */
+    public function updateAttachments($attachmentsData = null){
+        if($attachmentsData == null){
+            $request = JRequest::get('post');
+            $attachmentsData = $request['attachments'];
+        }
+        $attachments = (isset($attachmentsData) && is_array($attachmentsData)) ? trim($attachmentsData, ',') : array();
+        $attachments = explode(',', $attachments);
+        if (!JeproshopAttachmentModelAttachment::attachToProduct($this->product_id, $attachments)) {
+            JError::raiseError(500, 'An error occurred while saving product attachments.');
+        }
+    }
+
+    public function updateImageLegends($imageData = null){
+        //if (Tools::getValue('key_tab') == 'Images' && Tools::getValue('submitAddproductAndStay') == 'update_legends' && Validate::isLoadedObject($product = new Product((int)Tools::getValue('id_product')))) {
+            $imageId = (int)(isset($imageData['caption_id']) ? $imageData['caption_id'] : 0);
+            $languages = JeproshopLanguageModelLanguage::getLanguages(false);
+            $db = JFactory::getDBO();
+            foreach ($imageData as $key => $val) {
+                if (preg_match('/^legend_([0-9]+)/i', $key, $match)) {
+                    foreach ($languages as $lang) {
+                        if ($val && $lang->lang_id == $match[1]) {
+                            $query = "UPDATE " . $db->quoteName('#__jeproshop_image_lang') . " AS image_lang SET image_lang." . $db->quoteName('legend') . " = ";
+                            $query .= $db->quote($db->escape($val)) . " WHERE " . ($imageId ?
+                                    $db->quoteName('image_id') . " = " . (int)$imageId : " EXISTS (SELECT 1 FROM "
+                                    . $db->quoteName('#__jeproshop_image') . " AS image WHERE image." . $db->quoteName('image_id') . " = image_lang."
+                                    . $db->quoteName('image_id') . " AND image." . $db->quoteName('product_id') . " = " . (int)$this->product_id.')');
+                            $query .= " AND image_lang." . $db->quoteName('lang_id') . " = " .(int)$lang->lang_id;
+
+                            $db->setQuery($query);
+                            $db->query();
+                        }
+                    }
+                }
+            }
+        //}
+    }
+
+    /**
+     * delete all items in pack, then check if type_product value is 2.
+     * if yes, add the pack items from input "inputPackItems"
+     *
+     * @return bool
+     */
+    public function updatePackItems(){
+        JeproshopProductPack::deleteItems($this->product_id);
+        $request = JRequest::get('post');
+        $informationData = $request['information'];
+        $productType = (isset($informationData['product_type'])) ? $informationData['product_type'] : JeproshopProductModelProduct::SIMPLE_PRODUCT;
+        // lines format: QTY x ID-QTY x ID
+        if ($productType == JeproshopProductModelProduct::PACKAGE_PRODUCT) {
+            $this->setDefaultAttribute(0);//reset cache_default_attribute
+            $items = isset($informationData['input_pack_items']) ? $informationData['input_pack_items'] : $array;
+            $lines = array_unique(explode('-', $items));
+
+            // lines is an array of string with format : QTYxIDxID_PRODUCT_ATTRIBUTE
+            if (count($lines)) {
+                foreach ($lines as $line) {
+                    if (!empty($line)) {
+                        $itemAttributeId = 0;
+                        count($array = explode('x', $line)) == 3 ? list($quantity, $itemId, $itemAttributeId) = $array : list($quantity, $itemId) = $array;
+                        if ($quantity > 0 && isset($itemId)) {
+                            if (JeproshopProductPack::isPack((int)$itemId)) {
+                                JError::raiseError(500, 'You can\'t add product packs into a pack');
+                            } elseif (!JeproshopProductPack::addItem((int)$this->product_id, (int)$itemId, (int)$quantity, (int)$itemAttributeId)) {
+                                JError::raiseError(500, 'An error occurred while attempting to add products to the pack.');
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Update product download
+     *
+     * @param int     $edit
+     *
+     * @return bool
+     */
+    public function updateDownloadProduct($edit = 0){
+        //legacy/sf2 form workaround
+        //if is_virtual_file parameter was not send (SF2 form case), don't process virtual file
+        $data = JRequest::get('post');
+        $informationData = $data['information'];
+        $isVirtualFile = (isset($informationData['is_virtual_file']) ? $informationData['is_virtual_file'] : false);
+        if($isVirtualFile === false) {
+            return false;
+        }
+
+        if ((int)$isVirtualFile == 1) {
+            if (isset($_FILES['virtual_product_file_uploader']) && $_FILES['virtual_product_file_uploader']['size'] > 0) {
+                $virtualProductFilename = JeproshopProductDownloadModelProductDownload::getNewFilename();
+                $helper = new JeproshopUploaderHelper('virtual_product_file_uploader');
+                $helper->setPostMaxSize(JeproshopTools::getOctets(ini_get('upload_max_filesize')))
+                    ->setSavePath(COM_JEPROSHOP_DOWNLOAD_DIR_)->upload($_FILES['virtual_product_file_uploader'], $virtualProductFilename);
+            } else {
+                $virtualProductFilename = Tools::getValue('virtual_product_filename', JeproshopProductDownloadModelProductDownload::getNewFilename());
+            }
+
+            $this->setDefaultAttribute(0);//reset cache_default_attribute
+            if (Tools::getValue('virtual_product_expiration_date') && !JeproshopTools::isDate(Tools::getValue('virtual_product_expiration_date'))) {
+                if (!Tools::getValue('virtual_product_expiration_date')) {
+                    $this->errors[] = Tools::displayError('The expiration-date attribute is required.');
+                    return false;
+                }
+            }
+
+            // Trick's
+            if ($edit == 1) {
+                $productDownloadId = (int)JeproshopProductDownloadModelProductDownload::getProductDownloadIdFromProductId((int)$this->product_id);
+                if (!$productDownloadId) {
+                    $productDownloadId = (int)Tools::getValue('virtual_product_id');
+                }
+            } else {
+                $productDownloadId = Tools::getValue('virtual_product_id');
+            }
+
+            $isShareable = Tools::getValue('virtual_product_is_shareable');
+            $virtualProductName = Tools::getValue('virtual_product_name');
+            $virtualProductNumberOfDays = Tools::getValue('virtual_product_nb_days');
+            $virtualProductNumberOfDownloadable = Tools::getValue('virtual_product_nb_downloadable');
+            $virtualProductExpirationDate = Tools::getValue('virtual_product_expiration_date');
+
+            $download = new JeproshopProductDownloadModelProductDownload((int)$productDownloadId);
+            $download->product_id = (int)$this->product_id;
+            $download->display_filename = $virtualProductName;
+            $download->filename = $virtualProductFilename;
+            $download->date_add = date('Y-m-d H:i:s');
+            $download->expiration_date = $virtualProductExpirationDate ? $virtualProductExpirationDate.' 23:59:59' : '';
+            $download->nb_days_accessible = (int)$virtualProductNumberOfDays;
+            $download->nb_downloadable = (int)$virtualProductNumberOfDownloadable;
+            $download->published = 1;
+            $download->is_sharable = (int)$isShareable;
+            if ($download->save()) {
+                return true;
+            }
+        } else {
+            /* un-active download product if checkbox not checked */
+            if ($edit == 1) {
+                $productDownloadId = (int)JeproshopProductDownloadModelProductDownload::getProductDownloadIdFromProductId((int)$this->product_id);
+                if (!$productDownloadId) {
+                    $productDownloadId = (int)Tools::getValue('virtual_product_id');
+                }
+            } else {
+                $productDownloadId = JeproshopProductDownloadModelProductDownload::getProductDownloadIdFromProductId($this->product_id);
+            }
+
+            if (!empty($id_product_download)) {
+                $productDownload = new JeproshopProductDownloadModelProductDownload((int)$productDownloadId);
+                $productDownload->expiration_date = date('Y-m-d H:i:s', time() - 1);
+                $productDownload->published = 0;
+                return $productDownload->save();
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Update product tags
+     *
+     * @param array $languages Array languages
+     * @return bool Update result
+     */
+    public function updateTags($languages = null){
+        $tagSuccess = true;
+
+        $data = JRequest::get('post');
+        $informationData = $data['information'];
+
+        if($languages == null){ $languages = JeproshopLanguageModelLanguage::getLanguages(true); }
+        /* Reset all tags for THIS product */
+        if (!JeproshopTagModelTag::deleteTagsForProduct((int)$this->product_id)) {
+            JError::raiseError(500, 'An error occurred while attempting to delete previous tags.');
+        }
+        /* Assign tags to this product */
+        foreach ($languages as $language) {
+            $value = isset($informationData['tags_' . $language->lang_id]) ? $informationData['tags_' . $language->lang_id] : null;
+            if ($value) {
+                $tagSuccess &= JeproshopTagModelTag::addTags($language->lang_id, (int)$this->product_id, $value);
+            }
+        }
+
+        if (!$tagSuccess) {
+            JError::raiseError(500, 'An error occurred while adding tags.');
+        }
+        return $tagSuccess;
+    }
+
+    public function createLabels($uploadable_files, $text_fields){
+        $languages = JeproshopLanguageModelLanguage::getLanguages();
+        if ((int)$uploadable_files > 0){
+            for ($i = 0; $i < (int)$uploadable_files; $i++){
+                if (!$this->createLabel($languages, JeproshopProductModelProduct::CUSTOMIZE_FILE)){ return false; }
+            }
+        }
+
+        if ((int)$text_fields > 0){
+            for ($i = 0; $i < (int)$text_fields; $i++){
+                if (!$this->createLabel($languages, JeproshopProductModelProduct::CUSTOMIZE_TEXT_FIELD)){ 	return false; }
+            }
+        }
+        return true;
+    }
+
+    protected function createLabel(&$languages, $type){
+        $db = JFactory::getDBO();
+
+        $query = "INSERT INTO " . $db->quoteName('#__jeproshop_customization_field') . "( " . $db->quoteName('product_id') . ", " . $db->quoteName('type') . ", ";
+        $query .= $db->quoteName('required') . ") VALUES (" . (int)$this->product_id . ", " . (int)$type . ", 0)";
+
+        $db->setQuery($query);
+        $result = $db->query();
+        $customization_field_id = $db->insertid();
+        // Label insertion
+        if (!$result ||	!$customization_field_id){ return false; }
+
+        // Multilingual label name creation
+        $values = '';
+        foreach ($languages as $language) {
+            $values .= '(' . (int)$customization_field_id . ', ' . (int)$language->lang_id . ', \'\'), ';
+
+
+            $values = rtrim($values, ', ');
+            $query = "INSERT INTO " . $db->quoteName('#__jeproshop_customization_field_lang') . "(" . $db->quoteName('customization_field_id') . ", " . $db->quoteName('lang_id') . ", ";
+            $query .= $db->quoteName('name') . ") VALUES (" . (int)$customization_field_id . ", " . (int)$language->lang_id . ", " . $db->quote($values) . ")";
+
+            $db->setQuery($query);
+            if (!$db->query()) {
+                return false;
+            }
+        }
+
+        // Set cache of feature detachable to true
+        JeproshopSettingModelSetting::updateValue('customization_feature_active', '1');
+
+        return true;
+    }
+
+    public function updateLabels(){
+        $has_required_fields = 0;
+        $db = JFactory::getDBO();
+        foreach ($_POST as $field => $value) {
+            /* Label update */
+            if (strncmp($field, 'label_', 6) == 0) {
+                if (!$tmp = $this->checkLabelField($field, $value)) {
+                    return false;
+                }
+                /* Multilingual label name update */
+                if (JeproshopShopModelShop::isFeaturePublished()) {
+                    foreach (JeproshopShopModelShop::getContextListShopIds() as $shopId){
+                        $query = "INSERT INTO " . $db->quoteName('#__jeproshop_customization_field_lang') . "(" . $db->quoteName('customization_field_id');
+                        $query .= ", "  . $db->quoteName('lang_id') . ", " . $db->quoteName('shop_id') . ", " . $db->quoteName('name') . ") VALUES (";
+                        $query .= (int)$tmp[2] . ", " . (int)$tmp[3] . ", " .(int)$shopId . ", " . $db->quote($value)  . ") ON DUPLICATE KEY UPDATE ";
+                        $query .= $db->quoteName('name') . " = " . $db->quoteName($value) ;
+
+                        $db->setQuery($query);
+                        if (!$db->query()) {
+                            return false;
+                        }
+                    }
+                } else{
+                    $query = "INSERT INTO " . $db->quoteName('#__jeproshop_customization_field_lang') . "(" . $db->quoteName('customization_field_id') ;
+                    $query .= ", " . $db->quoteName('lang_id') . ", " . $db->quoteName('name') . ") VALUES (" . (int)$tmp[2] . ", " . (int)$tmp[3] . ", ";
+                    $query .= $db->quuoteName($value) . ") ON DUPLICATE KEY UPDATE " . $db->quoteName('name') ." = " . $db->quote($value);
+
+                    $db->setQuery($query);
+                    if (!$db->query()) {
+                        return false;
+                    }
+                }
+
+                $is_required = isset($_POST['require_'.(int)$tmp[1].'_'.(int)$tmp[2]]) ? 1 : 0;
+                $has_required_fields |= $is_required;
+                /* Require option update */
+                $query = "UPDATE " . $db->quoteName('#__jeproshop_customization_field') . " SET " . $db->quoteName('required');
+                $query .= " = " . ($is_required ? 1 : 0) . " WHERE " . $db->quteName('customization_field_id') . " = " .(int)$tmp[2];
+
+                $db->setQuery($query);
+                if (!$db->query()) {
+                    return false;
+                }
+            }
+        }
+
+        if ($has_required_fields && !ObjectModel::updateMultishopTable('product', array('customizable' => 2), 'a.id_product = '.(int)$this->id)) {
+            return false;
+        }
+
+        if (!$this->deleteOldLabels()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function deleteOldLabels(){
+        $max = array(
+            JeproshopProductModelProduct::CUSTOMIZE_FILE => (int)$this->uploadable_files,
+            JeproshopProductModelProduct::CUSTOMIZE_TEXT_FIELD => (int)$this->text_fields
+        );
+
+        $db = JFactory::getDBO();
+        $query = "SELECT " . $db->quoteName('customization_field_id') . ", " . $db->quoteName('type') . " FROM " . $db->quoteName('#__jeproshop_customization_field');
+        $query .= " WHERE " . $db->quoteName('product_id') . " = " . (int)$this->product_id . " ORDER BY " . $db->quoteName('customization_field_id') ;
+
+        $db->setQuery($query);
+        /* Get customization field ids */
+        if (($result = $db->loadObjectList()) === false) {
+            return false;
+        }
+
+        if (empty($result)) {
+            return true;
+        }
+
+        $customization_fields = array(
+            JeproshopProductModelProduct::CUSTOMIZE_FILE => array(),
+            JeproshopProductModelProduct::CUSTOMIZE_TEXT_FIELD => array()
+        );
+
+        foreach ($result as $row) {
+            $customization_fields[(int)$row->type][] = (int)$row->customization_field_id;
+        }
+
+        $extra_file = count($customization_fields[JeproshopProductModelProduct::CUSTOMIZE_FILE]) - $max[JeproshopProductModelProduct::CUSTOMIZE_FILE];
+        $extra_text = count($customization_fields[JeproshopProductModelProduct::CUSTOMIZE_TEXT_FIELD]) - $max[JeproshopProductModelProduct::CUSTOMIZE_TEXT_FIELD];
+
+        /* If too much inside the database, deletion */
+        $query = "DELETE customization_field.*, customization_field_lang.* FROM " . $db->quoteName('#__jeproshop_customization_field');
+        $query .= " AS customization_field JOIN " . $db->quoteName('#__jeproshop_customization_field_lang') . " AS customization_field_lang ";
+        $query .= " WHERE customization_field`." . $db->quoteName('product_id') . " = " . (int)$this->product_id . " AND customization_field.";
+        $query .= $db->quoteName('type') . " = " . JeproshopProductModelProduct::CUSTOMIZE_FILE . "	AND customization_field_lang." ;
+        $query .= $db->quoteName('customization_field_id') . " = customization_field." . $db->quoteName('customization_field_id') ;
+        $query .= " AND customization_field." . $db->quoteName('customization_field_id') . " >= " .(int)$customization_fields[JeproshopProductModelProduct::CUSTOMIZE_FILE][count($customization_fields[JeproshopProductModelProduct::CUSTOMIZE_FILE]) - $extra_file];
+
+        $db->setQuery($query);
+            
+        if ($extra_file > 0 && count($customization_fields[JeproshopProductModelProduct::CUSTOMIZE_FILE]) - $extra_file >= 0 &&
+            (!$db->query())) {
+            return false;
+        }
+        $query = "DELETE customization_field, customization_field_lang	FROM " . $db->quoteName('#__jeproshop_customization_field') ;
+        $query .= " AS customization_field JOIN " . $db->quoteName('#__jeproshop_customization_field_lang') . " AS customization_field_lang ";
+        $query .= " WHERE customization_field." . $db->quoteName('product_id') . " = " .(int)$this->product_id . " AND customization_field.";
+        $query .= $db->quoteName('type') . " = " . JeproshopProductModelProduct::CUSTOMIZE_TEXT_FIELD . " AND customization_field_lang.";
+        $query .= $db->quoteName('customization_field_id') . " = customization_field." . $db->quoteName('customization_field_id');
+        $query .= " AND customization_field." . $db->quoteName('customization_field_id') . " >= ";
+        $query .= (int)$customization_fields[JeproshopProductModelProduct::CUSTOMIZE_TEXT_FIELD][count($customization_fields[JeproshopProductModelProduct::CUSTOMIZE_TEXT_FIELD]) - $extra_text];
+
+        $db->setQuery($query);
+        if ($extra_text > 0 && count($customization_fields[JeproshopProductModelProduct::CUSTOMIZE_TEXT_FIELD]) - $extra_text >= 0 &&
+            (!$db->query())) {
+            return false;
+        }
+
+        // Refresh cache of feature detachable
+       JeproshopSettingModelSetting::updateValue('customization_feature_active',
+           JeproshopCustomizationModelCustomization::isCurrentlyUsed());
+
+        return true;
+    }
+
+
+    public function updateImage($imageData = null){
+        /*$id_image = (int)Tools::getValue('id_image');
+        $image = new Image((int)$id_image);
+        if (Validate::isLoadedObject($image)) {
+            /* Update product image/legend * /
+            // @todo : move in processEditProductImage
+            if (Tools::getIsset('editImage')) {
+                if ($image->cover) {
+                    $_POST['cover'] = 1;
+                }
+
+                $_POST['id_image'] = $image->id;
+            } elseif (Tools::getIsset('coverImage')) {
+                /* Choose product cover image * /
+                Image::deleteCover($image->id_product);
+                $image->cover = 1;
+                if (!$image->update()) {
+                    $this->errors[] = Tools::displayError('You cannot change the product\'s cover image.');
+                } else {
+                    $productId = (int)Tools::getValue('id_product');
+                    @unlink(_PS_TMP_IMG_DIR_.'product_'.$productId.'.jpg');
+                    @unlink(_PS_TMP_IMG_DIR_.'product_mini_'.$productId.'_'.$this->context->shop->id.'.jpg');
+                    $this->redirect_after = self::$currentIndex.'&id_product='.$image->id_product.'&id_category='.(Tools::getIsset('id_category') ? '&id_category='.(int)Tools::getValue('id_category') : '').'&action=Images&addproduct'.'&token='.$this->token;
+                }
+            } elseif (Tools::getIsset('imgPosition') && Tools::getIsset('imgDirection')) {
+                /* Choose product image position * /
+                $image->updatePosition(Tools::getValue('imgDirection'), Tools::getValue('imgPosition'));
+                $this->redirect_after = self::$currentIndex.'&id_product='.$image->id_product.'&id_category='.(Tools::getIsset('id_category') ? '&id_category='.(int)Tools::getValue('id_category') : '').'&add'.$this->table.'&action=Images&token='.$this->token;
+            }
+        } else {
+            $this->errors[] = Tools::displayError('The image could not be found. ');
+        } */
+    }
+
+    public function updatePrice(){
+        $app = JFactory::getApplication();
+        $useAjax = $app->input->get('use_ajax', 0);
+
+        if($useAjax){
+            $wholeSalePrice = $app->input->get('whole_sale_price');
+            $price = $app->input->get('price');
+            $unitPriceRatio = $app->input->get('unit_price_ratio');
+            $onSale = $app->input->get('on_sale');
+            $taxRulesGroupId = $app->input->get('tax_rule_group_id');
+            $ecoTax = $app->input->get('eco_tax');
+            $unity = $app->input->get('unity');
+        }else{
+            $wholeSalePrice = $this->wholesale_price;
+            $price = $this->price;
+            $unitPriceRatio = $this->unit_price_ratio;
+            $onSale = $this->on_sale;
+            $taxRulesGroupId = $this->tax_rules_group_id;
+            $ecoTax = $this->ecotax;
+            $unity = $this->unity;
+        }
+
+        $db = JFactory::getDBO();
+
+        $query = "UPDATE " . $db->quoteName('#__jeproshop_product') . " SET " . $db->quoteName('wholesale_price') . " = " . (float)$wholeSalePrice;
+        $query .= ", " . $db->quoteName('price') . " = " . (float)$price . ", " . $db->quoteName('unit_price_ratio') . " = " . (float)$unitPriceRatio;
+        $query .= ", " . $db->quoteName('ecotax') . " = " . (float)$ecoTax . ", " . $db->quoteName('tax_rules_group_id') . " = " . (int)$taxRulesGroupId;
+        $query .= ", " . $db->quoteName('on_sale') . " = " . (int)$onSale . ", " . $db->quoteName('unity') . " = " . $db->quote($unity) . " WHERE ";
+        $query .= $db->quoteName('product_id') . " = " . $this->product_id;
+
+        $db->setQuery($query);
+
+        if($db->query()) {
+            $query = "UPDATE " . $db->quoteName('#__jeproshop_product_shop') . " SET " . $db->quoteName('wholesale_price') . " = " . (float)$wholeSalePrice;
+            $query .= ", " . $db->quoteName('price') . " = " . (float)$price . ", " . $db->quoteName('unit_price_ratio') . " = " . (float)$unitPriceRatio;
+            $query .= ", " . $db->quoteName('ecotax') . " = " . (float)$ecoTax . ", " . $db->quoteName('tax_rules_group_id') . " = " . (int)$taxRulesGroupId;
+            $query .= ", " . $db->quoteName('on_sale') . " = " . $db->quoteName('unity') . " = " . $db->quote($unity) . " WHERE " . $db->quoteName('product_id');
+            $query .= " = " . $this->product_id . " AND " . $db->quoteName('shop_id') . " = " . JeproshopContext::getContext()->shop->shop_id;
+
+            $db->setQuery($query);
+            if($db->query()){ return true; }
+        }
+        return false;
+    }
+
+    public function addSpecificPrice(){
+        $app = JFactory::getApplication();
+        $useAjax = $app->input->get('use_ajax', 0);
+        $db = JFactory::getDBO();
+
+        if($useAjax){
+
+        }
+    }
+
+    /**
+     * Link accessories with product. No need to inflate a full Product (better performances).
+     *
+     * @param array $accessoriesIds Accessories ids
+     * @param int $productId The product ID to link accessories on.
+     */
+    public static function updateProductAccessories($accessoriesIds, $productId){
+
+    }
 }

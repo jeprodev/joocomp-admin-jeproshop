@@ -24,9 +24,24 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
-class JeproshopCustomization
+class JeproshopCustomizationModelCustomization extends JeproshopModel
 {
     public static function isFeaturePublished(){
         return JeproshopSettingModelSetting::getValue('customization_feature_active');
     }
+
+    /**
+     * This method is allow to know if a Customization entity is currently used
+     *
+     * @return bool
+     */
+    public static function isCurrentlyUsed(){
+        $db = JFactory::getDBO();
+        $query = "SELECT " . $db->quoteName('customization_field_id') . " FROM " . $db->quoteName('#__jeproshop_customization_field');
+
+        $db->setQuery($query);
+        $data = $db->loadObject();
+        return (isset($data) ? (bool)$data->customization_field_id : false);
+    }
+
 }

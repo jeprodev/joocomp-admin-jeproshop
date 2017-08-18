@@ -26,7 +26,8 @@
 .translatable .input-lang input[type="text"]{width:180px;}
 .translatable .btn-group-action{}
 .jeproshop_sub_menu_wrapper{ margin-bottom:20px;}
-.list-inline{ display:inline;}
+.list-inline{ display:inline; padding:0; list-style:none; margin-left:-5px; }
+.list-inline>li{ display:inline-block; padding-left:5px; padding-right:5px;}
 .info-left{width:49%; float:left;}
 .info-right{width:49%; float:right;}
 .icon-shopping-cart{}
@@ -42,10 +43,11 @@
 .icon-ok-circle{background-image: url("../images/icon16/icon-valid-green.png"); }
 .icon-exclamation-sign{}
 .icon-big{}
-.unit-box{ width:85px;}
+
+.unit-box{ width:55px;}
 /** price boxes **/
-.price-box{ width:65px; }
-.middle-size{ width:120px;}
+.price-box{ width:85px; }
+.middle-size{ width:140px; text-align: left; }
 
 .sub-control{ margin-top: 4px;}
 
@@ -69,8 +71,8 @@
     background: -moz-linear-gradient(top, rgb(202, 202, 202) 0%, rgb(255, 255, 255) 100%);
     background: linear-gradient(to bottom, rgb(202, 202, 202) 0%, rgb(255, 255, 255) 100%);
 }
-.paneltitle{
-    margin:0 0 10px 0; font-weight:bold; height:26px; padding-top:5px; padding-left: 10px;
+.panel-sub-title{
+    margin:0 0 10px 0; font-weight:bold; height:26px; padding-top:5px; padding-left: 10px; text-align: center;
 }
 .panel-title i{ margin-right: 5px; }
 .panel-title .e-mail{font-size:10px; font-weight: normal; }
@@ -99,6 +101,71 @@ ul.tree{ list-style: none;}
     border-top-right-radius: 5px;
 }
 
+/** tree **/
+.tree{list-style:none; padding:0 0 0 30px; margin:0;  }
+.tree-wrapper{ margin: 0;}
+.tree input{vertical-align:baseline;margin-right:4px;line-height:normal}
+.tree i{font-size:14px; float:left;  display: inline;  }
+.tree .tree-item-name, .tree .tree-folder-name{padding:2px 5px;-webkit-border-radius:4px;border-radius:4px}
+.tree .tree-item-name label, .tree .tree-folder-name label{font-weight:400}
+.tree .tree-item-name:hover, .tree .tree-folder-name:hover{background-color:#eee;cursor:pointer}
+.tree .tree-selected{color:#fff;background-color:#00aff0}
+.tree .tree-selected:hover{background-color:#009cd7}
+.tree .tree-selected i.tree-dot{background-color:#fff}
+.tree i.tree-dot{display:inline-block;position:relative;width:6px;height:6px;margin:0 4px;background-color:#ccc;-webkit-border-radius:6px;border-radius:6px;}
+.tree .tree-folder-name-disable{color:#ccc}
+.tree .tree-item-disable:hover,.bootstrap .tree .tree-folder-name-disable:hover{color:#ccc;background-color:transparent; }
+.tree-actions{display:inline-block}
+.tree-panel-heading-controls{margin:-20px -20px 20px;padding:5px;border-bottom:solid 1px #DFDFDF}
+.tree-actions .twitter-typeahead{padding:0 0 0 4px;position:relative;top:1px}
+.tree-actions .tt-hint{left:4px !important;color:#ccc}
+.tree-panel-label-title{font-weight:400;margin:0;padding:0 0 0 8px}
+
+
+/** datepicker **/
+.ui-datepicker{top:0;left:0;padding:4px;margin-top:1px;-webkit-border-radius:4px;border-radius:4px}
+.ui-datepicker:before{
+    content:"";display:inline-block !important;border-left:7px solid transparent;border-right:7px solid transparent;
+    border-bottom:7px solid #ccc;border-bottom-color:rgba(0,0,0,0.2);position:absolute;top:-7px;left:6px
+}
+.ui-datepicker:after{
+    content:"";display:inline-block !important;border-left:6px solid transparent;border-right:6px solid transparent;
+    border-bottom:6px solid #fff;position:absolute;top:-6px;left:7px
+}
+.ui-datepicker .ui-datepicker-header{background:transparent !important;color:gray;font-weight:normal}
+.ui-datepicker .ui-state-default{background:transparent !important}
+.ui-datepicker .ui-state-highlight{border:solid 1px #dac308 !important;background:#FEFBE2 !important}
+.ui-datepicker .ui-state-active{color:#fff !important;background:#00aff0 !important;border:solid 1px #008abd !important}
+.select2-container{margin:0;position:relative;display:inline-block;zoom:1;*display:inline;vertical-align:middle}
+.select2-container,.select2-drop,.select2-search,.select2-search input{
+    -webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box
+}
+.select2-container .select2-choice{
+    display:block;height:26px;padding:0 0 0 8px;overflow:hidden;position:relative;
+    border:1px solid #aaa;white-space:nowrap;line-height:26px;color:#444;text-decoration:none;
+    border-radius:4px;background-clip:padding-box;-webkit-touch-callout:none;-webkit-user-select:none;-moz-user-select:none;
+    -ms-user-select:none;user-select:none;background-color:#fff;background-image:linear-gradient(to top, #eeeeee 0%,#ffffff 50%)
+}
+.select2-container.select2-drop-above .select2-choice{border-bottom-color:#aaa;border-radius:0 0 4px 4px}
+.select2-container.select2-allowclear .select2-choice .select2-chosen{margin-right:42px}
+.select2-container .select2-choice>.select2-chosen{
+    margin-right:26px;display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;float:none;width:auto
+}
+.select2-container .select2-choice abbr{
+    display:none;width:12px;height:12px;position:absolute;right:24px;top:8px;font-size:1px;
+    text-decoration:none;border:0;background:url("../img/select2.png") right top no-repeat;cursor:pointer;outline:0
+}
+.select2-container.select2-allowclear .select2-choice abbr{display:inline-block}
+.select2-container .select2-choice abbr:hover{background-position:right -11px;cursor:pointer}
+.select2-drop-mask{
+    border:0;margin:0;padding:0;position:fixed;left:0;top:0;min-height:100%;min-width:100%;
+    height:auto;width:auto;opacity:0;z-index:9998;background-color:#fff;filter:alpha(opacity=0)
+}
+
+
+
 #jform-carrier-size-setting input[type="text"]{}
 
 #jform_edit_delivery_address, #jform_edit_invoice_address{ float:right;  margin-right:60px; }
+
+#jform_summary_part{ width:90%; }

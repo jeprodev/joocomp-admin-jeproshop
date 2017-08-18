@@ -77,18 +77,35 @@ class com_jeproshopInstallerScript{
         }
     }
 
-    public function createDefaultShopData() {
+    public function createDefaultShopData(){
         $db = JFactory::getDBO();
         $config = JFactory::getConfig();
         $defaultLangId = JFactory::getLanguage()->get('lang_id');
         $settingsXmlFile = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'settings.xml';
 
+        $query = "DELETE FROM " . $db->quoteName('#__jeproshop_setting_test') . " WHERE 0";
+        $db->setQuery($query);
+        $db->query();
+
         if(file_exists($settingsXmlFile)) {
             $settingsXml = simplexml_load_file($settingsXmlFile);
+            $query = "INSERT INTO " . $db->quoteName('#__jeproshop_setting_test') . "(" . $db->quoteName('setting_id') . ", " . $db->quoteName('name') . ", ";
+            $query .= $db->quoteName('value') . ", " . $db->quoteName('setting_group') . ", " . $db->quoteName('date_add');
+            $query .= ", " . $db->quoteName('date_upd');
+            $queryValues = "";
+            $index = 1;
             foreach($settingsXml as $item){
-                //print_r($item['name']);
-                echo $item['name'] . '<br />';
+                $queryValues .= " (" . $index . ", " . $db->quote($item['name']) . ", " . $db->quote($item['value']) . ", " . $db->quote($item['group']);
+                $queryValues .= ", " . $db->quote(date('Y-m-d H:i:s')) . ", " . $db->quote(date('Y-m-d H:i:s')) . "), ";
+                $index++;
             }
+            $query .= ") VALUES " . $queryValues ;
+            $db->setQuery(rtrim($query, ', '));
+            //$db->query();
+
+            $settingRedirection = 'index.php?option=com_jeproshop&view=setting';
+            JFactory::getApplication()->redirect($settingRedirection);
+
         }
     }
 }

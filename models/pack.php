@@ -77,6 +77,39 @@ class JeproshopProductPack extends JeproshopProductModelProduct{
         return self::$cacheIsPacked[$productId];
     }
 
+    public static function deleteItems($productId){
+        $db = JFactory::getDBO();
+        $query = "UPDATE " . $db->quoteName('#__jeproshop_product') . " SET " . $db->quoteName('cache_is_pack');
+        $query .= " = 0 WHERE product_id = " . (int)$productId;
+
+        $db->setQuery($query);
+        $result = $db->query();
+
+        $query = "DELETE FROM " . $db->quoteName('#__jeproshop_product_pack') . " WHERE " . $db->quoteName('product_pack_id');
+        $query .= " = " . (int)$productId;
+
+        $db->setQuery($query);
+        $result &= ($db->query() !== false);
+
+        return ($result && JeproshopSettingModelSetting::updateValue('pack_feature_active', JeproshopProductPack::isCurrentlyUsed()));
+    }
+
+    /**
+     * This method is allow to know if a Pack entity is currently used
+     *
+     * @return bool
+     */
+    public static function isCurrentlyUsed(){
+        $db = JFactory::getDBO();
+
+        $query = "SELECT " . $db->quoteName('product_pack_id') . " FROM " . $db->quoteName('#__jeproshop_product_pack');
+
+        $db->setQuery($query);
+        // We don't use the parent method because the identifier isn't
+        $data = (bool)$db->loadObject();
+        return isset($data) && $data->product_pack_id;
+    }
+
     /**
      * This method is allow to know if a feature is used or active
      *

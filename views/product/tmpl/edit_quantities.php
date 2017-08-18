@@ -29,8 +29,8 @@ defined('_JEXEC') or die('Restricted access');
 <div class="form-box-wrapper"  id="product-quantities" >
     <div class="panel" >
         <div class="panel-title" ><?php echo JText::_('COM_JEPROSHOP_AVAILABLE_QUANTITIES_FOR_SALE_TITLE'); ?></div>
-        <div class="panel-content well" >
-            <?php if(!$this->stock_management){ ?>
+        <div class="panel-content " >
+            <?php if($this->stock_management){ ?>
                 <div class="alert alert-info"><?php echo JText::_('COM_JEPROSHOP_STOCK_MANAGEMENT_IS_DISABLED_MESSAGE'); ?></div>
             <?php }else{ ?>
                 <div class="alert alert-info">
@@ -162,7 +162,7 @@ defined('_JEXEC') or die('Restricted access');
     </div>
     <div class="panel">
         <div class="panel-title" ><?php echo JText::_('COM_JEPROSHOP_AVAILABILITY_SETTINGS_TITLE_MESSAGE'); ?></div>
-        <div class="panel-content well" >
+        <div class="panel-content" >
             <?php if(!$this->has_attribute){ ?>
                 <div class="control-group">
                     <div class="control-label" >

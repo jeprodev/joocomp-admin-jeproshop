@@ -29,7 +29,7 @@ if(isset($this->product->product_id)){
     ?>
     <div id="product-customization" class="panel">
         <div class="panel-title" ><?php echo JText::_('COM_JEPROSHOP_ADD_OR_MODIFY_CUSTOMIZABLE_PROPERTIES_TITLE'); ?></div>
-        <div class="panel-content well" >
+        <div class="panel-content " >
             <?php if(isset($this->display_common_field) && $this->display_common_field){ ?>
                 <div class="alert alert-info"><?php echo JText::_('COM_JEPROSHOP_WARNING_IF_YOU_CHANGE_THE_VALUE_OF_FIELDS_WITH_AN_ORANGE_BULLET_MESSAGE') . $this->bullet_common_field . JText::_('COM_JEPROSHOP_THE_VALUE_WILL_BE_CHANGED_FOR_ALL_OTHER_SHOPS_FOR_THIS_PRODUCT_MESSAGE'); ?></div>
             <?php } ?>

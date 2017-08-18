@@ -27,7 +27,7 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <div class="form-box-wrapper panel"  id="product-images" >
     <div class="panel-title" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_EDIT_IMAGES_TITLE'); ?> <span class="badge" id="jform_count_image" ><?php echo count($this->images); ?></span></div>
-    <div class="panel-content well">
+    <div class="panel-content">
         <div class="control-group" >
             <div class="control-label">
                 <label for="jform_" title="<?php echo JText::_('COM_JEPROSHOP_FORMAT_LABEL') . ': JPG, GIF, PNG. ' . JText::_('COM_JEPROSHOP_FILE_SIZE_LABEL') . ': ' . $this->max_image_size . ' ' . JText::_('COM_JEPROSHOP_MB_MAX_LABEL');  ?>" >
@@ -39,7 +39,7 @@ defined('_JEXEC') or die('Restricted access');
         <div class="control-group" >
             <div class="control-label"><label title="<?php echo JText::_('COM_JEPROSHOP_INVALID_CHARACTERS_LABEL'); ?>"><?php echo JText::_('COM_JEPROSHOP_IMAGE_LEGEND_LABEL'); ?></label></div>
             <div class="controls">
-                <?php echo $this->helper->multiLanguageInputField('legend', true, $this->product->name); ?>
+                <?php echo $this->helper->multiLanguageInputField('legend', 'images', 'text', true, $this->product->name); ?>
             </div>
         </div>
         <div class="control-group" >

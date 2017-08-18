@@ -270,4 +270,46 @@ class JeproshopGroupReductionModelGroupReduction extends JeproshopModel {
         // Should return string (decimal in database) and not a float
         return self::$reduction_cache[$productId. '_'. $groupId];
     }
+
+    public static function setProductReduction($productId, $groupId = null, $categoryId, $reduction = null){
+        $res = true;
+        JeproshopGroupReductionModelGroupReduction::deleteProductReduction((int)$productId);
+        $reductions = JeproshopGroupReductionModelGroupReduction::getGroupsByCategoryId((int)$categoryId);
+        if ($reductions){
+            $db = JFactory::getDBO();
+            foreach ($reductions as $reduction){
+                $query = "INSERT INTO " . $db->quoteName('#__jeproshop_product_group_reduction_cache') . " (" . $db->quoteName('product_id');
+                $query .= ", " . $db->quoteName('group_id') . ", " . $db->quoteName('reduction') . ") VALUES (" . (int)$productId . ", ";
+                $query .= (int)$reduction->group_id . ", " . (float)$reduction->reduction . ")";
+
+                $db->setQuery($query);
+                $res &= $db->query();
+            }
+        }
+
+        return $res;
+    }
+
+    public static function deleteProductReduction($productId){
+        $db = JFactory::getDBO();
+
+        $query = "DELETE FROM ". $db->quoteName('#__jeproshop_product_group_reduction_cache');
+        $query .= " WHERE " . $db->quoteName('product_id') . " = " . (int)$productId;
+
+        $db->setQuery($query);
+        if($db->query() === false){ return false; }
+        return true;
+    }
+
+    public static function getGroupsByCategoryId($categoryId){
+        $db = JFactory::getDBO();
+
+        $query = "SELECT group_reduction." . $db->quoteName('group_id') . " AS group_id, group_reduction." . $db->quoteName('reduction');
+        $query .= " AS reduction, group_reduction_id FROM " . $db->quoteName('#__jeproshop_group_reduction') . " AS group_reduction WHERE ";
+        $query .= $db->quoteName('category_id') . " = ".(int)$categoryId;
+
+        $db->setQuery($query);
+        return $db->loadObjectList();
+    }
+
 }

@@ -49,9 +49,33 @@ class JeproshopCartController extends JeproshopController{
         }
     }
 
+
+    public function summary(){
+        $app = JFactory::getApplication();
+        $useAjax = $app->input->get('use_ajax');
+        $jsonData = array("success" =>false, "found" => false);
+
+        $retrievedData = $this->getAjaxData();
+
+        if(!empty($retrievedData)){ $jsonData = array_merge(array("success" =>false, "found" => false), $retrievedData); } 
+
+        if($useAjax){
+            $document = JFactory::getDocument();
+            $document->setMimeEncoding('application/json');
+            echo json_encode($jsonData);
+            $app->close();
+        }
+    }
+
     private function retrieveVouchers(){
         $app = JFactory::getApplication();
-        $jsonData = array("success" =>false, "found" => false);
+
+        $vouchers = JeproshopCartRuleModelCartRule::getCartRulesByCode($app->input->getString('q'), JeproshopContext::getContext()->language->lang_id, true);
+        if(count($vouchers)){
+            $jsonData = array("success" => true, 'found' => true, 'vouchers' => $vouchers);
+        }else{
+            $jsonData = array("success" => false, 'found' => false, 'messages' => JText::_('JGLOBAL_NO_MATCHING_RESULTS_MESSAGES'));
+        }
 
         return $jsonData;
     }
@@ -65,11 +89,12 @@ class JeproshopCartController extends JeproshopController{
         $cartArray = array();
         $orderArray = array();
         $jsonData = array("success" =>false, "found" => false);
+        $context = JeproshopContext::getContext();
 
         if(count($carts)){
             foreach ($carts as $key => $cart) {
                 $cartItem = new JeproshopCartModelCart($cart->cart_id);
-                if((isset(JeproshopContext::getContext()->cart) &&$cart->cart_id == JeproshopContext::getContext()->cart->cart_id) || !JeproshopTools::isLoadedObject($cartItem, 'cart_id') || $cartItem->orderExists()){
+                if((isset($context->cart) && $cart->cart_id == $context->cart->cart_id) || !JeproshopTools::isLoadedObject($cartItem, 'cart_id') || $cartItem->orderExists()){
                     unset($carts[$key]);
                 }
                 $currency = new JeproshopCurrencyModelCurrency((int)$cart->currency_id);
@@ -97,13 +122,16 @@ class JeproshopCartController extends JeproshopController{
         if($orderArray || $cartArray){
             $context = JeproshopContext::getContext();
             if(!isset($context->cart)){ $context->cart = new JeproshopCartModelCart(); $context->cart->cart_id = 0;}
-            $cartId = $context->cart->cart_id;
+            $context->customer = $customer;
             $jsonData = array("success" => true, "found" => true, "carts" => $cartArray, "orders" => $orderArray);
+
+            $cartId = $context->cart->cart_id;
+
             $messageContent = '';
-            if($messages = JeproshopMessageModelMessage::getMessagesByCartId($cartId)){
+            if ($messages = JeproshopMessageModelMessage::getMessagesByCartId($cartId)) {
                 $messageContent = $messages[0]->message;
             }
-            $cartRules = JeproshopContext::getContext()->cart->getCartRules(JeproshopCartRuleModelCartRule::JEPROSHOP_FILTER_ACTION_SHIPPING);
+            $cartRules = $context->cart->getCartRules(JeproshopCartRuleModelCartRule::JEPROSHOP_FILTER_ACTION_SHIPPING);
             $freeShipping = false;
             if(count($cartRules)){
                 foreach($cartRules as $cartRule){
@@ -114,7 +142,68 @@ class JeproshopCartController extends JeproshopController{
                 }
             }
 
-            $addresses = $customer->getAddresses((int)$context->language->lang_id);
+            $addresses = $context->customer->getAddresses((int)$context->language->lang_id);
+            $addressArray = array();
+            foreach ($addresses as $address){
+                $data = new JeproshopAddressModelAddress($address->address_id);
+                $address->formated_address = JeproshopAddressFormatModelAddressFormat::generateAddress($data, array(), '<br />');
+                $addressData = array();
+                foreach($address as $key => $value){
+                    $addressData[$key] = $value;
+                }
+                $addressArray[] = $addressData;
+            }
+
+            $jsonData['addresses'] = $addressArray;
+            $currencyArray = array();
+            foreach(new JeproshopCurrencyModelCurrency((int)$context->cart->currency_id) as $key => $value){
+                $currencyArray[$key] = $value;
+            }
+            $jsonData['currency'] = $currencyArray;
+
+            $jsonData['cart'] = $cartArray;
+
+            $jsonData['summary'] = $this->getCartSummary($context);
+            $jsonData['delivery_option_list'] = $this->getDeliveryOptionList();
+            $jsonData['cart_id'] = $cartId;
+            $jsonData['order_message'] = $messageContent;
+            $jsonData['free_shipping'] = (int)$freeShipping;
+            $jsonData['order_link'] = $this->getPageLink(
+                'order', false, (int)$context->cart->lang_id, 'step=3&recover_cart=' . $cartId . '&' . md5(COM_JEPROSHOP_COOKIE_KEY . '_recover_cart_' . $cartId) . '=1');
+
+        }
+        return $jsonData;
+    }
+
+    private function getAjaxData($context = null){
+        if($context == null){ $context = JeproshopContext::getContext(); }
+        $app = JFactory::getApplication();
+        if(isset($context->cart) && $context->cart == null) {
+            $cartId = $context->cart->cart_id;
+        }else{
+            $cartId = $app->input->getInt('cart_id', 0);
+        }
+
+        if($cartId > 0 && !isset($context->cart)){ $context->cart = new JeproshopCartModelCart($cartId); }
+
+        if(isset($context->cart) && $context->cart->cart_id > 0){
+            $jsonData = array();
+            $messageContent = '';
+            if ($messages = JeproshopMessageModelMessage::getMessagesByCartId($cartId)) {
+                $messageContent = $messages[0]->message;
+            }
+            $cartRules = $context->cart->getCartRules(JeproshopCartRuleModelCartRule::JEPROSHOP_FILTER_ACTION_SHIPPING);
+            $freeShipping = false;
+            if(count($cartRules)){
+                foreach($cartRules as $cartRule){
+                    if($cartRule->cart_rule_id == JeproshopCartRuleModelCartRule::getCartRuleIdByCode(JeproshopCartRuleModelCartRule::JEPROSHOP_BO_ORDER_CODE_PREFIX . '_' . $context->cart->cart_id)){
+                        $freeShipping = true;
+                        break;
+                    }
+                }
+            }
+
+            $addresses = $context->customer->getAddresses((int)$context->language->lang_id);
             $addressArray = array();
             foreach ($addresses as $address){
                 $data = new JeproshopAddressModelAddress($address->address_id);
@@ -140,21 +229,42 @@ class JeproshopCartController extends JeproshopController{
             $jsonData['cart'] = $cartArray;
 
             $jsonData['summary'] = $this->getCartSummary($context);
-            $jsonData['delivery_option_list'] = $this->getDeliveryOptionList();
+            $jsonData['delivery_option_list'] = $this->getDeliveryOptionList($context);
             $jsonData['cart_id'] = $cartId;
             $jsonData['order_message'] = $messageContent;
             $jsonData['free_shipping'] = (int)$freeShipping;
             $jsonData['order_link'] = $this->getPageLink(
                 'order', false, (int)$context->cart->lang_id, 'step=3&recover_cart=' . $cartId . '&' . md5(COM_JEPROSHOP_COOKIE_KEY . '_recover_cart_' . $cartId) . '=1');
 
-        }
-        return $jsonData;
+            return $jsonData;
+        }else{
+            $currencyArray = array();
+            foreach(new JeproshopCurrencyModelCurrency((int)JeproshopSettingModelSetting::getValue('default_currency')) as $key => $value){
+                $currencyArray[$key] = $value;
+            }
+            $jsonData['currency'] = $currencyArray;
 
+            $jsonData['summary'] = $this->getCartSummary($context);
+            $jsonData['delivery_option_list'] = $this->getDeliveryOptionList($context);
+            $jsonData['cart_id'] = $cartId;
+            $jsonData['order_message'] = "";
+            $jsonData['free_shipping'] = 0;
+            $jsonData['order_link'] = $this->getPageLink(
+                'order', false, (int)$context->cart->lang_id, '&step=3&recover_cart=' . $cartId . '&' . md5(COM_JEPROSHOP_COOKIE_KEY . '_recover_cart_' . $cartId) . '=1');
+
+            return $jsonData;
+        }
     }
 
     protected function getCartSummary($context){
         $summaryArray = array();
-        $summary = $context->cart->getSummaryDetails(null, true);
+        if($context->cart != null) {
+            $summary = $context->cart->getSummaryDetails(null, true);
+        }else{
+            $summary = new JObject();
+            $summary->set('products', array());
+            $summary->set('discounts', array());
+        }
         $currency = (isset($context->currency) && $context->currency->currency_id == $context->cart->currency_id) ? $context->currency : new JeproshopCurrencyModelCurrency($context->cart->currency_id);
         if (count($summary->products) > 0){
             $productArray = array();
@@ -180,7 +290,7 @@ class JeproshopCartController extends JeproshopController{
         }else{
             $summaryArray["products"] = array();
         }
-        if (count($summary->discounts)) {
+        if (count($summary->discounts) > 0) {
             foreach ($summary->discounts as &$voucher) {
                 $voucher['value_real'] = JeproshopTools::displayPrice($voucher->value_real, $currency);
             }
@@ -197,10 +307,14 @@ class JeproshopCartController extends JeproshopController{
         return $summaryArray;
     }
 
-    protected function getDeliveryOptionList(){
+    protected function getDeliveryOptionList($context = null){
         $formattedDeliveryOptionList = array();
-        $context = JeproshopContext::getContext();
-        $deliveryOptionList = $context->cart->getDeliveryOptionList();
+        if($context == null){ $context = JeproshopContext::getContext(); }
+        if(!isset($context->cart) || $context->cart == null) {
+            $deliveryOptionList = array();
+        }else{
+            $deliveryOptionList = $context->cart->getDeliveryOptionList();
+        }
 
         if (!count($deliveryOptionList)) {
             return array();

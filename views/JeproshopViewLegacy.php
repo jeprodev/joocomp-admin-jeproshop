@@ -181,4 +181,21 @@ class JeproshopViewLegacy extends JViewLegacy{
 
         return $html;
     }
+
+    public function renderAdministrationSubMenu($current){
+        $shop = $shopGroup = false;
+        switch($current){
+            case 'shop_group' : $shopGroup = true; break;
+            default : $shop = true; break;
+        }
+
+        $html = '<div class="form_box_wrapper jeproshop_sub_menu_wrapper" >' .
+            '<fieldset class="btn-group" >' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=shop') . '" class="btn jeproshop_sub_menu ' . ($shop ? 'btn-success' : '') . '" >' . JText::_('COM_JEPROSHOP_SHOP_LABEL') . '</a>' .
+            '<a href="' . JRoute::_('index.php?option=com_jeproshop&view=shop&tab=group') . '" class="btn jeproshop_sub_menu ' . ($shopGroup ? 'btn-success' : '') . '" >' . JText::_('COM_JEPROSHOP_SHOP_GROUP_LABEL') . '</a>' .
+            '</fieldset>' .
+            '</div>';
+
+        return $html;
+    }
 }

@@ -24,58 +24,9 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
-class JeproshopCombinationModelCombination extends JeproshopModel{
-
-    public  $product_attribute_id;
-
-    public $product_id;
-
-    public $reference;
-
-    public $supplier_reference;
-
-    public $location;
-
-    public $ean13;
-
-    public $upc;
-    
-    public $isbn;
-
-    public $wholesale_price;
-
-    public $price;
-
-    public $unit_price_impact;
-
-    public $ecotax;
-
-    public $minimal_quantity = 1;
-
-    public $quantity;
-
-    public $weight;
-
-    public $default_on;
-
-    public $shop_list_id = array();
-
-    public $available_date = '0000-00-00';
-
-    public function __construct($combinationId = null, $shopId = null){
-        
-    }
-
-    /**
-     * This method is allow to know if a feature is active
-     * @return bool
-     */
-    public static function isFeaturePublished(){
-        static $feature_active = NULL;
-        if($feature_active === NULL){
-            $feature_active = JeproshopSettingModelSetting::getValue('combination_feature_active');
-        }
-        return $feature_active;
-    }
-
+$app = JFactory::getApplication();
+if($app->input->get('tab')  == 'group'){
+    echo $this->loadTemplate('group');
+}else{ 
+    echo $this->loadTemplate('shop');
 }

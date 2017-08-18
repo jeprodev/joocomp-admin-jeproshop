@@ -219,6 +219,25 @@ class JeproshopFeatureModelFeature extends JeproshopModel{
         return JeproshopFeatureValueModelFeatureValue::getFeatureValues($this->feature_id, $langId);
     }
 
+    /**
+     * Get a feature data for a given id_feature and id_lang
+     *
+     * @param int $langId    Language ID
+     * @param int $featureId Feature ID
+     *
+     * @return array Array with feature's data
+     */
+    public static function getFeature($langId, $featureId) {
+        $db = JFactory::getDBO();
+
+        $query = "SELECT * FROM " . $db->quoteName('#__jeproshop_feature') . " AS feature LEFT JOIN " . $db->quoteName('#__jeproshop_feature_lang');
+        $query .= " AS feature_lang ON (feature." . $db->quoteName('feature_id') . " = feature_lang." . $db->quoteName('feature_id') . " AND feature_lang.";
+        $query .= $db->quoteName('lang_id') . " = " . (int)$langId . ") WHERE feature." . $db->quoteName('feature_id') . " = " . (int) $featureId;
+
+        $db->setQuery($query);
+        return $db->loadObject();
+    }
+
 }
 
 

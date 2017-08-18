@@ -25,7 +25,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 
-class JeproshopSettingModelSetting extends JModelLegacy{
+class JeproshopSettingModelSetting extends JeproshopModel{
     public $setting_id;
 
     /** @var string value **/
@@ -146,21 +146,28 @@ class JeproshopSettingModelSetting extends JModelLegacy{
      * Update configuration key and value into database (automatically insert if key does not exist)
      *
      * @param string $key Key
-     * @param mixed $values $values is an array if the configuration is multilingual, a single string else.
+     * @param mixed $value is an array if the configuration is multilingual, a single string else.
      * @param boolean $html Specify if html is authorized in value
      * @param int $id_shop_group
      * @param int $id_shop
      * @return boolean Update result
      */
-    public static function updateValue($key, $values, $html = false){
-        if (!JeproshopTools::isSettingName($key))
-            die(sprintf(Tools::displayError('[%s] is not a valid configuration key'), $key));
+    public static function updateValue($key, $value, $html = false){
+        if (!JeproshopTools::isSettingName($key)) {
+            die(JError::raiseError(500, '[%s] is not a valid configuration key' . $key));
+        }
 
-        if (!is_array($values))
-            $values = array($values);
+        /**if (!is_array($values))
+            $values = array($values); **/
         $db = JFactory::getDBO();
         $result = true;
-        foreach ($values as $lang => $value){
+
+        $query = "UPDATE " . $db->quoteName('#__jeproshop_setting') . " SET " . $db->quoteName('value') . " = " . $db->quote($value) . ", ";
+        $query .= $db->quoteName('date_upd') . " = " . $db->quote(date('Y-m-d H:i:s')) . " WHERE " . $db->quoteName('name') . " = " . $db->quote($key);
+
+        $db->setQuery($query);
+        $result &= ($db->query() !== false);
+        /*foreach ($values as $lang => $value){
             $stored_value = JeproshopSettingModelSetting::getValue($key);
             // if there isn't a $stored_value, we must insert $value
             if ((!is_numeric($value) && $value === $stored_value) || (is_numeric($value) && $value == $stored_value && JeproshopSettingModelSetting::hasKey($key, $lang)))
@@ -173,10 +180,10 @@ class JeproshopSettingModelSetting extends JModelLegacy{
                 $query .= $db->quoteName('date_upd') . " = " . $db->quote(date('Y-m-d H:i:s')) . " WHERE " . $db->quoteName('name') . " = " . $db->quote($key);
 
                 $db->setQuery($query);
-                $result &= $db->query();
+                $result &= ($db->query() !== false);
             }else{
                 // If key does not exists, create it
-                $configID = JeproshopSettingModelSetting::getIdByName($key);
+                $configID = JeproshopSettingModelSetting::getSettingIdByName($key);
                 if (!$configID)	{
                     $newConfig = new JeproshopSettingModelSetting();
                     $newConfig->name = $key;
@@ -187,7 +194,7 @@ class JeproshopSettingModelSetting extends JModelLegacy{
                 }
             }
         }
-        JeproshopSettingModelSetting::setValue($key, $values);
+        JeproshopSettingModelSetting::setValue($key, $values); */
 
         return $result;
     }

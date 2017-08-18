@@ -28,7 +28,7 @@ if(isset($this->product->product_id)){
 ?>
 <div class="form-box-wrapper panel"  id="product-features" >
     <div class="panel-title" ><?php echo JText::_('COM_JEPROSHOP_ASSIGN_FEATURES_TO_THIS_PRODUCT_TITLE'); ?></div>
-    <div class="panel-content well" >
+    <div class="panel-content" >
         <div class="alert alert-info">
             <?php
             echo JText::_('COM_JEPROSHOP_YOU_CAN_SPECIFY_A_VALUE_FOR_EACH_RELEVANT_FEATURE_REGARDING_THIS_PRODUCT_EMPTY_FIELDS_WILL_NOT_BE_DISPLAYED_MESSAGE') . '<br />';
@@ -38,9 +38,9 @@ if(isset($this->product->product_id)){
         <table class="table">
             <thead>
             <tr>
-                <th class="nowrap" ><span class="title_box"><?php echo JText::_('COM_JEPROSHOP_FEATURE_LABEL'); ?></span></th>
-                <th class="nowrap" ><span class="title_box"><?php echo JText::_('COM_JEPROSHOP_PRE_DEFINED_VALUE_LABEL'); ?></span></th>
-                <th class="nowrap" ><span class="title_box"><?php echo JText::_('COM_JEPROSHOP_OR_LABEL') . " " . JText::_('COM_JEPROSHOP_CUSTOMIZED_VALUE_LABEL'); ?></span></th>
+                <th class="nowrap" ><?php echo JText::_('COM_JEPROSHOP_FEATURE_LABEL'); ?></th>
+                <th class="nowrap" ><?php echo JText::_('COM_JEPROSHOP_PRE_DEFINED_VALUE_LABEL'); ?></th>
+                <th class="nowrap" ><?php echo JText::_('COM_JEPROSHOP_OR_LABEL') . " " . JText::_('COM_JEPROSHOP_CUSTOMIZED_VALUE_LABEL'); ?></th>
             </tr>
             </thead>
             <tbody>
@@ -72,7 +72,7 @@ if(isset($this->product->product_id)){
                         <td>
                             <div class="row lang-0" style='display: none;'><?php  ?>
                                 <div class="col-lg-9">
-								<textarea class="custom_<?php echo $available_feature->feature_id; ?>_all textarea-autosize"	name="feature[custom_<?php echo $available_feature->feature_id; ?>_all"
+								<textarea class="custom_<?php echo $available_feature->feature_id; ?>_all textarea-autosize"	name="feature[custom_<?php echo $available_feature->feature_id; ?>_all]"
                                           cols="40" style='background-color:#CCF'	rows="1" onkeyup="<?php foreach($this->languages as $key => $language){ ?>$('.custom_<?php echo $available_feature->feature_id . '_' . $language->lang_id; ?>').val($(this).val());<?php } ?>" ><?php if(isset($available_feature->featureValues[1]->value)){ echo $available_feature->featureValues[1]->value; } ?>
 								</textarea>
                                 </div>

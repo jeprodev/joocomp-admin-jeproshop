@@ -45,6 +45,8 @@ class JeproshopOrderController extends JeproshopController{
                         $addressId = $app->input->getInt('address_id', 0);
                         foreach ($products as &$product) {
                             $productData = array();
+                            $productData['name'] = $product->name;
+                            $productData['product_id'] = $product->product_id;
                             // Formatted price
                             $productData['formatted_price'] = JeproshopTools::displayPrice(JeproshopTools::convertPrice($product->price_tax_incl, $currency), $currency);
                             // Concrete price

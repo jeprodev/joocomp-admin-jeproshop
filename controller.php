@@ -56,6 +56,10 @@ class JeproshopController extends JControllerLegacy
      * Check if the current user/visitor has valid view permissions
      */
     public function viewAccess(){ return true; }
+    
+    public function canEdit($table){ return true; }
+    
+    public function canDelete($table){ return true; }
 
     /**
      * initialize jeproshop
@@ -319,6 +323,11 @@ class JeproshopController extends JControllerLegacy
 
     public function getPageLink($view, $useSsl = null, $langId = null, $request = null, $encodedRequest = false, $shopId = null, $relativeProtocol = false){
         return JRoute::_('index.php?option=com_jeproshop&view=' . $view );
+    }
+    
+    public function script(){
+        $script = new com_jeproshopInstallerScript();
+        $script->createDefaultShopData();
     }
 
 }

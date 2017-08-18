@@ -40,7 +40,7 @@ class JeproshopProductDownloadModelProductDownload extends JeproshopModel {
     public $date_add;
 
     /** @var string DateExpiration deadline of the file */
-    public $date_expiration;
+    public $expiration_date;
 
     /** @var string NbDaysAccessible how many days the customer can access to file */
     public $nb_days_accessible;

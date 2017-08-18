@@ -143,12 +143,11 @@
                 voucherWrapper.val(data.name);
                 addCartRule(data.cart_rule_id);
             });
-            /*
-            if(options.cart.cart_id){
+
+            if(parseInt(options.cart.cart_id) > 0){
                 setupCustomer(options.customer.customer_id);
                 useCart(options.cart.cart_id);
             }
-
 
             jQuery('.delete-product').live('click', function(e) {
                 e.preventDefault();
@@ -167,8 +166,7 @@
                 return false;
             });
 
-
-            jQuery('input:radio[name="free_shipping"]').on('change',function() {
+            jQuery('input:radio[name="free_shipping_on"]').on('change',function() {
                 var freeShipping = jQuery('input[name=free_shipping]:checked').val();
                 var target = 'index.php?option=com_jeproshop&view=cart&task=update&tab=free_shipping&use_ajax=1&' + options.cart.token + '=1';
                 jQuery.ajax({
@@ -208,10 +206,13 @@
                     sign = '-';
                 updateQuantity(product[0], product[1], product[2], sign + 1);
             });
+
             jQuery('#jform_product_id').live('keydown', function(e) {
                 jQuery(this).click();
                 return true;
             });
+
+
             jQuery('#jform_product_id, .product_attribute_id').live('change', function(e) {
                 e.preventDefault();
                 displayQuantityInStock(this.id);
@@ -220,7 +221,7 @@
                 jQuery(this).change();
                 return true;
             });
-            jQuery('.product_unit_price').live('change', function(e) {
+            jQuery('.product-unit-price').live('change', function(e) {
                 e.preventDefault();
                 var product = jQuery(this).attr('rel').split('_');
                 updateProductPrice(product[0], product[1], jQuery(this).val());
@@ -258,10 +259,10 @@
 
             jQuery('#jform_products_found').hide();
             jQuery('#jform_carts').hide();
-*/
+
             var customerPart = jQuery('#jform_customer_part');
             customerPart.on('click','button.setup-customer',function(e) {
-                e.preventDefault(); console.log("test " + jQuery(this).data('customer'));
+                e.preventDefault();
                 setupCustomer(jQuery(this).data('customer'));
                 jQuery(this).removeClass('setup-customer').addClass('change-customer').html('<i class="icon-refresh"></i> ' +  options.labels.change).blur();
                 jQuery(this).closest('.customer-card').addClass('selected-customer');
@@ -290,7 +291,7 @@
                     content : content
                 },
                 success: function (result) {
-                    var html = '';console.log(result);
+                    var html = '';
                     jQuery.each(result.customers, function () {
                         html += '<div class="customer-card" ><div class="panel" ><div class="panel-title" >' + this.firstname;
                         html += ' ' + this.lastname + '<span class="pull-right" ># ' + this.customer_id + '</span></div><div class="panel-content" ><span>';
@@ -358,11 +359,11 @@
                         jQuery('#jform_products_found').show();
                         productsFound += '<div class="control-label"><label for="jform_product_id" >' + options.labels.product + '</label></div>';
                         productsFound += '<div class="controls" ><select id="jform_product_id" >';
-                        attributesHtml += '<div class="control-label" ><label >' + options.labels.combination + '</label><div class="controls">';
-                        jQuery.each(res.products, function() {
+                        attributesHtml += '<div class="control-label" ><label >' + options.labels.combination + '</label></div><div class="controls" >';
+                        jQuery.each(res.products, function(){
                             var productId = this.product_id;
-                            productsFound += '<option ' + (this.combinations.length > 0 ? 'rel="'+this.quantity_in_stock +'"' : '');
-                            productsFound += ' value="'+ productId +'" >'+this.name + (this.combinations.length == 0 ? ' - '+ this.formatted_price : '') + '</option>';
+                            productsFound += '<option ' + (this.combinations.length > 0 ? 'rel="'+this.quantity_in_stock + '"' : '');
+                            productsFound += ' value="'+ productId + '" >'+this.name + (this.combinations.length == 0 ? ' - '+ this.formatted_price : '') + '</option>';
                             attributesHtml += '<select class="product-attribute-id" id="jform_product_attribute_id_'+ productId +'" style="display:none;" >';
 
                             options.stock[productId] = [];
@@ -398,8 +399,8 @@
                             }
 
                             jQuery.each(this.combinations, function() {
-                                attributesHtml += '<option rel="'+this.quantity_in_stock+'" '+(this.default_on == 1 ? 'selected="selected"' : '') ;
-                                attributesHtml += ' value="'+this.product_attribute_id +'">'+this.attributes +' - '+this.formatted_price+'</option>';
+                                attributesHtml += '<option value="' + this.product_attribute_id + '"  ' + (this.default_on == 1 ? 'selected="selected"' : '') ;
+                                attributesHtml += ' rel="'+ this.quantity_in_stock + '" >' + this.attributes + ' - ' + this.formatted_price +'</option>';
                                 options.stock[productId][this.product_attribute_id] = this.quantity_in_stock;
                             });
 
@@ -407,6 +408,7 @@
                             attributesHtml += '</select>';
                         });
                         productsFound += '</select></div>';
+                        //attributesHtml += '</div>';
                         jQuery('#jform_product_list').html(productsFound);
                         jQuery('#jform_attributes_list').html(attributesHtml);
 
@@ -484,14 +486,16 @@
                         });
                         jQuery('#jform_non_ordered_carts table tbody').html(htmlCarts);
                         jQuery('#jform_last_orders table tbody').html(htmlOrders);
+
+                        if (res.cart_id){
+                            options.cart.cart_id = res.cart_id;
+                            jQuery('#jform_cart_id').val(options.cart.cart_id);
+                        }
+                        displaySummary(res);
+                        resetBind();
                     }
 
-                    if (res.cart_id){
-                        options.cart.cart_id = res.cart_id;
-                        jQuery('#jform_cart_id').val(options.cart.cart_id);
-                    }
-                    displaySummary(res);
-                    resetBind();
+
                 }, fail:function (res) {
                     console.log(res);
                 }
@@ -610,7 +614,7 @@
                 var productAttributeId = Number(this.product_attribute_id);
                 options.cart.quantity[Number(this.product_id)+'_'+Number(this.product_attribute_id)+'_'+Number(this.customization_id)] = this.cart_quantity;
                 cartContent += '<tr><td><img src="'+this.image_link+'" title="'+this.name+'" /></td><td>'+this.name+'<br />'+this.attributes_small + '</td>';
-                cartContent += '<td>'+this.reference+'</td><td><input type="text" rel="'+this.product_id +'_'+this.product_attribute_id +'" class="product_unit_price" value="';
+                cartContent += '<td>'+this.reference+'</td><td><input type="text" rel="'+this.product_id +'_'+this.product_attribute_id +'" class="product-unit-price" value="';
                 cartContent += this.numeric_price + '" /></td><td>';
                 cartContent += (!this.customization_id ? '<div class="input-append"><button class="btn btn-default increase_quantity_product" rel="'+this.product_id +'_'+this.product_attribute_id +'_'+(this.customization_id ? this.customization_id : 0)+'" ><i class="icon-caret-up"></i> <a href="#" class="btn btn-default decrease_quantity_product" rel="'+this.product_id +'_'+this.product_attribute_id +'_'+(this.customization_id ? this.customization_id : 0)+'"><i class="icon-caret-down"></i></a></button>' : '');
                 cartContent += (!this.customization_id ? '<input type="text" rel="'+this.product_id +'_'+this.product_attribute_id+'_'+(this.customization_id ? this.customization_id : 0)+'" class="cart_quantity" value="' + this.cart_quantity+'" />' : '');
@@ -702,7 +706,6 @@
             options.cart.cart_id = newCartId;
             var cartIdWrapper = jQuery('#jform_cart_id');
             cartIdWrapper.val(options.cart.cart_id);
-            cartIdWrapper.val(options.cart.cart_id);
 
             jQuery.ajax({
                 type:"POST",
@@ -710,8 +713,7 @@
                 async: true,
                 dataType: "json",
                 data : {
-                    ajax: "1",
-                    cart_id: options.cart.cart_id,
+                    cart_id: newCartId,
                     customer_id: options.customer.customer_id
                 },
                 success : function(res){
@@ -757,7 +759,6 @@
                 async: true,
                 dataType: "json",
                 data : {
-                    ajax: "1",
                     cart_id : options.cart.cart_id,
                     product_id : productId,
                     product_attribute_id : productAttributeId,

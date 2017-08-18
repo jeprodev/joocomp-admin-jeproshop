@@ -126,7 +126,7 @@ class JeproshopManufacturerModelManufacturer extends JeproshopModel {
         $totalManufacturers = count($manufacturers);
         $rewrite_settings = (int)JeproshopSettingModelSetting::getValue('rewrite_settings');
         for ($i = 0; $i < $totalManufacturers; $i++)
-            $manufacturers[$i]->link_rewrite = ($rewrite_settings ? JeproshopTools::link_rewrite($manufacturers[$i]->name) : 0);
+            $manufacturers[$i]->link_rewrite = ($rewrite_settings ? JeproshopTools::str2url($manufacturers[$i]->name) : 0);
         return $manufacturers;
     }
 
@@ -182,12 +182,13 @@ class JeproshopManufacturerModelManufacturer extends JeproshopModel {
 
         $join = "LEFT JOIN " . $db->quoteName('#__jeproshop_product') . " AS product ON (manufacturer.";
         $join .= $db->quoteName('manufacturer_id') . " = product." . $db->quoteName('manufacturer_id') . ") ";
+        $where = "";
         $group = " GROUP BY manufacturer." . $db->quoteName('manufacturer_id');
 
         if ($context->controller->multishop_context && JeproshopShopModelShop::isTableAssociated('manufacturer')){
-            if(JeproshopShopModelShop::getShopContext() != JeproshopShopMoelShop::CONTEXT_ALL || !$context->employee->isSuperAdmin()){
+            if(JeproshopShopModelShop::getShopContext() != JeproshopShopModelShop::CONTEXT_ALL || !$context->employee->isSuperAdmin()){
                 $test_join = !preg_match('#`?'.preg_quote('#__jeproshop_manufacturer_shop').'`? *manufacturer-shop#', $join);
-                if(JeproshopShopModelShop::isFeaturePublished() && $test_join && JeproshopModelShopShop::isTableAssociated('manufacturer')){
+                if(JeproshopShopModelShop::isFeaturePublished() && $test_join && JeproshopShopModelShop::isTableAssociated('manufacturer')){
                     $where .= ' AND a.'.$this->identifier.' IN (
 						SELECT sa.'.$this->identifier.'
 						FROM `'._DB_PREFIX_.$this->table.'_shop` sa

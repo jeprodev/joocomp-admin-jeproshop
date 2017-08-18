@@ -13,7 +13,7 @@
             no_tax : 0,
             eco_tax_tax_rate : 0,
             eco_tax_tax_excluded : 0,
-            price_display_precision : 2,
+            price_display_precision : 4,
             currencies : [],
             taxes : [],
             all_customers_label : '',
@@ -77,47 +77,83 @@
         });
 
         function initialize(){
+            jQuery('.datepicker').datepicker({
+                prevText: '', nextText: '', dateFormat: 'yy-mm-dd',
+                ampm : false, amNames : ['AM', 'A'], pmNames : ['PM', 'P'],
+                timeFormat : 'hh:mm:ss tt', timeSuffix : ''
+                //timeOnlyTitle :
+
+            });
             initializePrice();
-            initializeDeclination();
-            initializeImages();
+            //initializeDeclination();
+            //initializeImages();
         }
 
         function initializePrice(){
+            var priceBoxes = jQuery(".price-box");
+            priceBoxes.each(function() {
+                var elt = jQuery('#' + this.id);
+                elt.on('keyup', function(){ elt.val(document.getElementById(this.id).value.replace(/,/, '.')); });
+                elt.on('change', function(){ elt.val(document.getElementById(this.id).value.replace(/,/, '.')); });
+            });
+
             calculatePriceTaxIncluded();
             unitPriceWithTax('unit');
 
             var wholeSalePriceWrapper = jQuery('#jform_wholesale_price');
-            wholeSalePriceWrapper.on('keyup', function () {
-                wholeSalePriceWrapper.val(document.getElementById('jform_wholesale_price').value.replace(/,/g, '.'));
-            });
-
             var priceTaxExcluded = jQuery('#jform_price_tax_excluded');
-            priceTaxExcluded.change(function () {
-                priceTaxExcluded.val(document.getElementById('jform_price_tax_excluded').value.replace(/,/g, '.'));
-                //jQuery('#jform_real_price_tax_excluded').val(priceTaxExcluded.val());
-            });
-
-            var priceType = jQuery('#jform_price_type');
             var realPriceTaxExcluded = jQuery('#jform_real_price_tax_excluded');
+            var priceTaxIncluded = jQuery('#jform_price_tax_included');
+            var priceType = jQuery('#jform_price_type');
+            var taxRulesGroupWrapper = jQuery('#jform_tax_rules_group_id');
+            var ecoTaxWrapper = jQuery('#jform_ecotax');
+            var unitPriceWrapper = jQuery('#jform_unit_price');
+            var unityWrapper = jQuery('#jform_unity');
+
             priceTaxExcluded.on('keyup', function(evt){
                 priceType.val('TE');
-                realPriceTaxExcluded.val(document.getElementById('jform_price_tax_excluded').value.replace(/,/g, '.'));
                 if(JeproTools.isArrowKey(evt)){ return; }
+                realPriceTaxExcluded.val(priceTaxExcluded.val());
                 calculatePriceTaxIncluded();
             });
 
-            var taxRulesGroupWrapper = jQuery('#jform_tax_rules_group_id');
-            taxRulesGroupWrapper.change(function(){
+            priceTaxExcluded.on('change', function () {
+                realPriceTaxExcluded.val(priceTaxExcluded.val());
+            });
+
+            taxRulesGroupWrapper.on('change', function(){ console.log(getTaxes());
                 calculatePrice();
                 unitPriceWithTax('unit');
             });
 
-            var ecoTaxWrapper = jQuery('#jform_ecotax');
+            priceTaxIncluded.on('keyup', function(evt){
+                priceType.val('TI');
+                if(JeproTools.isArrowKey(evt)){ return; }
+                calculatePrice();
+            });
+
+            priceTaxIncluded.on('change', function(evt){
+                if(JeproTools.isArrowKey(evt)){ return; }
+            });
+
+            unitPriceWrapper.on('keyup', function (evt) {
+                if(JeproTools.isArrowKey(evt)){ return; }
+                unitPriceWrapper.val(document.getElementById('jform_unit_price').value.replace(/,/g, '.'));
+                unitPriceWithTax('unit');
+            });
+
+            unityWrapper.on('keyup', function(evt){
+                if(JeproTools.isArrowKey(evt)){ return; }
+                unitySecond();
+            });
+            unityWrapper.change(function(){ unitySecond(); });
+
+
             ecoTaxWrapper.on('keyup', function (evt) {
                 priceType.val('TI');
                 if(JeproTools.isArrowKey(evt)){ return; }
                 calculatePriceTaxExcluded();
-                ecoTaxWrapper.val(document.getElementById('jform_ecotax').value.replace(/,/g, '.'));
+
                 if(parseInt(ecoTaxWrapper.val()) > priceTaxExcluded.val()){
                     ecoTaxWrapper.val(priceTaxExcluded.val());
                 }
@@ -125,32 +161,9 @@
                 if(isNaN(ecoTaxWrapper.val())){ ecoTaxWrapper.val(0); }
             });
 
-            var priceTaxIncluded = jQuery('#jform_price_tax_included');
-            priceTaxIncluded.change(function () {
-                priceTaxIncluded.val(document.getElementById('jform_price_tax_included')).value.replace(/,/g, '.');
-            });
-            priceTaxIncluded.on('keyup', function(evt){
-                priceType.val('TI');
-                if(JeproTools.isArrowKey(evt)){ return; }
-                calculatePrice();
-            });
-
-            var unitPriceWrapper = jQuery('#jform_unit_price');
-            unitPriceWrapper.on('keyup', function (evt) {
-                if(JeproTools.isArrowKey(evt)){ return; }
-                unitPriceWrapper.val(document.getElementById('jform_unit_price').value.replace(/,/g, '.'));
-                unitPriceWithTax('unit');
-            });
-
-            var unityWrapper = jQuery('#jform_unity');
-            unityWrapper.on('keyup', function(evt){
-                if(JeproTools.isArrowKey(evt)){ return; }
-                unitySecond();
-            });
-            unityWrapper.change(function(){ unitySecond(); });
-  
             var savePriceButton = jQuery("#jform_save_price");
-            savePriceButton.on('click', function(){
+            savePriceButton.on('click', function(evt){ 
+                evt.stopPropagation();
                 var wholeSalePrice = jQuery('#jform_wholesale_price').val();
                 wholeSalePrice = (typeof wholeSalePrice != 'undefined') ? parseFloat(wholeSalePrice) : 0;
                 var price = jQuery('#jform_price_tax_excluded').val();
@@ -164,20 +177,28 @@
                 var unity = jQuery('#jform_unity').val();
                 unity = (typeof unity != 'undefined') ? unity : '';
 
-                var data = '&use_ajax=1&tab=price&product_id=' + options.product_id + '&whole_sale_price=' + wholeSalePrice;
-                data += '&price=' + price + '&unit_price_ratio=' + unitPriceRatio + '&on_sale=' + onSale + '&tax_rules_group_id=';
-                data += taxRulesGroupId + '&eco_tax=' + ecoTax + '&unity=' + unity;
-                var url = 'index.php?option=com_jeproshop&view=product&task=update' + data +  '&' + options.product_token + '=1';
+                //var data = 
+                var url = 'index.php?option=com_jeproshop&view=product&task=update&use_ajax=1&tab=price&' + options.product_token + '=1';
                 jQuery.ajax({
                     type : "POST",
                     url : url,
                     async : true,
                     dataType : "json",
+                    data : {
+                        product_id : options.product_id,
+                        whole_sale_price : wholeSalePrice,
+                        price : price, 
+                        unit_price_ratio : unitPriceRatio ,
+                        on_sale : onSale, 
+                        tax_rules_group_id : taxRulesGroupId,
+                        eco_tax : ecoTax,
+                        unity : unity
+                    },
                     success:function(result){
-                        JeproTools.renderMessage(result.messages);
+                        Joomla.renderMessages({"success" : [result.messages]});
                     },
                     fail:function (result) {
-                        console.log(result);
+                        Joomla.renderMessages({"error" : [result.messages]});
                     }
                 });
             });
@@ -185,20 +206,31 @@
             var showSpecificPriceForm = jQuery('#jform_show_specific_price');
             var hideSpecificPriceForm = jQuery('#jform_hide_specific_price');
             var specificPriceForm = jQuery('#jform_add_specific_price_form');
+            var specificPriceCurrency = jQuery('#jform_specific_price_currency_0');
             showSpecificPriceForm.on('click', function (evt) {
+                evt.stopPropagation();
+                evt.stopImmediatePropagation();
                 specificPriceForm.delay(200).fadeIn();
                 showSpecificPriceForm.hide();
                 hideSpecificPriceForm.show();
             });
 
             hideSpecificPriceForm.on('click', function (evt) {
+                evt.stopPropagation();
+                evt.stopImmediatePropagation();
                 specificPriceForm.hide();
                 showSpecificPriceForm.show();
                 hideSpecificPriceForm.hide();
             });
 
+            specificPriceCurrency.on('change', function () {
+                changeSpecificPriceCurrency(0);
+            });
+
             var saveSpecificPriceButton = jQuery('#jform_save_specific_price');
-            saveSpecificPriceButton.on('click', function(){
+            saveSpecificPriceButton.on('click', function(evt){
+                evt.stopImmediatePropagation();
+                evt.stopPropagation();
                 var currencyId = jQuery('#jform_specific_price_currency_id').find(':selected').val();
                 currencyId = (typeof currencyId !== 'undefined') ? parseInt(currencyId) : 0;
 
@@ -230,23 +262,32 @@
                 var reductionType = jQuery('#jform_specific_price_reduction_type').find(':selected').val();
 
 
-                var data = '&use_ajax=1&tab=specific&product_id=' + options.product_id + '&currency_id=' + currencyId + '&country_id=';
-                data += countryId + '&group_id=' + groupId + '&customer_id=' + customerId + '&from=' + availableFrom + '&to=' + availableTo;
-                data += '&starting_at=' + startingAt + '&price=' + price + '&reduction=' + reduction + '&reduction_type=' + reductionType;
-                data += '&attribute_id=' + attributeId;
-
-                var specificUrlPath = 'index.php?option=com_jeproshop&view=product&task=update' + data + '&' + options.product_token + '=1';
+                var specificUrlPath = 'index.php?option=com_jeproshop&view=product&task=save&use_ajax=1&tab=specific&' + options.product_token + '=1';
                 jQuery.ajax({
                     type : "POST",
                     url : specificUrlPath,
                     async : true,
                     dataType : "json",
+                    data : {
+                        product_id : options.product_id,
+                        currency_id : currencyId,
+                        country_id : countryId,
+                        group_id : groupId,
+                        customer_id : customerId,
+                        from : availableFrom,
+                        to : availableTo,
+                        starting_at : startingAt,
+                        price : price,
+                        reduction : reduction,
+                        reduction_type : reductionType,
+                        attribute_id : attributeId
+                    },
                     success : function(result){
-
+                        console.log(result);
                     }
                 });
             });
-
+  /*
             var reductionType = jQuery('#jform_specific_price_reduction_type');
             reductionType.change(function(){
                 var reductionTax = jQuery('#jform_specific_price_reduction_tax');
@@ -260,39 +301,33 @@
                 jQuery('#jform_specific_price_current_price_without_tax').html(options.product_prices[productAttributeId.find(':selected').val()]);
             });
 
-            /*jQuery('.date-picker').datepicker({
-                prevText: '', nextText: '', dateFormat: 'yy-mm-dd',
-                ampm : false, amNames : ['AM', 'A'], pmNames : ['PM', 'P'],
-                timeFormat : 'hh::jQuerymm:ss tt', timeSuffix : ''
-                //timeOnlyTitle :
 
-            });*/
 
             var leaveBasePrice = jQuery('#jform_leave_base_price');
-            leaveBasePrice.on('click', function(){
+            leaveBasePrice.on('click', function(){ 
                 var price = jQuery('#jform_specific_price_price');
                 if(leaveBasePrice.is(':checked')){
                     price.attr('disabled', 'disabled');
                 }else{
-                    price.remove('disabled');
+                    price.prop('disabled', false);
                 }
-            });
+            }); */
         }
-        
+
         function calculatePriceTaxIncluded(){
             var realPriceTaxExcluded = parseFloat(document.getElementById('jform_real_price_tax_excluded').value.replace(/,/g, '.'));
             var newPrice = addTaxes(realPriceTaxExcluded);
             var priceTaxIncluded = jQuery('#jform_price_tax_included');
-            var taxIncludedValue = (isNaN(newPrice) == true || newPrice < 0) ? '' : JeproTools.roundPrice(newPrice, options.price_display_precision)
+            var taxIncludedValue = (isNaN(newPrice) == true || newPrice < 0) ? '0.00' : JeproTools.roundPrice(newPrice, options.price_display_precision);
             priceTaxIncluded.val(taxIncludedValue);
 
             var finalPrice = jQuery('#jform_final_price');
-            finalPrice.innerHTML = (isNaN(newPrice) == true || newPrice < 0) ? '' :
+            finalPrice.innerHTML = (isNaN(newPrice) == true || newPrice < 0) ? '0.00' :
                 JeproTools.roundPrice(newPrice, options.price_display_precision).toFixed(options.price_display_precision);
             var finalPriceWithoutTax = jQuery('#jform_final_price_without_tax');
             finalPriceWithoutTax.innerHTML = (isNaN(realPriceTaxExcluded) == true || realPriceTaxExcluded < 0) ? '0.00' :
-                (JeproTools.roundPrice(realPriceTaxExcluded, 6)).toFixed(6);
-            calculateReduction();
+                (JeproTools.roundPrice(realPriceTaxExcluded, options.price_display_precision)).toFixed(options.price_display_precision);
+            calculateReduction(); 
 
             if (isNaN(parseFloat(priceTaxIncluded.val()))){
                 priceTaxIncluded.val('');
@@ -309,12 +344,12 @@
             var newPrice = removeTaxes(JeproTools.roundPrice(priceTaxIncluded - getEcoTaxTaxIncluded(), options.price_display_precision));
             var priceTaxExcluded = jQuery('#jform_price_tax_excluded');
             var realPriceTaxExcluded = jQuery('#jform_real_price_tax_excluded');
-            priceTaxExcluded.val((isNaN(newPrice) == true || newPrice < 0) ? '' : JeproTools.roundPrice(newPrice, 6).toFixed(6));
+            priceTaxExcluded.val((isNaN(newPrice) == true || newPrice < 0) ? '' : JeproTools.roundPrice(newPrice, options.price_display_precision).toFixed(options.price_display_precision));
 
             realPriceTaxExcluded.val((isNaN(newPrice) == true || newPrice < 0) ? 0 : JeproTools.roundPrice(newPrice, 9));
             jQuery('#jform_final_price').html((isNaN(newPrice) == true || newPrice < 0) ? '' :
                 JeproTools.roundPrice(priceTaxIncluded, options.price_display_precision).toFixed(options.price_display_precision));
-            jQuery('#jform_final_price_without_tax').html((isNaN(newPrice) == true || newPrice < 0) ? '' : (JeproTools.roundPrice(newPrice, 6)).toFixed(6));
+            jQuery('#jform_final_price_without_tax').html((isNaN(newPrice) == true || newPrice < 0) ? '0.00' : (JeproTools.roundPrice(newPrice, options.price_display_precision)).toFixed(options.price_display_precision));
             calculateReduction();
         }
 
@@ -327,7 +362,7 @@
         }
 
         function reductionPrice(){
-            var price    = jQuery('#jform_price_tax_included');
+            var price = jQuery('#jform_price_tax_included');
             var priceWithOutTaxes = jQuery('#jform_price_tax_excluded');
             var newPrice = jQuery('#jform_final_price');
             var newPriceWithOutTax = jQuery('#jform_final_price_without_tax');
@@ -383,18 +418,18 @@
 
             return (startDate <= today && endDate >= today);
         }
-
+ /*
         function decimalTruncate(source, decimals){
-            if (typeof(decimals) == 'undefined'){ decimals = 6; }
+            if (typeof(decimals) == 'undefined'){ decimals = options.price_display_precision; }
             source = source.toString();
             var pos = source.indexOf('.');
             return parseFloat(source.substr(0, pos + decimals + 1));
         }
-
+*/
         function unitPriceWithTax(type) {
             var priceWithTax = parseFloat(document.getElementById('jform_' + type+ '_price').value.replace(/,/g, '.'));
             var newPrice = addTaxes(priceWithTax);
-            jQuery('#jform_' + type + '_price_with_tax').html((isNaN(newPrice) == true || newPrice < 0) ? '0.00' :JeproTools.roundPrice(newPrice, options.price_display_precision).toFixed(options.price_display_precision));
+            jQuery('#jform_' + type + '_price_with_tax').html((isNaN(newPrice) == true || newPrice < 0) ? '0.00' : JeproTools.roundPrice(newPrice, options.price_display_precision).toFixed(options.price_display_precision));
         }
 
         function unitySecond(){
@@ -402,7 +437,7 @@
             jQuery('#jform_unity_second').html(unity.val());
             if (unity.get(0).value.length > 0)
             {
-                jQuery('#unity_third').html(jQuery('#unity').val());
+                jQuery('#unity_third').html(unity.val());
                 jQuery('#tr_unit_impact').show();
             }
             else
@@ -413,23 +448,24 @@
             var currencyWrapper = jQuery('#jform_specific_price_currency_' + index);
             var currencyId = currencyWrapper.val();
             var reductionType = jQuery("#jform_specific_price_reduction_type");
-            if (currencyId > 0)
-               reductionType.find('option[value="amount"]').text(jQuery('#spm_currency_' + index + ' option[value= ' + currencyId + ']').text());
-            else if (typeof currencyName !== 'undefined')
+            /*if (currencyId > 0)
+               reductionType.find('option[value="amount"]').text(jQuery('#jform_specific_price_currency_' + index + ' option[value= ' + currencyId + ']').text());
+            else if (typeof currencyName !== 'undefined') {
                 reductionType.find('option[value="amount"]').text(currencyName);
+            }*/
 
-            if (options.currencies[currencyId]["format"] == 2 || options.currencies[currencyId]["format"] == 4)
+            if (options.currencies[currencyId].format == 2 || options.currencies[currencyId].format == 4)
             {
-                jQuery('#spm_currency_sign_pre_' + index).html('');
-                jQuery('#spm_currency_sign_post_' + index).html(' ' + options.currencies[currencyId]["sign"]);
+                jQuery('#jform_specific_price_currency_sign_pre_' + index).html('');
+                jQuery('#jform_specific_price_currency_sign_post_' + index).html(' ' + options.currencies[currencyId].sign);
             }
-            else if (options.currencies[currencyId]["format"] == 1 || options.currencies[currencyId]["format"] == 3)
+            else if (options.currencies[currencyId].format == 1 || options.currencies[currencyId].format == 3)
             {
-                jQuery('#spm_currency_sign_post_' + index).html('');
-                jQuery('#spm_currency_sign_pre_' + index).html(options.currencies[currencyId]["sign"] + ' ');
+                jQuery('#jform_specific_price_currency_sign_post_' + index).html('');
+                jQuery('#jform_specific_price_currency_sign_pre_' + index).html(options.currencies[currencyId].sign + ' ');
             }
         }
-
+  /*
         function calculateImpactPriceTaxIncluded(){
             var priceTE = parseFloat(document.getElementById("#jform_attribute_real_price_tax_excluded").value.replace(/,/g, '.'));
             var newPrice = addTaxes(priceTE);
@@ -449,7 +485,7 @@
             var priceTI = parseFloat(document.getElementById("#jform_attribute_price_tax_included").value.replace(/,/g, '.'));
             priceTI = (isNaN(priceTI)) ? 0 : JeproTools.roundPrice(priceTI);
             var newPrice = removeTaxes(JeproTools.roundPrice(priceTI, options.price_display_precision));
-            jQuery('#jform_attribute_price').val((isNaN(newPrice) == true || newPrice < 0) ? '' : JeproTools.roundPrice(newPrice, 6).toFixed(6));
+            jQuery('#jform_attribute_price').val((isNaN(newPrice) == true || newPrice < 0) ? '' : JeproTools.roundPrice(newPrice, options.price_display_precision).toFixed(options.price_display_precision));
             var attributeRealPriceTaxExcluded = jQuery("#jform_attribute_real_price_tax_excluded");
             attributeRealPriceTaxExcluded.val((isNaN(newPrice) == true || newPrice < 0) ? 0 : JeproTools.roundPrice(newPrice, 9));
             var attributePriceTaxIncluded = jQuery("#jform_attribute_price_tax_included");
@@ -461,34 +497,35 @@
             else
                 attributeNewTotalPrice.html(total);
         }
-
+*/
         function removeTaxes(price){
             var taxes = getTaxes();
             var priceWithOutTaxes = price;
-            if (taxes.computation_method == 0) {
-                //for(i in taxes.rates) {
+            if(taxes !== undefined) {
+                if (taxes.computation_method == 0) {
+                    //for(i in taxes.rates) {
                     priceWithOutTaxes /= (1 + taxes.rates[0] / 100);
                     //break;
-                //}
-            } else if (taxes.computation_method == 1) {
-                var rate = 0, i;
-                for (i in taxes.rates) {
-                    rate += taxes.rates[i];
-                }
-                priceWithOutTaxes /= (1 + rate / 100);
-            }else if (taxes.computation_method == 2) {
-                for (i in taxes.rates) {
-                    priceWithOutTaxes /= (1 + taxes.rates[i] / 100);
+                    //}
+                } else if (taxes.computation_method == 1) {
+                    var rate = 0, i;
+                    for (i in taxes.rates) {
+                        rate += taxes.rates[i];
+                    }
+                    priceWithOutTaxes /= (1 + rate / 100);
+                } else if (taxes.computation_method == 2) {
+                    for (i in taxes.rates) {
+                        priceWithOutTaxes /= (1 + taxes.rates[i] / 100);
+                    }
                 }
             }
-
             return priceWithOutTaxes;
         }
 
         function getEcoTaxTaxIncluded(){
             return JeproTools.roundPrice(options.eco_tax_tax_excluded * (1 + options.eco_tax_tax_rate), 2);
         }
-
+/*
         function getEcotaxTaxExcluded(){
             return options.eco_tax_tax_excluded;
         }
@@ -497,7 +534,7 @@
             var fixedToSix = (Math.round(price * 1000000) / 1000000);
             return (Math.round(fixedToSix) == fixedToSix + 0.000001 ? fixedToSix + 0.000001 : fixedToSix);
         }
-
+*/
         function calculatePrice() {
             var priceType = jQuery('#jform_price_type').val();
             if (priceType == 'TE'){
@@ -506,24 +543,18 @@
                 calculatePriceTaxExcluded();
             }
         }
-
+/*
         function removeRelatedProduct(){
             jQuery('#jform_related_product_name').html(options.no_related_product);
             jQuery('#jform_product_redirected_id').val(0);
             jQuery('#jform_related_product_remove').hide();
             jQuery('#jform_related_product_auto_complete_input').parent().fadeIn();
         }
+ */
 
-        function getTax(){
-            if(options.no_tax){ return 0; }
-
-            var selectedTax = jQuery('#jform_tax_rules_group_id');
-            options.tax_id = selectedTax.find(':selected').val();
-            return [options.tax_id].rates[0];
-        }
 
         function getTaxes(){
-            if(options.no_tax){ return options.taxes[options.tax_id]; }
+            if(options.no_tax){ return options.taxes[0]; }
             var selectedTax = jQuery('#jform_tax_rules_group_id');
             options.tax_id = selectedTax.find(':selected').val();
             return options.taxes[options.tax_id];
@@ -532,28 +563,31 @@
         function addTaxes(price){
             var taxes = getTaxes();
             var priceWithTaxes = price;
-            var rateIndex;
-            if(taxes.computation_method === undefined){ taxes.computation_method = 0; }
-            if (taxes.computation_method === 0) {
-                for (rateIndex in taxes.rates) {
-                    priceWithTaxes *= (1 + taxes.rates[rateIndex] / 100);
-                    break;
+            var rateIndex = 0;
+            if(taxes !== undefined) {
+                if (taxes.computation_method === undefined) {
+                    taxes.computation_method = 0;
                 }
-            } else if (taxes.computation_method === 1) {
-                var rate = 0;
-                for (rateIndex in taxes.rates) {
-                    rate += taxes.rates[rateIndex];
-                }
-                priceWithTaxes *= (1 + taxes.rates[rateIndex] / 100);
-            } else if (taxes.computation_method === 2) {
-                for (rateIndex in taxes.rates) {
+                if (taxes.computation_method === 0) {
+                    for (rateIndex in taxes.rates) {
+                        priceWithTaxes *= (1 + taxes.rates[rateIndex] / 100);
+                        break;
+                    }
+                } else if (taxes.computation_method === 1) {
+                    var rate = 0;
+                    for (rateIndex in taxes.rates) {
+                        rate += taxes.rates[rateIndex];
+                    }
                     priceWithTaxes *= (1 + taxes.rates[rateIndex] / 100);
+                } else if (taxes.computation_method === 2) {
+                    for (rateIndex in taxes.rates) {
+                        priceWithTaxes *= (1 + taxes.rates[rateIndex] / 100);
+                    }
                 }
             }
-
             return priceWithTaxes;
         }
-
+/*
         function initializeDeclination() {
             var attributeGroup = jQuery("#jform_attribute_group");
             if(attributeGroup) {
@@ -726,14 +760,14 @@
 
         /**
          *
-         */
+         * /
         function updateImagePosition(json){
             jQuery.ajax();
             JeproTools.doAdminAjax({
                 "task" : "updateImagePosition", "json" : json,
                 "ajax": 1
             });
-        }
+        } */
 
 
     }

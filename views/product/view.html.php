@@ -125,17 +125,19 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
 
         /** prepare fields data **/
         $this->initInformationForm();
-        $this->initPriceForm();
-        $this->initAssociationsForm();
-        $this->initAttributesForm();
-        $this->initQuantitiesForm();
-        $this->initImagesForm();
-        $this->initCustomizationsForm();
-        $this->initFeaturesForm();
-        $this->initSuppliersForm();
-        $this->initShippingForm();
-        $this->initAttachmentForm();
-        $this->assign('current_shop_url', $this->context->shop->getBaseURL());
+        if($this->product->product_id) {
+            $this->initPriceForm();
+            $this->initAssociationsForm();
+            $this->initAttributesForm();
+            $this->initQuantitiesForm();
+            $this->initImagesForm();
+            $this->initCustomizationsForm();
+            $this->initFeaturesForm();
+            $this->initSuppliersForm();
+            $this->initShippingForm();
+            $this->initAttachmentForm();
+            $this->assign('current_shop_url', $this->context->shop->getBaseURL());
+        }
 
         parent::display($tpl);
     }
@@ -266,7 +268,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
             $multiShop = JeproshopShopModelShop::isFeaturePublished();
             $this->assignRef('multi_shop', $multiShop);
         }else{
-            JError::raiseWarnig(JText::_('COM_JEPROSHOP_YOU_MUST_SAVE_THIS_PRODUCT_BEFORE_ADDING_SPECIFIC_PRICING_MESSAGE'));
+            JError::raiseWarning(JText::_('COM_JEPROSHOP_YOU_MUST_SAVE_THIS_PRODUCT_BEFORE_ADDING_SPECIFIC_PRICING_MESSAGE'));
             $this->product->tax_rules_group_id = JeproshopProductModelProduct::getMostUsedTaxRulesGroupId();
             $this->assignRef('ecotax_tax_excluded', 0);
         }
@@ -303,6 +305,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
             }else{
                 $taxRates[$taxRulesGroupId]['rates'][] = 0;
             }
+
         }
         $this->assignRef('tax_rules_groups', $taxRulesGroups);
         //$taxesRatesByGroup = JeproshopTaxRulesGroupModelTaxRulesGroup::getAssociatedTaxRatesByCountryId($this->context->country->country_id);
@@ -464,7 +467,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
             }
         }
 
-        // Multishop block
+        // Multi shop block
         $feature_shop_active = JeproshopShopModelShop::isFeaturePublished();
         $this->assignRef('feature_shop_published', $feature_shop_active);
 
@@ -488,8 +491,10 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
             $categories[] = $key;
         }
         $manufacturers = JeproshopManufacturerModelManufacturer::getManufacturers($this->context->language->lang_id);
-        $categories_tree = new JeproshopCategoriesTree('associated_categories_tree', JText::_('COM_JEPROSHOP_ASSOCIATED_CATEGORIES_LABEL'));
-        $categories_tree->setTreeLayout('associated_categories')->setRootCategory((int)$root->category_id)->setUseCheckBox(true)->setSelectedCategories($categories);
+        $categoriesTree = new JeproshopCategoriesTree('associated_categories_tree', JText::_('COM_JEPROSHOP_ASSOCIATED_CATEGORIES_LABEL'));
+        $categoriesTree->setTreeLayout('associated_categories')->setTreeWrapper('association')->setRootCategoryId((int)$root->category_id);
+        $categoriesTree->setUseCheckBox(true)->setSelectedCategories($categories)->setNodeItemTemplate('tree_node_item_checkbox');
+        $categoriesTree->setNodeFolderTemplate('tree_node_folder_checkbox');
 
         $this->assignRef('manufacturers', $manufacturers);
         $selected_category_ids = implode(',', array_keys($selected_category));
@@ -497,7 +502,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
         $this->assignRef('selected_category', $selected_category);
         $categoryId = $this->product->getDefaultCategoryId();
         $this->assignRef('default_category_id', $categoryId);
-        $category_tree = $categories_tree->render();
+        $category_tree = $categoriesTree->render();
         $this->assignRef('category_tree', $category_tree);
         $is_shop_context = JeproshopShopModelShop::getShopContext() == JeproshopShopModelShop::CONTEXT_SHOP;
         $this->assignRef('is_shop_context', $is_shop_context);
@@ -524,32 +529,36 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
                 $product_designation = array();
 
                 foreach($attributes as $attribute){ //print_r($attribute);
-                    $product_attribute_id = is_object($attribute) ? $attribute->product_attribute_id : $attribute['product_attribute_id'];
-                    $attribute_designation = is_object($attribute) ? $attribute->attribute_designation : $attribute['attribute_designation'];
+                    $productAttributeId = is_object($attribute) ? $attribute->product_attribute_id : $attribute['product_attribute_id'];
+                    $attributeDesignation = is_object($attribute) ? $attribute->attribute_designation : $attribute['attribute_designation'];
                     // Get available quantity for the current product attribute in the current shop
-                    $available_quantity[$product_attribute_id] = JeproshopStockAvailableModelStockAvailable::getQuantityAvailableByProduct((int)$this->product->product_id,
-                        $product_attribute_id);
+                    $available_quantity[$productAttributeId] = JeproshopStockAvailableModelStockAvailable::getQuantityAvailableByProduct((int)$this->product->product_id,
+                        $productAttributeId);
                     // Get all product designation
-                    $product_designation[$product_attribute_id] = rtrim(
-                        $this->product->name[$this->context->language->lang_id].' - '.$attribute_designation, ' - '
-                    );
+                    if(isset($this->product->name[$this->context->language->lang_id])) {
+                        $product_designation[$productAttributeId] = rtrim(
+                            $this->product->name[$this->context->language->lang_id] . ' - ' . $attributeDesignation, ' - '
+                        );
+                    }else{
+                        $product_designation[$productAttributeId] = '';
+                    }
                 }
 
                 $show_quantities = true;
-                $shop_context = JeproshopShopModelShop::getShopContext();
-                $shop_group = new JeproshopShopGroupModelShopGroup((int)JeproshopShopModelShop::getContextShopGroupID());
+                $shopContext = JeproshopShopModelShop::getShopContext();
+                $shopGroup = new JeproshopShopGroupModelShopGroup((int)JeproshopShopModelShop::getContextShopGroupId());
 
                 // if we are in all shops context, it's not possible to manage quantities at this level
-                if (JeproshopShopModelShop::isFeaturePublished() && $shop_context == JeproshopShopModelShop::CONTEXT_ALL){
+                if (JeproshopShopModelShop::isFeaturePublished() && $shopContext == JeproshopShopModelShop::CONTEXT_ALL){
                     $show_quantities = false;
                     // if we are in group shop context
-                }elseif (JeproshopShopModelShop::isFeaturePublished() && $shop_context == JeproshopShopModelShop::CONTEXT_GROUP){
+                }elseif (JeproshopShopModelShop::isFeaturePublished() && $shopContext == JeproshopShopModelShop::CONTEXT_GROUP){
                     // if quantities are not shared between shops of the group, it's not possible to manage them at group level
-                    if (!$shop_group->share_stock){ $show_quantities = false; }
+                    if (!$shopGroup->share_stock){ $show_quantities = false; }
                 }else{
                     // if we are in shop context
                     // if quantities are shared between shops of the group, it's not possible to manage them for a given shop
-                    if ($shop_group->share_stock){ $show_quantities = false; }
+                    if ($shopGroup->share_stock){ $show_quantities = false; }
                 }
 
                 $stock_management = JeproshopSettingModelSetting::getValue('stock_management');
@@ -715,7 +724,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
                         ++$i;
                     }
                     $this->assignRef('attribute_images', $images);
-                    $attributeList = $this->renderAttributesList($this->product, $this->currency);
+                    $attributeList = $this->product->getAttributeCombinations($this->context->language->lang_id);
                     $this->assignRef('attribute_list', $attributeList);
                     $combination_exists = (JeproshopShopModelShop::isFeaturePublished() && (JeproshopShopModelShop::getContextShopGroup()->share_stock) && count(JeproshopAttributeGroupModelAttributeGroup::getAttributesGroups($this->context->language->lang_id)) > 0 && $this->product->hasAttributes());
                     $this->assignRef('combination_exists', $combination_exists);
@@ -740,9 +749,13 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
                 $product_designation = array();
 
                 foreach ($attributes as $attribute){
-                    $product_designation[$attribute->product_attribute_id] = rtrim(
-                        $this->product->name[$this->context->language->lang_id] . ' - '. $attribute->attribute_designation, ' - '
-                    );
+                    if(isset($this->product->name[$this->context->language->lang_id])) {
+                        $product_designation[$attribute->product_attribute_id] = rtrim(
+                            $this->product->name[$this->context->language->lang_id] . ' - ' . $attribute->attribute_designation, ' - '
+                        );
+                    }else{
+                        $product_designation[$attribute->product_attribute_id] = '';
+                    }
                 }
 
                 // Get all available suppliers
@@ -789,7 +802,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
 
             }
             else
-                JeproshopTools::displayWarning(JText::_('You must save the product in this shop before managing suppliers.'));
+                JeproshopTools::displayWarning(500, JText::_('You must save the product in this shop before managing suppliers.'));
         }
         else
             JeproshopTools::displayWarning(JText::_('You must save this product before managing suppliers.'));
@@ -1012,11 +1025,10 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
     }
 
     /**
-     * @param JeproshopProductModelProduct $product
      * @param JeproshopCurrencyModelCurrency|array|int $currency
      * @return string
      */
-    public function renderAttributesList($product, $currency){
+    public function renderAttributesList(){
         /*$this->bulk_actions = array('delete' => array('text' => $this->l('Delete selected'), 'confirm' => $this->l('Delete selected items?')));
         $this->addRowAction('edit');
         $this->addRowAction('default');
@@ -1033,61 +1045,65 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
             'isbn' => array('title' => $this->l('ISBN'), 'align' => 'left'),
             'upc' => array('title' => $this->l('UPC'), 'align' => 'left')
         );
-
-        if ($product->product_id){
-            /* Build attributes combinations * /
-            $combinations = $product->getAttributeCombinations($this->context->language->lang_id);
-            $groups = array();
-            $comb_array = array();
+*/
+        if ($this->product->product_id){
+            /* Build attributes combinations */
+            $combinations = $this->product->getAttributeCombinations($this->context->language->lang_id);
+            /*$groups = array();
+            $combArray = array();
             if (is_array($combinations)) {
-                $combination_images = $product->getCombinationImages($this->context->language->lang_id);
+                $combinationImages = $this->product->getCombinationImages($this->context->language->lang_id);
                 foreach ($combinations as $k => $combination) {
-                    $price_to_convert = Tools::convertPrice($combination['price'], $currency);
-                    $price = Tools::displayPrice($price_to_convert, $currency);
+                    $priceToConvert = JeproshopTools::convertPrice($combination->price, $currency);
+                    $price = JeproshopTools::displayPrice($priceToConvert, $currency);
 
-                    $comb_array[$combination['id_product_attribute']]['id_product_attribute'] = $combination['id_product_attribute'];
-                    $comb_array[$combination['id_product_attribute']]['attributes'][] = array($combination['group_name'], $combination['attribute_name'], $combination['id_attribute']);
-                    $comb_array[$combination['id_product_attribute']]['wholesale_price'] = $combination['wholesale_price'];
-                    $comb_array[$combination['id_product_attribute']]['price'] = $price;
-                    $comb_array[$combination['id_product_attribute']]['weight'] = $combination['weight'].Configuration::get('PS_WEIGHT_UNIT');
-                    $comb_array[$combination['id_product_attribute']]['unit_impact'] = $combination['unit_price_impact'];
-                    $comb_array[$combination['id_product_attribute']]['reference'] = $combination['reference'];
-                    $comb_array[$combination['id_product_attribute']]['ean13'] = $combination['ean13'];
-                    $comb_array[$combination['id_product_attribute']]['isbn'] = $combination['isbn'];
-                    $comb_array[$combination['id_product_attribute']]['upc'] = $combination['upc'];
-                    $comb_array[$combination['id_product_attribute']]['id_image'] = isset($combination_images[$combination['id_product_attribute']][0]['id_image']) ? $combination_images[$combination['id_product_attribute']][0]['id_image'] : 0;
-                    $comb_array[$combination['id_product_attribute']]['available_date'] = strftime($combination['available_date']);
-                    $comb_array[$combination['id_product_attribute']]['default_on'] = $combination['default_on'];
-                    if ($combination['is_color_group']) {
-                        $groups[$combination['id_attribute_group']] = $combination['group_name'];
+                    $combArray[$combination->product_attribute_id]['product_attribute_id'] = $combination->product_attribute_id;
+                    $combArray[$combination->product_attribute_id]['attributes'][] = array($combination->group_name, $combination->attribute_name, $combination->attribute_id);
+                    $combArray[$combination->product_attribute_id]['wholesale_price'] = $combination->wholesale_price;
+                    $combArray[$combination->product_attribute_id]['price'] = $price;
+                    $combArray[$combination->product_attribute_id]['weight'] = $combination->weight . ' ' . JeproshopSettingModelSetting::getValue('weight_unit');
+                    $combArray[$combination->product_attribute_id]['unit_impact'] = $combination->unit_price_impact;
+                    $combArray[$combination->product_attribute_id]['reference'] = $combination->reference;
+                    $combArray[$combination->product_attribute_id]['ean13'] = $combination->ean13;
+                    $combArray[$combination->product_attribute_id]['isbn'] = $combination->isbn;
+                    $combArray[$combination->product_attribute_id]['upc'] = $combination->upc;
+                    $combArray[$combination->product_attribute_id]['image_id'] = isset($combinationImages[$combination->product_attribute_id][0]->image_id) ? $combinationImages[$combination->product_attribute_id][0]->image_id : 0;
+                    $combArray[$combination->product_attribute_id]['available_date'] = strftime($combination->available_date);
+                    $combArray[$combination->product_attribute_id]['default_on'] = $combination->default_on;
+                    if ($combination->is_color_group) {
+                        $groups[$combination->attribute_group_id] = $combination->group_name;
                     }
                 }
             }
 
-            if (isset($comb_array)) {
-                foreach ($comb_array as $id_product_attribute => $product_attribute) {
+            if (isset($combArray)) {
+                foreach ($combArray as $productAttributeId => $productAttribute) {
                     $list = '';
 
                     /* In order to keep the same attributes order * /
-                    asort($product_attribute['attributes']);
+                    asort($productAttribute['attributes']);
 
-                    foreach ($product_attribute['attributes'] as $attribute) {
+                    foreach ($productAttribute['attributes'] as $attribute) {
                         $list .= $attribute[0].' - '.$attribute[1].', ';
                     }
 
                     $list = rtrim($list, ', ');
-                    $comb_array[$id_product_attribute]['image'] = $product_attribute['id_image'] ? new Image($product_attribute['id_image']) : false;
-                    $comb_array[$id_product_attribute]['available_date'] = $product_attribute['available_date'] != 0 ? date('Y-m-d', strtotime($product_attribute['available_date'])) : '0000-00-00';
-                    $comb_array[$id_product_attribute]['attributes'] = $list;
-                    $comb_array[$id_product_attribute]['name'] = $list;
+                    $combArray[$productAttributeId]['image_id'] = $productAttribute['image_id'] ? new JeproshopImageModelImage($productAttribute['image_id']) : false;
+                    $combArray[$productAttributeId]['available_date'] = $productAttribute['available_date'] != 0 ? date('Y-m-d', strtotime($productAttribute['available_date'])) : '0000-00-00';
+                    $combArray[$productAttributeId]['attributes'] = $list;
+                    $combArray[$productAttributeId]['name'] = $list;
 
-                    if ($product_attribute['default_on']) {
-                        $comb_array[$id_product_attribute]['class'] = $default_class;
+                    if ($productAttribute['default_on']) {
+                        $combArray[$productAttributeId]['class'] = 'highlighted';
                     }
                 }
-            }
+            } */
+        }else{
+            $combinations = array();
         }
 
+
+/*
         foreach ($this->actions_available as $action) {
             if (!in_array($action, $this->actions) && isset($this->$action) && $this->$action) {
                 $this->actions[] = $action;
@@ -1108,11 +1124,8 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
         $helper->colorOnBackground = true;
         $helper->override_folder = $this->tpl_folder.'combination/'; */
 
-        return array(); //$helper->generateList($comb_array, $this->fields_list);
+        return $combinations; //$helper->generateList($comb_array, $this->fields_list);
     }
-
-
-
 
 
     private function addToolBar(){
@@ -1146,7 +1159,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
                 $filter_product_type_options .= '<option value="2" >' . JText::_('COM_JEPROSHOP_PRODUCT_PACKAGE_LABEL'). '</option>';
                 $filter_product_type_options .= '<option value="3" >' . JText::_('COM_JEPROSHOP_PRODUCT_VIRTUAL_LABEL'). '</option>';
                 JHtmlSidebar::addFilter(JText::_('COM_JEPROSHOP_SELECT_PRODUCT_TYPE_LABEL'), 'jform[filter_product_type]', $filter_product_type_options, FALSE);
-               $filter_state_options = '<option value="1" >' . JText::_('COM_JEPROSHOP_FILTER_LABEL'). '</option>';
+                $filter_state_options = '<option value="1" >' . JText::_('COM_JEPROSHOP_FILTER_LABEL'). '</option>';
                 JHtmlSidebar::addFilter(JText::_('COM_JEPROSHOP_SELECT_STATUS_LABEL'), 'jform[filter_state]', $filter_state_options, FALSE);
                 $categories = JeproshopCategoryModelCategory::getCategories();
                 $filter_category_options = '';
@@ -1175,7 +1188,7 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
     public function loadObject($option = false){
         $app = JFactory::getApplication();
         $productId = $app->input->get('product_id');
-        $isLoaded = false;
+        $isLoaded = true;
         if($productId && JeproshopTools::isUnsignedInt($productId)){
             if(!$this->product){
                 $this->product = new JeproshopProductModelProduct($productId);
@@ -1188,12 +1201,12 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
                 $isLoaded = true;
             }
         }elseif($option){
-            if(!$this->product){
-                $this->product = new JeproshopProductModelProduct();
-            }
+            $this->product = new JeproshopProductModelProduct();
+            $isLoaded = true;
         }else{
-            JError::raiseError(500, JText::_('COM_JEPROSHOP_PRODUCT_DOES_NOT_EXIST_MESSAGE'));
-            $isLoaded = false;
+            //JError::raiseError(500, JText::_('COM_JEPROSHOP_PRODUCT_DOES_NOT_EXIST_MESSAGE'));
+            $this->product = new JeproshopProductModelProduct();
+            $isLoaded = true;
         }
 
         //specified

@@ -24,58 +24,24 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
-class JeproshopCombinationModelCombination extends JeproshopModel{
-
-    public  $product_attribute_id;
-
+class JeproshopWarehouseProductLocationModelWarehouseProductLocation extends JeproshopModel {
+    /**
+     * @var int product ID
+     * */
     public $product_id;
 
-    public $reference;
-
-    public $supplier_reference;
-
-    public $location;
-
-    public $ean13;
-
-    public $upc;
-    
-    public $isbn;
-
-    public $wholesale_price;
-
-    public $price;
-
-    public $unit_price_impact;
-
-    public $ecotax;
-
-    public $minimal_quantity = 1;
-
-    public $quantity;
-
-    public $weight;
-
-    public $default_on;
-
-    public $shop_list_id = array();
-
-    public $available_date = '0000-00-00';
-
-    public function __construct($combinationId = null, $shopId = null){
-        
-    }
+    /**
+     * @var int product attribute ID
+     * */
+    public $product_attribute_id;
 
     /**
-     * This method is allow to know if a feature is active
-     * @return bool
-     */
-    public static function isFeaturePublished(){
-        static $feature_active = NULL;
-        if($feature_active === NULL){
-            $feature_active = JeproshopSettingModelSetting::getValue('combination_feature_active');
-        }
-        return $feature_active;
-    }
+     * @var int warehouse ID
+     * */
+    public $warehouse_id;
 
+    /**
+     * @var string location of the product
+     * */
+    public $location;
 }

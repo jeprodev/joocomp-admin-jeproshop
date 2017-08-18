@@ -34,4 +34,19 @@ class JeproshopModel extends  JModelLegacy{
 
     public function getPagination(){ return $this->pagination; }
 
+    /**
+     * Clears cache entries that have this object's ID.
+     *
+     * @param $table
+     * @param $id
+     * @param bool $all If true, clears cache for all objects
+     */
+    public function clearCache($table, $id, $all = false){
+        if ($all) {
+            JeproshopCache::clean('jeproshop_' . $table . '_model_*');
+        } elseif ($id) {
+            JeproshopCache::clean('jeproshop_' . $table . '_model_' . (int)$id .'_*');
+        }
+    }
+
 }

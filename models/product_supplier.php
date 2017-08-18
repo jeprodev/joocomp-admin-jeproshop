@@ -54,7 +54,7 @@ class JeproshopProductSupplierModelProductSupplier extends JeproshopModel{
     /**
      * @var string The unit price tax excluded of the product
      * */
-    public $product_supplier_price_te;
+    public $product_supplier_price_tax_excluded;
 
     /**
      * For a given product, retrieves its suppliers
@@ -63,7 +63,6 @@ class JeproshopProductSupplierModelProductSupplier extends JeproshopModel{
      * @param bool $groupBySupplier
      * @return Array Collection of Product Supplier
      *
-     * @internal param int $id_product
      */
     public static function getSuppliers($productId, $groupBySupplier = true){
         $db = JFactory::getDBO();
@@ -73,5 +72,49 @@ class JeproshopProductSupplierModelProductSupplier extends JeproshopModel{
 
         $db->setQuery($query);
         return $db->loadObjectList();
+    }
+
+    public function save($fromPost = true){
+        if($this->product_supplier_id > 0){
+            $this->update($fromPost);
+        }else{
+            $this->add($fromPost);
+        }
+    }
+
+    public function add($fromPost = true)
+    {
+        if ($fromPost) {
+            $this->copyFromPost();
+        }
+
+        $db = JFactory::getDBO();
+
+        $query = "INSERT INTO " . $db->quoteName('#__jeproshop_product_supplier') . "(" . $db->quoteName('product_id') . ", ";
+        $query .= $db->quoteName('product_attribute_id') . ", " . $db->quoteName('supplier_id') . ", " . $db->quoteName('currency_id') ;
+        $query .= ", " . $db->quoteName('product_supplier_reference') . ", " . $db->quoteName('product_supplier_price_tax_excluded');
+        $query .= ") VALUES (" . (int)$this->product_id . ", " . (int)$this->product_attribute_id . ", " . (int)$this->supplier_id;
+        $query .= (int)$this->currency_id . ", " . $db->quote($this->product_supplier_reference) . ", " . (float)$this->product_supplier_price_tax_excluded . ")";
+
+        $db->setQuery($query);
+        $db->query();
+    }
+
+    public function update($fromPost = true){
+        if ($fromPost) {
+            $this->copyFromPost();
+        }
+
+        $db = JFactory::getDBO();
+
+        $query = "UPDATE " . $db->quoteName('#__jeproshop_product_supplier') . " SET " . $db->quoteName('product_id') . " = ";
+        $query .= (int)$this->product_id . ", " . $db->quoteName('product_attribute_id') . " = " . (int)$this->product_attribute_id;
+        $query .= ", " . $db->quoteName('supplier_id') . " = "  . (int)$this->supplier_id . ", " . $db->quoteName('currency_id') ;
+        $query .= " = " . (int)$this->currency_id . ", ". $db->quoteName('product_supplier_reference') . " = " . $db->quote($this->product_supplier_reference);
+        $query .= ", " . $db->quoteName('product_supplier_price_tax_excluded') . " = " . (float)$this->product_supplier_price_tax_excluded;
+        $query .= " WHERE " . $db->quoteName('product_supplier_id') . " = " . $this->product_supplier_id;
+
+        $db->setQuery($query);
+        $db->query();
     }
 }
