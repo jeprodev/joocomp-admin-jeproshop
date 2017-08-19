@@ -3289,11 +3289,78 @@ class JeproshopProductModelProduct extends JeproshopModel{
     public function addSpecificPrice(){
         $app = JFactory::getApplication();
         $useAjax = $app->input->get('use_ajax', 0);
-        $db = JFactory::getDBO();
+        //$db = JFactory::getDBO();
+
+        $specificPrice = new JeproshopSpecificPriceModelSpecificPrice();
 
         if($useAjax){
-
+            $specificPriceRuleId = $app->input->get('specific_price_rule_id') ;
+            $cartId = $app->input->get('cart_id') ;
+            $shopId  = $app->input->get('shop_id') ;
+            $shopGroupId = $app->input->get('shop_group_id') ;
+            $currencyId = $app->input->get('currency_id') ;
+            $countryId = $app->input->get('country_id') ;
+            $groupId = $app->input->get('group_id') ;
+            $customerId = $app->input->get('customer_id') ;
+            $productAttributeId = $app->input->get('product_attribute_id') ;
+            $price = $app->input->get('price') ;
+            $fromQuantity = $app->input->get('starting_at') ;
+            $reduction = $app->input->get('reduction') ;
+            $reductionType = $app->input->get('reduction_type') ;
+            $startingFrom = $app->input->get('from') ;
+            $endsOn = $app->input->get('to') ;
+        }else{
+            $specificPriceRuleId = $app->input->get('specific_price_rule_id') ;
+            $cartId = $app->input->get('cart_id') ;
+            $shopId  = $app->input->get('shop_id') ;
+            $shopGroupId = $app->input->get('shop_group_id') ;
+            $currencyId = $app->input->get('currency_id') ;
+            $countryId = $app->input->get('country_id') ;
+            $groupId = $app->input->get('group_id') ;
+            $customerId = $app->input->get('customer_id') ;
+            $productAttributeId = $app->input->get('product_attribute_id') ;
+            $price = $app->input->get('price') ;
+            $fromQuantity = $app->input->get('starting_at') ;
+            $reduction = $app->input->get('reduction') ;
+            $reductionType = $app->input->get('reduction_type') ;
+            $startingFrom = $app->input->get('from') ;
+            $endsOn = $app->input->get('to') ;
         }
+
+        $specificPrice->product_id = $this->product_id;
+        $specificPrice->specific_price_rule_id = (isset($specificPriceRuleId) && JeproshopTools::isUnsignedInt($specificPriceRuleId)) ? $specificPriceRuleId : 0;
+        $specificPrice->cart_id = (isset($cartId) && JeproshopTools::isUnsignedInt($cartId)) ? $cartId : 0;
+        $specificPrice->shop_id = (isset($shopId) && JeproshopTools::isUnsignedInt($shopId)) ? $shopId : JeproshopContext::getContext()->shop->shop_id;
+        $specificPrice->shop_group_id = (isset($shopGroupId) && JeproshopTools::isUnsignedInt($shopGroupId)) ? $shopGroupId : JeproshopContext::getContext()->shop->shop_group_id;
+        $specificPrice->currency_id = (isset($currencyId) && JeproshopTools::isUnsignedInt($currencyId)) ? $currencyId : 0;
+        $specificPrice->country_id = (isset($countryId) && JeproshopTools::isUnsignedInt($countryId)) ? $countryId : 0;
+        $specificPrice->group_id = (isset($groupId) && JeproshopTools::isUnsignedInt($groupId)) ? $groupId : 0;
+        $specificPrice->customer_id = (isset($customerId) && JeproshopTools::isUnsignedInt($customerId)) ? $customerId : 0;
+        $specificPrice->product_attribute_id = (isset($productAttributeId) && JeproshopTools::isUnsignedInt($productAttributeId)) ? $productAttributeId : 0;
+        $specificPrice->price = (isset($price) && JeproshopTools::isPrice($price)) ? $price : 0.00;
+        $specificPrice->from_quantity = (isset($fromQuantity) && JeproshopTools::isUnsignedInt($fromQuantity)) ? $fromQuantity : 1;
+        $specificPrice->reduction_type = (isset($reductionType) && in_array($reductionType, array('amount', 'percentage'))) ? $reductionType : 'amount';
+        $specificPrice->reduction = (isset($reduction) && JeproshopTools::isNumeric($reduction)) ? $reduction : 0.00;
+        if($specificPrice->reduction_type == 'percentage'){ $specificPrice->reduction /= 100;}
+        $specificPrice->to = (isset($endsOn) && JeproshopTools::isDate($endsOn)) ? $endsOn : '0000-00-00 00:00:00';
+        $specificPrice->from = (isset($startingFrom) && JeproshopTools::isDate($startingFrom)) ? $startingFrom : '0000-00-00 00:00:00';
+        
+        if($specificPrice->add()){
+            return $specificPrice;
+        }else{
+            return null;
+        }
+
+        /*$query = "INSERT INTO " . $db->quoteName('#__jeproshop_specific_price') . "(" . $db->quoteName('specific_price_rule_id') . ", ";
+        $query .= $db->quoteName('cart_id') . ", " . $db->quoteName('product_id') . ", " . $db->quoteName('shop_id') . ", ";
+        $query .= $db->quoteName('shop_group_id') . ", " . $db->quoteName('currency_id') . ", " . $db->quoteName('country_id') . ", ";
+        $query .= $db->quoteName('group_id') . ", " . $db->quoteName('customer_id') . ", " . $db->quoteName('product_attribute_id') . ", ";
+        $query .= $db->quoteName('price') . ", " . $db->quoteName('from_quantity') . ", " . $db->quoteName('reduction') . ", ";
+        $query .= $db->quoteName('reduction_type') . ", " . $db->quoteName('from') . ", " . $db->quoteName('to') . ") VALUES (";
+        $query .= (int)$specificPriceRuleId .", " . (int)$cartId . ", " . (int)$this->product_id . ", " . (int)$shopId . ", ";
+        $query .= (int)$shopGroupId . ", " . (int)$currencyId . ", " . (int)$countryId . ", " . (int)$groupId . ", " . (int)$customerId . ", ";
+        $query .= (int)$productAttributeId . ", " . (float)$price . ", " . (int)$fromQuantity . ", " . (float)$reduction . ", ";
+        $query .= $db->quote($reductionType) . ", " . $db->quote($startingFrom) . ", " . $db->quote($endsOn) . ")"; */
     }
 
     /**

@@ -313,7 +313,7 @@ $app = JFactory::getApplication();
 
                 <?php if($this->specific_price_modification_form){ ?>
                 <div class="control-group">
-                    <table class="table table-striped" >
+                    <table class="table table-striped" id="jform_product_specific_prices" >
                         <thead>
                             <tr>
                                 <th><?php echo JText::_('COM_JEPROSHOP_RULES_LABEL'); ?></th>
@@ -326,7 +326,7 @@ $app = JFactory::getApplication();
                                 <th><?php echo JText::_('COM_JEPROSHOP_FIXED_PRICE_LABEL'); ?></th>
                                 <th><?php echo JText::_('COM_JEPROSHOP_IMPACT_LABEL'); ?></th>
                                 <th><?php echo JText::_('COM_JEPROSHOP_PERIOD_LABEL'); ?></th>
-                                <th><?php echo JText::_('COM_JEPROSHOP_FROM_LABEL'); ?></th>
+                                <th class="center"><?php echo JText::_('COM_JEPROSHOP_FROM_LABEL'); ?></th>
                                 <th><?php echo JText::_('COM_JEPROSHOP_ACTIONS_LABEL'); ?></th>
                             </tr>
                         </thead>
@@ -352,7 +352,7 @@ $app = JFactory::getApplication();
                                     if ($specificPrice->from == '0000-00-00 00:00:00' && $specificPrice->to == '0000-00-00 00:00:00') {
                                         $period = JText::_('COM_JEPROSHOP_UNLIMITED_LABEL');
                                     }else {
-                                        $period = JText::_('COM_JEPROSHOP_FROM_LABEL') . ' ' . ($specificPrice->from != '0000-00-00 00:00:00' ? $specificPrice['from'] : '0000-00-00 00:00:00') . '<br />' . JText::_('COM_JEPROSHOP_TO_LABEL') . ' ' . ($specificPrice['to'] != '0000-00-00 00:00:00' ? $specificPrice['to'] : '0000-00-00 00:00:00');
+                                        $period = JText::_('COM_JEPROSHOP_FROM_LABEL') . ' ' . ($specificPrice->from != '0000-00-00 00:00:00' ? $specificPrice->from : '0000-00-00 00:00:00') . '<br />' . JText::_('COM_JEPROSHOP_TO_LABEL') . ' ' . ($specificPrice->to != '0000-00-00 00:00:00' ? $specificPrice->to : '0000-00-00 00:00:00');
                                     }
 
                                     if ($specificPrice->product_attribute_id){
@@ -398,9 +398,9 @@ $app = JFactory::getApplication();
                                 <td><?php echo $fixedPrice; ?></td>
                                 <td><?php echo $impact; ?></td>
                                 <td><?php echo $period; ?></td>
-                                <td><?php echo $specificPrice->from_quantity; ?></td>
+                                <td class="nowrap center"><?php echo $specificPrice->from_quantity; ?></td>
                                 <td><?php if(!$rule->specific_price_rule_id && $canDeleteSpecificPrices){ ?>
-                                        <a class="btn btn-default" name="delete_link" href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=price&product_id='.(int)$app->input->get('product_id').'&task=delete_specific_price&specific_price_id='.(int)($specificPrice->specific_price_id).'&' . JeproshopTools::getPriceFormToken() .'=1'); ?>"><i class="icon-trash"></i></a>
+                                        <a class="btn btn-micro" name="delete_link" href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=price&product_id='.(int)$app->input->get('product_id').'&task=delete_specific_price&specific_price_id='.(int)($specificPrice->specific_price_id).'&' . JeproshopTools::getPriceFormToken() .'=1'); ?>"><i class="icon-trash"></i></a>
                                     <?php } ?>
                                 </td>
                             </tr>

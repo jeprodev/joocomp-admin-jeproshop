@@ -52,7 +52,7 @@ if($this->product->product_id) {
         }
 
         $script .= ' if(assoc != "{"){ assoc = assoc.slice(0, -1) +  "}"; }else{ assoc = false; } ';
-        $script .= 'var imageParams = {"icon_checked" : ' . (($image->cover == 1) ? '\'icon-check-sign\'' : '\'icon-check-empty\'') . ', ';
+        $script .= 'var imageParams = {"icon_checked" : ' . (($image->cover == 1) ? '\'icon-publish\'' : '\'icon-unpublish\'') . ', ';
         $script .= '"image_id" : parseInt(' . $image->image_id . '), "path" : "' . $this->context->controller->getProductImageLink("", $this->product->product_id . '_' . $image->image_id, "default_cart") . '", "position" : parseInt(';
         $script .= $image->position . ') , assoc, "legend" : "' . $image->legend[$this->context->language->lang_id] . '" };';
 

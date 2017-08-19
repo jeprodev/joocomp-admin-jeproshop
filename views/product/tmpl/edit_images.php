@@ -78,7 +78,7 @@ defined('_JEXEC') or die('Restricted access');
                                 <td ><input type="checkbox" class="image_shop" name="image_id" id="<?php echo $shop->shop_id; ?>image_id" value="<?php echo $shop->shop->shop_id; ?>" /></td>
                             <?php }
                         } ?>
-                        <td class="cover" ><a href="#"><i class="icon-check-empty icon-2x cover" ></i> </a></td>
+                        <td class="cover center" ><a href="#"><i class="icon-check-empty icon-2x cover" ></i> </a></td>
                         <td ><a href="#" class="delete_product_image pull-right btn btn-default" ><i class="icon-trash" ></i> <?php echo JText::_('COM_JEPROSHOP_DELETE_THIS_IMAGE_LABEL'); ?></a> </td>
                     </tr>
                 </table>

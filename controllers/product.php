@@ -66,8 +66,52 @@ class JeproshopProductController extends JeproshopController{
             case 'specific' :
                 $productId = $app->input->get('product_id');
                 $product = new JeproshopProductModelProduct($productId);
-                if (JeproshopTools::isLoadedObject($product, 'product_id') && $product->addSpecificPrice()) {
-                    $jsonData = array("success" => true, "found" => true, "messages" => JText::_('COM_JEPROSHOP_PRODUCT_PRICE_HAS_BEEN_SUCCESSFULLY_UPDATED_MESSAGE'));
+                if (JeproshopTools::isLoadedObject($product, 'product_id')) {
+                    $specificPrice = $product->addSpecificPrice();
+                    if($specificPrice) {
+                        $jsonData = array("success" => true, "found" => true, "messages" => JText::_('COM_JEPROSHOP_PRODUCT_PRICE_HAS_BEEN_SUCCESSFULLY_UPDATED_MESSAGE'));
+                        foreach ($specificPrice as $key => $value){
+                            $jsonData[$key] = $value;
+                        }
+                        if($specificPrice->specific_price_rule_id > 0){
+                            $jsonData['rule_name'] = JeproshopSpecificPriceRuleModelSpecificPriceRule::getSpecifiPriceRuleNameBySpecifiPriceRuleId($specificPrice->specific_price_rule_id);
+                        }else{
+                            $jsonData['rule_name'] = '---';
+                        }
+
+                        if($specificPrice->product_attribute_id > 0){
+                            $combination = new JeproshopCombinationModelCombination($specificPrice->product_attribute_id);
+                            $attributes = $combination->getAttributesName(JeproshopContext::getContext()->language->lang_id);
+                            $attributeName = '';
+                            foreach ($attributes as $attribute){ $attributeName .= $attribute->name . ' - '; }
+                            $attributeName = rtrim($attributeName, ' - ');
+                        }else{
+                            $attributeName = JText::_('COM_JEPROSHOP_ALL_COMBINATIONS_LABEL');
+                        }
+                        $jsonData['attributes_name'] = $attributeName;
+
+                        if($specificPrice->customer_id > 0){
+                            $customer = new JeproshopCustomerModelCustomer($specificPrice->customer_id);
+                            if(JeproshopTools::isLoadedObject($customer, 'customer_id')){
+                                $customerFullName = $customer->firstname . ' ' . $customer->lastname;
+                            }else{
+                                $customerFullName = ' ';
+                            }
+                        }else{
+                            $customerFullName = ' ';
+                        }
+                        $jsonData['customer_name'] = $customerFullName;
+
+                        $canDeleteSpecificPrices = true;
+                        if(JeproshopShopModelShop::isFeaturePublished()){
+                            $specificPriceShopId = $specificPrice->shop_id;
+                            $canDeleteSpecificPrices = (count(JeproshopContext::getContext()->employee->getAssociatedShops()) > 1 && $specificPriceShopId) || $specificPriceShopId;
+                        }
+                        $jsonData['can_delete_specific_prices'] = ($canDeleteSpecificPrices ? 1 : 0);
+                        $jsonData['shop_feature'] = (JeproshopShopModelShop::isFeaturePublished() ? 1 : 0);
+                    }else{
+                        $jsonData = array("success" => false, "found" => false, "messages" => JText::_('COM_JEPROSHOP_SOMETHING_WENT_WRONG_DURING_PRODUCT_SPECIFIC_PRICE_UPDATE_MESSAGE'));
+                    }
                 } else {
                     $jsonData = array("success" => false, "found" => false, "messages" => JText::_('COM_JEPROSHOP_SOMETHING_WENT_WRONG_DURING_PRODUCT_SPECIFIC_PRICE_UPDATE_MESSAGE'));
                 }

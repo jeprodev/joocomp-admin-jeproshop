@@ -192,6 +192,7 @@ class JeproshopSpecificPriceModelSpecificPrice extends JeproshopModel{
 
         $db->setQuery($query);
         if($db->query()){
+            $this->specific_price_id = $db->insertid();
             // Flush cache when we adding a new specific price
             JeproshopSpecificPriceModelSpecificPrice::$_specific_price_cache = array();
             JeproshopProductModelProduct::flushPriceCache();

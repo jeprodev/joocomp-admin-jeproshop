@@ -49,4 +49,30 @@ class JeproshopModel extends  JModelLegacy{
         }
     }
 
+    /**
+     * Gets the list of associated shop IDs
+     *
+     * @param $table
+     * @return array
+     */
+    public function getAssociatedShops($table){
+        if (!JeproshopShopModelShop::isTableAssociated($table)) {
+            return array();
+        }
+
+        $list = array();
+
+        $db = JFactory::getDBO();
+        $query = "SELECT " . $db->quoteName('shop_id') . " FROM " . $db->quoteName('#__jeproshop_' . $table .'_shop') . " WHERE ";
+        $query .= $db->quoteName($table . '_id') . ' = ' .(int)$this->{$table .'_id'};
+
+        $db->setQuery($query);
+
+        foreach ($db->loaodObjectList() as $row) {
+            $list[] = $row->shop_id;
+        }
+        return $list;
+    }
+
+
 }

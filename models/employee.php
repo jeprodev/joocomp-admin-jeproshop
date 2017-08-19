@@ -62,17 +62,17 @@ class JeproshopEmployeeModelEmployee extends JModelLegacy{
 
     protected $associated_shops = array();
 
-    public function __construct($employee_id = NULL, $lang_id = NULL, $shop_id = null) {
+    public function __construct($employeeId = NULL, $langId = NULL, $shopId = null) {
         parent::__construct();
 
         $db = JFactory::getDBO();
 
-        if($lang_id !== null){
-            $this->lang_id = (JeproshopLanguageModelLanguage::getLanguage($lang_id) !== false)  ? (int)$lang_id : JeproshopSettingModelSetting::getValue('default_lang');
+        if($langId !== null){
+            $this->lang_id = (JeproshopLanguageModelLanguage::getLanguage($langId) !== false)  ? (int)$langId : JeproshopSettingModelSetting::getValue('default_lang');
         }
 
-        if($shop_id && $this->isMultiShop()){
-            $this->shop_id = (int)$shop_id;
+        if($shopId && $this->isMultiShop()){
+            $this->shop_id = (int)$shopId;
             $this->getShopFromContext = false;
         }
         /*
@@ -144,7 +144,7 @@ class JeproshopEmployeeModelEmployee extends JModelLegacy{
                 }
                 */
         if($this->employee_id){
-            $this->associated_shops = $this->getAssociatedShops();
+            $this->associated_shops = $this->getAssociatedShops('employee');
         }
 
         $this->image_dir = COM_JEPROSHOP_EMPLOYEE_IMAGE_DIR;

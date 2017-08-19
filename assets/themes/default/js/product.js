@@ -15,9 +15,22 @@
             eco_tax_tax_excluded : 0,
             price_display_precision : 4,
             currencies : [],
+            countries : [],
+            groups : [],
+            shops : [],
             taxes : [],
-            all_customers_label : '',
-            no_customers_label :'',
+            labels : {
+                all_customers : '',
+                no_customers :'',
+                all_shops : '',
+                all_currencies : '',
+                all_countries : '',
+                all_groups : '',
+                unlimited : '',
+                from : 'From',
+                to : 'To'
+            },
+
             delete_price_rule_message : '',
             product_token :  '',
             customer_token : '',
@@ -86,7 +99,7 @@
             });
             initializePrice();
             //initializeDeclination();
-            //initializeImages();
+            initializeImages();
         }
 
         function initializePrice(){
@@ -147,7 +160,6 @@
                 unitySecond();
             });
             unityWrapper.change(function(){ unitySecond(); });
-
 
             ecoTaxWrapper.on('keyup', function (evt) {
                 priceType.val('TI');
@@ -260,6 +272,7 @@
                 reduction = (typeof reduction !== 'undefined') ? parseFloat(reduction) : 0;
 
                 var reductionType = jQuery('#jform_specific_price_reduction_type').find(':selected').val();
+                var leaveBasePrice = jQuery('#jform_leave_base_price').is('checked');
 
 
                 var specificUrlPath = 'index.php?option=com_jeproshop&view=product&task=save&use_ajax=1&tab=specific&' + options.product_token + '=1';
@@ -280,14 +293,52 @@
                         price : price,
                         reduction : reduction,
                         reduction_type : reductionType,
-                        attribute_id : attributeId
+                        product_attribute_id : attributeId,
+                        leave_base_price : (leaveBasePrice ? 1 : 0)
                     },
                     success : function(result){
-                        console.log(result);
+                        if(result.found){
+                            var specificPriceTable = jQuery('#jform_product_specific_prices');
+                            var count = specificPriceTable.find('tbody').find('tr').length; console.log(count);
+                            var period;
+                            if(result.from === '0000-00-00 00:00:00' && result.to === '0000-00-00 00:00:00'){
+                                period = options.labels.unlimited;
+                            }else{
+                                period = options.labels.from + ' ' + ((result.from !== '0000-00-00 00:00:00') ? result.from : '0000-00-00 00:00:00') + '<br/>' +
+                                    options.labels.to + ' ' + ((result.to !== '0000-00-00 00:00:00') ? result.to : '0000-00-00 00:00:00');
+                            }
+
+                            var impact = '--';
+                            if(result.reduction_type === 'percentage'){
+                                impact = '- ' + (result.reduction * 100) + '%';
+                            }else if (result.reduction > 0){
+                                impact = '- ' + JeproTools.displayPrice(JeproTools.roundPrice(result.reduction, 2), specificPriceCurrentCurrency) + ' ';
+                                impact += '(' + ((result.reduction_tax) ? options.labels.tax_included : options.labels.tax_included) + ')';
+                            }
+                            var specificPrice = JeproTools.roundPrice(result.price, 2);
+                            var fixedPrice = (((specificPrice == JeproTools.roundPrice(price, 2) || result.price == -1) ? '--' : JeproTools.displayPrice(specificPrice, specificPriceCurrentCurrency)));
+                            var newRaw = '<tr >' +
+                                    '<td class="nowrap">' + result.rule_name  + '</td>' +
+                                    '<td class="nowrap" >' + result.attributes_name + '</td>';
+                            if(result.shop_feature) {
+                                newRaw += '<td class="nowrap" >' + (result.shop_id ? options.shops[result.shop_id].name : options.labels.all_shops) + '</td>';
+                            }
+                            newRaw += '<td class="nowrap" >' + (result.currency_id > 0 ? options.currencies[result.currency_id].name : options.labels.all_currencies) + '</td>' +
+                                    '<td class="nowrap" >' + (result.country_id > 0 ? options.countries[result.country_id].name : options.labels.all_countries)  + '</td>' +
+                                    '<td class="nowrap" >' + (result.group_id > 0 ? options.groups[result.group_id].name : options.labels.all_groups) + '</td>' +
+                                    '<td class="nowrap" title="ID: ' + result.customer_id + '">' + ((typeof(result.customer_name) !== 'undefined') ? result.customer_name : options.labels.all_customers) + '</td>' +
+                                    '<td class="nowrap" >' + fixedPrice + '</td>' +
+                                    '<td class="nowrap" >' + impact + '</td>' +
+                                    '<td class="nowrap" >' + period + '</td>' +
+                                    '<td class="nowrap center" >' + result.from_quantity + '</td>' +
+                                    '<td class="nowrap" >' + ((!result.specific_price_rule_id && result.can_delete_specific_prices) ? ('<a class="btn btn-micro" href="index.php?option=com_jeproshop&view=product&task=delete&tab=specific&product_id=' + result.product_id + '&specific_price_id=' + result.specific_price_id + '&' + options.product_token + '=1" ><i class="icon-trash" ></i> </a>') : '' ) + '</td>' +
+                                '</tr>';
+                            specificPriceTable.find('tbody').append(newRaw);
+                        }
                     }
                 });
             });
-  /*
+
             var reductionType = jQuery('#jform_specific_price_reduction_type');
             reductionType.change(function(){
                 var reductionTax = jQuery('#jform_specific_price_reduction_tax');
@@ -301,8 +352,6 @@
                 jQuery('#jform_specific_price_current_price_without_tax').html(options.product_prices[productAttributeId.find(':selected').val()]);
             });
 
-
-
             var leaveBasePrice = jQuery('#jform_leave_base_price');
             leaveBasePrice.on('click', function(){ 
                 var price = jQuery('#jform_specific_price_price');
@@ -311,7 +360,7 @@
                 }else{
                     price.prop('disabled', false);
                 }
-            }); */
+            });
         }
 
         function calculatePriceTaxIncluded(){
@@ -697,8 +746,8 @@
                 .text(selectedAttributeGroup.text() + ' : ' + selectedAttribute.text())
                 .appendTo("#jform_product_attribute_list");
         }
-        
-        function initializeImages() {
+        */
+        function initializeImages(){
             var assoc;
             var originalOrder = false;
             var reOrder = "";
@@ -730,7 +779,19 @@
                         });
                         imageUp = imageUp.slice(0, -1);
                         imageUp += "}";
-                        updateImagePosition(imageUp);
+                        var imageUpdatePositionUrl = 'index.php?option=com_jeproshop&view=product&task=update&tab=image_position&product_id=' +
+                                options.product_id;
+                        jQuery.ajax({
+                            type : "POST",
+                            url : imageUpdatePositionUrl,
+                            async : true,
+                            dataType : "json",
+                            data : imageUp,
+                            success : function(result){
+
+                            },
+                            fail : function(){}
+                        });
                     }
                 }
             });
