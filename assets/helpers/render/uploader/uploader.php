@@ -25,7 +25,9 @@
 defined('_JEXEC') or die('Restricted access');
 
 class JeproshopUploader{
+    const DEFAULT_TEMPLATE = 'simple';
     const DEFAULT_MAX_SIZE = 10485760;
+
 
     private $_accept_types;
     private $_files;
@@ -47,11 +49,11 @@ class JeproshopUploader{
         return $this->_accept_types;
     }
 
-    public function getFilePath($file_name = null){
-        if (!isset($file_name)){
+    public function getFilePath($fileName = null){
+        if (!isset($fileName)){
             return tempnam($this->getSavePath(), $this->getUniqueFileName());
         }
-        return $this->getSavePath().$file_name;
+        return $this->getSavePath() . $fileName;
     }
 
     public function getFiles(){
@@ -93,9 +95,9 @@ class JeproshopUploader{
         $last          = strtolower($post_max_size[strlen($post_max_size) - 1]);
 
         switch ($last){
-            case 'g': $bytes *= 1024;
-            case 'm': $bytes *= 1024;
-            case 'k': $bytes *= 1024;
+            case 'g': $bytes *= 1024; break;
+            case 'm': $bytes *= 1024; break;
+            case 'k': $bytes *= 1024; break;
         }
 
         if ($bytes == '')
@@ -106,7 +108,7 @@ class JeproshopUploader{
 
     public function getSavePath(){
         if (!isset($this->_save_path)){
-            $this->setSavePath(COM_JEPROSHOP_UPLOAD_DIRECTORY);
+            $this->setSavePath(COM_JEPROSHOP_TMP_IMAGE_DIR);
         }
         return $this->normalizeDirectory($this->_save_path);
     }
@@ -115,9 +117,9 @@ class JeproshopUploader{
         return uniqid($prefix, true);
     }
 
-    protected function checkUploadError($error_code){
+    protected function checkUploadError($errorCode){
         $error = 0;
-        switch ($error_code){
+        switch ($errorCode){
             case 1:
                 $error = JError::raiseError(500, sprintf('The uploaded file exceeds %s', ini_get('post_max_size')));
                 break;
@@ -145,11 +147,11 @@ class JeproshopUploader{
         return $error;
     }
 
-    protected function getFileSize($file_path, $clear_stat_cache = false) {
-        if ($clear_stat_cache)
-            clearstatcache(true, $file_path);
+    protected function getFileSize($filePath, $clearStatCache = false) {
+        if ($clearStatCache)
+            clearstatcache(true, $filePath);
 
-        return filesize($file_path);
+        return filesize($filePath);
     }
 
     protected function getServerVars($var){
@@ -168,8 +170,128 @@ class JeproshopUploader{
         return $directory;
     }
 
+    public function process($destination = null){
+        $jsonData = array("success" =>false, "found" => false);
+        JClientHelper::setCredentialsFromRequest('ftp');
+        $app = JFactory::getApplication();
+        $input = $app->input;
+
+        $productId = $input->get('product_id');
+        $inputName = $input->get('field');
+        //$jsonData['field_name'] = $inputName;
+
+        $fileToUpload = $input->get($inputName, null, 'raw'); print_r($fileToUpload);
+        /*$toUpload = array(
+            array("name" => "13082011051.jpg", "lastModified" => 1313256842000, "lastModifiedDate" => "Sat Aug 13 2011 19:34:02", "webkitRelativePath" => "", "size" => "601161"), // "type" => "image/jpeg"),
+            array("name" => "13082011052.jpg", "lastModified" => 1313256852000, "lastModifiedDate" => "Sat Aug 13 2011 19:34:12", "webkitRelativePath" => "", "size" => "617380"), // "type" => "image/jpeg"),
+            array("name" => "13082011066.jpg", "lastModified" => 1313257434000, "lastModifiedDate" => "Sat Aug 13 2011 19:43:54", "webkitRelativePath" => "", "size" => "666300") // "type" => "image/jpeg")
+        );* /
+print_r($toUpload);
+        if($toUpload && is_array($toUpload)) {
+            $files = array();
+            foreach ($toUpload as $file) {
+                $files[] = $this->upload($file, $destination);
+            }
+            return $files;
+        }else if($toUpload){
+            $files = array();
+            $files[] = $this->upload($toUpload, $destination);
+            return $files;
+        }
+*/
+        return null;
+    }
+    
+
+    private function upload($file, $destination){
+        //if($this->isFileSecure($file)){
+            if(isset($destination) && is_dir($destination)){
+                $filePath = $destination;
+            }else{
+                /*jimport('joomla.filesystem.folder');
+                if(!JFolder::create($destination)){
+                    JError::raiseError(500, JText::_('COM_JEPROSHOP_WE_CANNOT_CREATE_THIS_FOLDER_MESSAGE') . ' ' . $destination . ' ' . JText::_('COM_JEPROSHOP_PLEASE_CHECK_YOUR_CREDENTIALS_OR_CONTACT_AN_ADMIN_MESSAGE'));
+                    return false;
+                }*/
+                $filePath = $this->getFilePath(isset($destination) ? $destination : $file['name']);
+            }
+
+
+            if(isset($file['tmp_name']) && is_uploaded_file($file['tmp_name'])){
+                move_uploaded_file($file['tmp_name'], $destination);
+            }else{
+                file_put_contents($filePath, fopen('php://input', 'r'));
+            }
+
+            clearstatcache(true, $filePath);
+            $fileSize = filesize($filePath);
+echo $filePath;
+            if($fileSize === $file['size']){
+                $file['save_path'] = $filePath;
+            }else{
+                $file['size'] = $fileSize;
+                unlink($filePath);
+                $file['error'] = $file['error'] . '<br />' . JText::_('COM_JEPROSHOP_SERVER_FILE_SIZE_IS_DIFFERENT_FROM_LOCAL_FILE_SIZE_MODEL');
+            }
+        //}
+        print_r($file);
+        return $file;
+    }
+
+    private function isFileSecure($file){
+        $file['error'] = $this->checkUploadError(isset($file['error']) ? $file['error'] : '');
+
+        $postMaxSize = $this->getPostMaxSizeBytes();
+
+        if ($postMaxSize && ($this->getServerVars('CONTENT_LENGTH') > $postMaxSize))
+        {
+            $file['error'] = $file['error'] . '<br />' . JText::_('JEPROSHOP_THE_UPLOADED_FILE_EXCEEDS_THE_POST_MAX_SIZE_DIRECTIVE_IN_MESSAGE');
+            return false;
+        }
+
+        if (preg_match('/\%00/', $file['name']))
+        {
+            $file['error'] = $file['error'] . '<br />' . JTsxt::_('COM_JEPROSHOP_INVALID_FILE_NAME_LABEL') ;
+            return false;
+        }
+
+        $types = $this->getAcceptTypes();
+        print_r($file);
+
+        //TODO check mime type.
+        if (isset($types) && !in_array(pathinfo($file['name'], PATHINFO_EXTENSION), $types))
+        {
+            $file['error'] = $file['error'] . '<br />' . JText::_('COM_JEPROSHOP_FILE_TYPE_NOT_ALLOWED_LABEL');
+            return false;
+        }
+        print_r($file);
+
+        if ($file['size'] > $this->getMaxSize())
+        {
+            $file['error'] = $file['error'] . '<br />' . JText::_('COM_JEPROSHOP_FILE_IS_TOO_BIG_LABEL');
+            return false;
+        }
+        print_r($file);
+
+        return true;
+    }
+
     public function render(){
-        return '';
+        $document = JFactory::getDocument();
+        $document->addScript('components/com_jeproshop/assets/javascript/jquery/ui/jquery.ui.widget.min.js');
+        $document->addScript('components/com_jeproshop/assets/javascript/vendor/ladda.js');
+        $document->addScript('components/com_jeproshop/assets/javascript/jquery/plugins/fileupload/jquery.iframe-transport.js');
+        $document->addScript('components/com_jeproshop/assets/javascript/jquery/plugins/fileupload/jquery.fileupload.js');
+        $document->addScript('components/com_jeproshop/assets/javascript/jquery/plugins/fileupload/jquery.fileupload-process.js');
+        $document->addScript('components/com_jeproshop/assets/javascript/jquery/plugins/fileupload/jquery.fileupload-validate.js');
+        $document->addScript('components/com_jeproshop/assets/javascript/vendor/spin.js');
+
+        ob_start();
+        //include (dirname(__DIR__) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . $this->template . '.php');
+        include (dirname(__DIR__) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'simple_uploader.php');
+        $var=ob_get_contents();
+        ob_end_clean();
+        return $var;
     }
 
 }

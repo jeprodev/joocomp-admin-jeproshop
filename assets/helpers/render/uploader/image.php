@@ -47,11 +47,11 @@ class JeproshopImageUploader extends JeproshopFileUploader{
 
         if ($post_max_size && ($this->getServerVars('CONTENT_LENGTH') > $post_max_size))
         {
-            $file['error'] = Tools::displayError('The uploaded file exceeds the post_max_size directive in php.ini');
+            $file['error'] = JError::raiseError(500, 'The uploaded file exceeds the post_max_size directive in php.ini');
             return false;
-        }
+        } 
 
-        if ($error = JeproshopImageManager::validateUpload($file, Tools::getMaxUploadSize($this->getMaxSize()), $this->getAcceptTypes()))
+        if ($error = JeproshopImageManager::validateUpload($file, JeproshopTools::getMaxUploadSize($this->getMaxSize()), $this->getAcceptTypes()))
         {
             $file['error'] = $error;
             return false;
@@ -59,7 +59,7 @@ class JeproshopImageUploader extends JeproshopFileUploader{
 
         if ($file['size'] > $this->getMaxSize())
         {
-            $file['error'] = Tools::displayError('File is too big');
+            $file['error'] = JError::raiseError(500, 'File is too big');
             return false;
         }
         return true;

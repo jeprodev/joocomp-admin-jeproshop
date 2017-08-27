@@ -192,7 +192,7 @@ defined('_JEXEC') or die('Restricted access');
                         <label title="<?php echo JText::_('COM_JEPROSHOP_PRODUCT_SHORT_DESCRIPTION_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_SHORT_DESCRIPTION_LABEL'); ?><br /></label>
                         <p class="product_description small"><?php echo JText::_('COM_JEPROSHOP_PRODUCT_SHORT_DESCRIPTION_DESCRIPTION'); ?></p>
                     </div>
-                    <div class="controls"><?php echo $this->helper->multiLanguageInputField('short_description', 'information', 'textarea', $this->product->short_description); ?></div>
+                    <div class="controls"><?php echo $this->helper->multiLanguageInputField('short_description', 'information', 'textarea', true, $this->product->short_description, JeproshopSettingModelSetting::getValue('product_short_desc_limit'), '', 650, 80 ); ?></div>
                 </div>
                 <div class="control-group">
                     <div class="control-label">
@@ -200,7 +200,7 @@ defined('_JEXEC') or die('Restricted access');
                         <label title="<?php echo JText::_('COM_JEPROSHOP_PRODUCT_DESCRIPTION_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_DESCRIPTION_LABEL'); ?><br /></label>
                         <p class=" small" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_DESCRIPTION_DESCRIPTION'); ?></p>
                     </div>
-                    <div class="controls"><?php echo $this->helper->multiLanguageInputField('description', 'information', 'textarea', $this->product->description); ?></div>
+                    <div class="controls"><?php echo $this->helper->multiLanguageInputField('description', 'information', 'textarea', true, $this->product->description); ?></div>
                 </div>
                 <?php if(isset($this->product_images)){ ?>
                     <div class="control-group">
@@ -210,9 +210,8 @@ defined('_JEXEC') or die('Restricted access');
                             <a class="addImageDescription small" style="cursor:pointer" href="javascript:void(0);"><?php echo JText::_('COM_JEPROSHOP_CLICK_HERE_LABEL'); ?></a>
                         </div>
                     </div>
-                    <div id="createImageDescription" class="panel" style="display:none">
-                        <div class="panel_content" >
-                            <div class="control-group" >
+                    <div id="jform_create_image_description_wrapper"  >
+                        <div class="control-group" >
                                 <div class="control-label"><label><?php echo JText::_('COM_JEPROSHOP_SELECT_YOUR_IMAGE_LABEL'); ?></label></div>
                                 <div class="controls" id="jform_create_image_description" >
                                     <ul class="small-image list-inline" >
@@ -230,8 +229,8 @@ defined('_JEXEC') or die('Restricted access');
                                 <div class="control-label" ><label><?php echo JText::_('COM_JEPROSHOP_PRODUCT_IMAGE_POSITION_LABEL'); ?></label></div>
                                 <div class="controls" >
                                     <fieldset class="radio btn-group" id="jform_left_right" >
-                                        <input type="radio" id="jform_left_right1" name="information[left_right]" value="left" <?php if($image->position == 'left'){ ?> checked="checked" <?php } ?> /><label for="jform_left_right1" ><?php echo JText::_('COM_JEPROSHOP_LEFT_LABEL'); ?></label>
-                                        <input type="radio" id="jform_left_right2" name="information[left_right]" value="right" <?php if($image->position == 'right'){ ?> checked="checked" <?php } ?>/><label for="jform_left_right2" ><?php echo JText::_('COM_JEPROSHOP_RIGHT_LABEL'); ?></label>
+                                        <input type="radio" id="jform_left_right1" name="information[left_right]" value="left" <?php /*if($image->position == 'left'){ */ ?> checked="checked" <?php /* } */ ?> /><label for="jform_left_right1" ><?php echo JText::_('COM_JEPROSHOP_LEFT_LABEL'); ?></label>
+                                        <input type="radio" id="jform_left_right2" name="information[left_right]" value="right" <?php /*if($image->position == 'right'){ * / ?> checked="checked" <?php /*} */ ?>/><label for="jform_left_right2" ><?php echo JText::_('COM_JEPROSHOP_RIGHT_LABEL'); ?></label>
                                     </fieldset>
                                 </div>
                             </div>
@@ -254,7 +253,7 @@ defined('_JEXEC') or die('Restricted access');
                                     <p class="preference-description small"><?php echo JText::_('COM_JEPROSHOP_IMAGE_TAG_TO_INSERT_DESCRIPTION'); ?></p>
                                 </div>
                             </div>
-                        </div>
+
                     </div>
 
                 <?php } ?>

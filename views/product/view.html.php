@@ -920,10 +920,11 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
                 }
 
                 $languages = JeproshopLanguageModelLanguage::getLanguages(true);
-                $image_uploader = new JeproshopImageUploader('file');
-                $image_link = JRoute::_('index.php?option=com_jeproshop&view=product&ajax=1&product_id=' . (int)$this->product->product_id .'&task=add_product_image');
-                $image_uploader->setMultiple(!(JeproshopTools::getUserBrowser() == 'Apple Safari' && JeproshopTools::getUserPlatform() == 'Windows'))
-                    ->setUseAjax(true)->setUrl($image_link);
+                $imageUploader = new JeproshopImageUploader('image_uploader');
+                $imageUploader->setAcceptTypes(array('jpeg', 'gif', 'png', 'jpg'));
+                $imageLink = JRoute::_('index.php?option=com_jeproshop&view=product&use_ajax=1&product_id=' . (int)$this->product->product_id .'&task=add&tab=image');
+                $imageUploader->setMultiple(!(JeproshopTools::getUserBrowser() == 'Apple Safari' && JeproshopTools::getUserPlatform() == 'Windows'))
+                    ->setUseAjax(true)->setUrl($imageLink);
 
 
                 $this->assignRef('countImages', $count_images);
@@ -942,15 +943,17 @@ class JeproshopProductViewProduct extends JeproshopViewLegacy{
                 $this->assignRef('current_shop_id', $current_shop_id);
                 //		'languages' => $this->_languages,
                 //		'default_language' => (int)Configuration::get('PS_LANG_DEFAULT'),
-                $imageUploader = $image_uploader->render();
+                $imageUploader = $imageUploader->render();
                 $this->assignRef('image_uploader', $imageUploader);
+                $imageUploaderId = 'image_uploader';
+                $this->assignRef('image_uploader_id', $imageUploaderId);
                 //));
 
                 $type = JeproshopImageTypeModelImageType::getByNameNType('%', 'products', 'height');
                 if (isset($type->name)){
                     $imageType = $type->name;
                 }else{
-                    $imageType = 'small_default';
+                    $imageType = 'default_small';
                 }
                 $this->assignRef('image_type', $imageType);
             }

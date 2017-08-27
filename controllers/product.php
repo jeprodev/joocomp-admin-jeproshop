@@ -127,6 +127,130 @@ class JeproshopProductController extends JeproshopController{
         }
     }
 
+    public function upload(){
+        $app = JFactory::getApplication();
+        $useAjax = $app->input->get('use_ajax', 0);
+        $tab = $app->input->getWord('tab');
+        $jsonData = array("success" =>false, "found" => false);
+
+        switch($tab){
+            case 'image' :
+                $productId = $app->input->get('product_id');
+                $product = new JeproshopProductModelProduct((int)$productId);
+                if(JeproshopTools::isLoadedObject($product, 'product_id')) {
+                    $uploader = new JeproshopImageUploader($app->input->get('field')); echo COM_JEPROSHOP_PRODUCT_IMAGE_DIR;
+                    $uploader->setAcceptTypes(array('jpeg', 'gif', 'png', 'jpg')); //:->setSavePath(COM_JEPROSHOP_PRODUCT_IMAGE_DIR . '/' . $productId . '/');
+                    $files = $uploader->process();
+                    $legends = array(); //TODO
+
+                    if(isset($files)){
+                        foreach($files as $file){
+                            $image = new JeproshopImageModelImage();
+                            $image->product_id = (int)$productId;
+                            $image->position = JeproshopImageModelImage::getHighestPosition($productId) + 1;
+
+                            foreach($legends as $key => $legend){
+                                if (!empty($legend)) {
+                                    $image->legend[(int)$key] = $legend;
+                                }
+                            }
+//print_r($file);
+                            /*if (!JeproshopImageModelImage::getCover($image->product_id)) {
+                                $image->cover = 1;
+                            }else {
+                                $image->cover = 0;
+                            }
+
+                            if (!$image->add())
+                                $file['error'] = $file['error'] . '<br />' . JText::_('Error while creating additional image');
+                            else
+                            {
+                                if (!$newPath = $image->getPathForCreation()){
+                                    $file['error'] = $file['error'] . '<br />' . JText::_('An error occurred during new folder creation');
+                                    continue;
+                                }
+
+                                $error = 0;
+print_r($file); echo '<br />' . COM_JEPROSHOP_TMP_IMAGE_DIR . '<br />';
+                                if (!JeproshopImageManager::resize($file['save_path'], $newPath.'.'.$image->image_format, null, null, 'jpg', false, $error))
+                                {
+                                    switch ($error){
+                                        case JeproshopImageManager::ERROR_FILE_NOT_EXIST :
+                                            $file['error'] = $file['error'] . '<br />' . JText::_('An error occurred while copying image, the file does not exist anymore.');
+                                            break;
+
+                                        case JeproshopImageManager::ERROR_FILE_WIDTH :
+                                            $file['error'] = $file['error'] . '<br />' . JText::_('An error occurred while copying image, the file width is 0px.');
+                                            break;
+
+                                        case JeproshopImageManager::ERROR_MEMORY_LIMIT :
+                                            $file['error'] = $file['error'] . '<br />' . JText::_('An error occurred while copying image, check your memory limit.');
+                                            break;
+
+                                        default:
+                                            $file['error'] = $file['error'] . '<br />' . JText::_('An error occurred while copying image.');
+                                            break;
+                                    }
+                                    continue;
+                                }
+                                else
+                                {
+                                    $imagesTypes = JeproshopImageTypeModelImageType::getImagesTypes('products');
+                                    foreach ($imagesTypes as $imageType)
+                                    {
+                                        if (!JeproshopImageManager::resize($file['save_path'], $newPath.'-'.stripslashes($imageType->name).'.'.$image->image_format, $imageType->width, $imageType->height, $image->image_format))
+                                        {
+                                            $file['error'] = $file['error'] . '<br />' . JText::_('An error occurred while copying image:').' '.stripslashes($imageType->name);
+                                            continue;
+                                        }
+                                    }
+                                }
+
+                                unlink($file['save_path']);
+                                //Necessarily to prevent hacking
+                                unset($file['save_path']);
+                                //Hook::exec('actionWatermark', array('id_image' => $image->id, 'id_product' => $product->id));
+
+                                if (!$image->update())
+                                {
+                                    $file['error'] = $file['error'] . '<br />' . JText::_('Error while updating status');
+                                    continue;
+                                }
+
+                                // Associate image to shop from context
+                                $shopIds = JeproshopShopModelShop::getContextListShopIds();
+                                $image->associateToShop($shopIds);
+                                $json_shops = array();
+
+                                foreach ($shopIds as $shopId)
+                                    $json_shops[$shopId] = true;
+
+                                $file['status']   = 'ok';
+                                $file['image_id']       = $image->image_id;
+                                $file['position'] = $image->position;
+                                $file['cover']    = $image->cover;
+                                $file['legend']   = $image->legend;
+                                $file['path']     = $image->getExistingImagePath();
+                                $file['shops']    = $json_shops;
+echo '<br />' . COM_JEPROSHOP_TMP_IMAGE_DIR . '<br />';
+                                @unlink(COM_JEPROSHOP_TMP_IMAGE_DIR .'\product_'.(int)$product->product_id .'.jpg');
+                                @unlink(COM_JEPROSHOP_TMP_IMAGE_DIR .'\product_mini_'.(int)$product->product_id . '_' . JeproshopContext::getContext()->shop->shop_id.'.jpg');
+                            } */
+                        }
+                    }
+                }
+                break;
+            default: break;
+        }
+
+        if($useAjax){
+            $document = JFactory::getDocument();
+            $document->setMimeEncoding('application/json');
+            echo json_encode($jsonData);
+            $app->close();
+        }
+    }
+
     public function saveProduct(){
         $app = JFactory::getApplication();
         if($this->viewAccess() && $this->checkAccess() && $this->canEdit('product')) {

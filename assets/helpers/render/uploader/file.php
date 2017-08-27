@@ -68,7 +68,7 @@ class JeproshopFileUploader extends JeproshopUploader{
 
     public function getDropZone(){
         if (!isset($this->_drop_zone))
-            $this->setDropZone("$('#".$this->getId()."-add-button')");
+            $this->setDropZone("jQuery('#jform_".$this->getId()."_add_button')");
 
         return $this->_drop_zone;
     }

@@ -28,14 +28,7 @@ defined('_JEXEC') or die('Restricted access');
 <div class="form-box-wrapper panel"  id="product-images" >
     <div class="panel-title" ><?php echo JText::_('COM_JEPROSHOP_PRODUCT_EDIT_IMAGES_TITLE'); ?> <span class="badge" id="jform_count_image" ><?php echo count($this->images); ?></span></div>
     <div class="panel-content">
-        <div class="control-group" >
-            <div class="control-label">
-                <label for="jform_" title="<?php echo JText::_('COM_JEPROSHOP_FORMAT_LABEL') . ': JPG, GIF, PNG. ' . JText::_('COM_JEPROSHOP_FILE_SIZE_LABEL') . ': ' . $this->max_image_size . ' ' . JText::_('COM_JEPROSHOP_MB_MAX_LABEL');  ?>" >
-                    <?php if(isset($this->image_id)){ echo JText::_('COM_JEPROSHOP_THIS_PRODUCT_IMAGE_LABEL'); }else{ echo JText::_('COM_JEPROSHOP_ADD_NEW_IMAGE_TO_THIS_PRODUCT_LABEL'); } ?>
-                </label>
-            </div>
-            <div class="controls"><?php echo $this->image_uploader; ?></div>
-        </div>
+        <?php echo $this->image_uploader; ?>
         <div class="control-group" >
             <div class="control-label"><label title="<?php echo JText::_('COM_JEPROSHOP_INVALID_CHARACTERS_LABEL'); ?>"><?php echo JText::_('COM_JEPROSHOP_IMAGE_LEGEND_LABEL'); ?></label></div>
             <div class="controls">
@@ -49,39 +42,18 @@ defined('_JEXEC') or die('Restricted access');
                     <tr>
                         <th class="nowrap" ><?php echo JText::_('COM_JEPROSHOP_IMAGE_LABEL'); ?></th>
                         <th class="nowrap" ><?php echo JText::_('COM_JEPROSHOP_CAPTION_LABEL'); ?></th>
-                        <th class="nowrap" ><?php echo JText::_('COM_JEPROSHOP_POSITION_LABEL'); ?></th>
+                        <th class="nowrap center" ><?php echo JText::_('COM_JEPROSHOP_POSITION_LABEL'); ?></th>
                         <?php if($this->shops){
                             foreach($this->shops as $shop){ ?>
                                 <th class="nowrap" ><?php echo $shop->shop_name; ?></th>
                             <?php }
                         } ?>
-                        <th class="nowrap" ><?php echo JText::_('COM_JEPROSHOP_COVER_LABEL'); ?></th><th></th>
+                        <th class="nowrap center" ><?php echo JText::_('COM_JEPROSHOP_COVER_LABEL'); ?></th><th></th>
                     </tr>
                     </thead>
                     <tbody id="jform_images_list"></tbody>
                 </table>
-                <table id="jform_image_type" style="display: none;" class="table">
-                    <tr id="image_id" >
-                        <td>
-                            <a href="<?php echo COM_JEPROSHOP_PRODUCT_IMAGE_DIR . 'image_path.jpg'; ?>" class="fancybox">
-                                <img src="<?php echo COM_JEPROSHOP_PRODUCT_IMAGE_DIR . $this->iso_tiny_mce . '_' . $this->image_type . '_' . $this->context->shop->theme->name . '.jpg'; ?>" title="legend" alt="legend" class="img_thumbnail" />
-                            </a>
-                        </td>
-                        <td>legend</td>
-                        <td id="td_image_id" class="pointer drag_handle center image_position" >
-                            <div class="drag_group" >
-                                <div class="positions" >image_position</div>
-                            </div>
-                        </td>
-                        <?php if($this->shops){
-                            foreach($this->shops as $shop){ ?>
-                                <td ><input type="checkbox" class="image_shop" name="image_id" id="<?php echo $shop->shop_id; ?>image_id" value="<?php echo $shop->shop->shop_id; ?>" /></td>
-                            <?php }
-                        } ?>
-                        <td class="cover center" ><a href="#"><i class="icon-check-empty icon-2x cover" ></i> </a></td>
-                        <td ><a href="#" class="delete_product_image pull-right btn btn-default" ><i class="icon-trash" ></i> <?php echo JText::_('COM_JEPROSHOP_DELETE_THIS_IMAGE_LABEL'); ?></a> </td>
-                    </tr>
-                </table>
+                
                 <div class="separation" ></div>
                 <div class="panel-footer" >
                     <a href="<?php echo JRoute::_('index.php?option=com_jeproshop&view=product'); ?>" class="btn btn-default" ><i class="icon-cancel" ></i> <?php echo JText::_('COM_JEPROSHOP_CANCEL_LABEL'); ?></a>

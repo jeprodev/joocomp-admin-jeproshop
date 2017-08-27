@@ -69,11 +69,12 @@ if(isset($this->product->product_id)){
 						</span>
                             <?php } ?>
                         </td>
-                        <td>
-                            <div class="row lang-0" style='display: none;'><?php  ?>
+                        <td class="nowrap" >
+                            <div class="row lang-0" style="display: none; " ><?php  ?>
                                 <div class="col-lg-9">
 								<textarea class="custom_<?php echo $available_feature->feature_id; ?>_all textarea-autosize"	name="feature[custom_<?php echo $available_feature->feature_id; ?>_all]"
-                                          cols="40" style='background-color:#CCF'	rows="1" onkeyup="<?php foreach($this->languages as $key => $language){ ?>$('.custom_<?php echo $available_feature->feature_id . '_' . $language->lang_id; ?>').val($(this).val());<?php } ?>" ><?php if(isset($available_feature->featureValues[1]->value)){ echo $available_feature->featureValues[1]->value; } ?>
+                                          cols="40" style='background-color:#CCF'	rows="1" onkeyup="<?php foreach($this->languages as $key => $language){ ?>$('.custom_<?php echo $available_feature->feature_id . '_' . $language->lang_id; ?>').val($(this).val());<?php } ?>" >
+                                    <?php if(isset($available_feature->featureValues[1]->value)){ echo $available_feature->featureValues[1]->value; } ?>
 								</textarea>
                                 </div>
                                 <?php if(count($this->languages) > 1){ ?>
@@ -92,11 +93,13 @@ if(isset($this->product->product_id)){
 
                             <?php foreach($this->languages as $key => $language){
                                 if(count($this->languages) > 1){ ?>
-                                    <div class="row translatable-field lang_<?php echo $language->lang_id; ?>">
+                                    <div class="row translatable-field lang_<?php echo $language->lang_id; ?>" <?php if(!$language->is_default){ ?> style="display : none;" <?php } ?> >
                                     <div class="col-lg-9">
                                 <?php } ?>
-                                <textarea class="custom_<?php echo $available_feature->feature_id . '_' . $language->lang_id; ?> textarea-autosize" name="feature[custom_<?php echo $available_feature->feature_id . '_' . $language->lang_id; ?>]" cols="40" rows="1"
-                                          onkeyup="if(isArrowKey(event)) return ;$('#feature_<?php echo $available_feature->feature_id; ?>_value').val(0);" ><?php if(isset($available_feature->featureValues[$key]->value)){ echo $available_feature->featureValues[$key]->value; }; ?></textarea>
+                                <textarea class="custom_<?php echo $available_feature->feature_id . '_' . $language->lang_id; ?> " name="feature[custom_<?php echo $available_feature->feature_id . '_' . $language->lang_id; ?>]" cols="40" rows="1"
+                                          onkeyup="if(isArrowKey(event)) return ;$('#feature_<?php echo $available_feature->feature_id; ?>_value').val(0);" >
+                                    <?php if(isset($available_feature->featureValues[$key]->value)){ echo $available_feature->featureValues[$key]->value; }; ?>
+                                </textarea>
 
                                 <?php if(count($this->languages) > 1){ ?>
                                     </div>

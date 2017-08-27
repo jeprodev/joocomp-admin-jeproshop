@@ -125,11 +125,11 @@ if(!defined('COM_JEPROSHOP_CARRIER_IMAGE_DIR')){
 
 if(!defined('COM_JEPROSHOP_COLOR_IMAGE_DIR')){
     jimport('joomla.filesystem.folder');
-    $colorImageDirectory = JPATH_SITE . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR . 'com_jeproshop' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'color' . DIRECTORY_SEPARATOR;
+    $colorImageDirectory = JPATH_SITE . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR . 'com_jeproshop' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'colors' . DIRECTORY_SEPARATOR;
     if(!JFolder::exists($colorImageDirectory)){
         JFolder::create($colorImageDirectory);
     }
-    define('COM_JEPROSHOP_COLOR_IMAGE_DIR', $categoryImageDirectory);
+    define('COM_JEPROSHOP_COLOR_IMAGE_DIR', $colorImageDirectory);
 }
 
 if(!defined('COM_JEPROSHOP_STORE_IMAGE_DIR')){

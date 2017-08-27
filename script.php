@@ -95,13 +95,20 @@ class com_jeproshopInstallerScript{
             $queryValues = "";
             $index = 1;
             foreach($settingsXml as $item){
-                $queryValues .= " (" . $index . ", " . $db->quote($item['name']) . ", " . $db->quote($item['value']) . ", " . $db->quote($item['group']);
-                $queryValues .= ", " . $db->quote(date('Y-m-d H:i:s')) . ", " . $db->quote(date('Y-m-d H:i:s')) . "), ";
+                $queryValues .= " (" . $index . ", " . $db->quote($item['name']) . ", " ;
+                if($item['name'] == 'default_lang'){
+                    $query .= (int)$defaultLangId;
+                }else {
+                    $query .= $db->quote($item['value']);
+                }
+                $queryValues .= ", " . $db->quote($item['group']) . ", " . $db->quote(date('Y-m-d H:i:s')) . ", " . $db->quote(date('Y-m-d H:i:s')) . "), ";
                 $index++;
             }
             $query .= ") VALUES " . $queryValues ;
             $db->setQuery(rtrim($query, ', '));
             //$db->query();
+
+            /** setting default image type */
 
             $settingRedirection = 'index.php?option=com_jeproshop&view=setting';
             JFactory::getApplication()->redirect($settingRedirection);

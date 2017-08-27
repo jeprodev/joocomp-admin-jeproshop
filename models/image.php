@@ -49,6 +49,9 @@ class JeproshopImageModelImage extends  JeproshopModel{
     /** @var string image path without extension */
     protected $existing_path;
 
+    /** @var int access rights of created folders (octal) */
+    protected static $access_rights = 0775;
+
     public function __construct($imageId = null, $langId = null){
         if($langId !== null){
             $this->lang_id = (JeproshopLanguageModelLanguage::getLanguage($langId) !== false) ? $langId : JeproshopSettingModelSetting::getValue('default_lang');
@@ -170,7 +173,7 @@ class JeproshopImageModelImage extends  JeproshopModel{
      *
      * @return string path to folder
      */
-    public function getImageFolder() {
+    public function getImageFolder(){
         if (!$this->image_id){ return false; }
 
         if (!$this->folder){
@@ -210,6 +213,152 @@ class JeproshopImageModelImage extends  JeproshopModel{
 
         $db->setQuery($query);
         return $db->loadResult();
+    }
+
+    /**
+     * Return highest position of images for a product
+     *
+     * @param integer $productId Product ID
+     * @return integer highest position of images
+     */
+    public static function getHighestPosition($productId){
+        $db = JFactory::getDBO();
+        $query = "SELECT MAX(" . $db->quoteName('position') . ") AS max FROM " . $db->quoteName("#__jeproshop_image");
+        $query .= " WHERE " . $db->quoteName('product_id') . " = " .(int)$productId;
+
+        $db->setQuery($query);
+        $data = $db->loadObject();
+        return (int)(isset($data) ? $data->max : 0);
+    }
+
+    /**
+     *Get product cover
+     *
+     * @param integer $productId Product ID
+     * @return boolean result
+     */
+    public static function getCover($productId){
+        $db = JFactory::getDBO();
+        $query = "SELECT * FROM " . $db->quoteName("#__jeproshop_image") . " AS image " . JeproshopShopModelShop::addSqlAssociation('image');
+        $query .= " WHERE image." . $db->quoteName("product_id") . " = " . (int)$productId . " AND image.". $db->quoteName("cover") . " = 1 ";
+
+        $db->setQuery($query);
+        return $db->loadObject();
+    }
+
+    public function add(){
+        if ($this->position <= 0) {
+            $this->position = JeproshopImageModelImage::getHighestPosition($this->product_id) + 1;
+        }
+        $db = JFactory::getDBO();
+        $query = "INSERT INTO " . $db->quoteName("#__jeproshop_image") . " (" . $db->quoteName("product_id") . ", " . $db->quoteName("position");
+        $query .= ", " . $db->quoteName("cover") .") VALUES (" . (int)$this->product_id . ", " . (int)$this->position . ", ";
+        $query .= (($this->cover == 1) ? 1 : 0) . ")";
+
+        $db->setQuery($query);
+        $db->query();
+        $this->image_id = $db->insertid();
+
+
+        foreach(JeproshopLanguageModelLanguage::getLanguages() as $language){
+            $query = "INSERT INTO " . $db->quoteName("#__jeproshop_image_lang") . " (" . $db->quoteName("image_id") . ", " . $db->quoteName("lang_id");
+            $query .= ", " . $db->quoteName("legend") .") VALUES (" . (int)$this->image_id . ", " . (int)$language->lang_id . ", ";
+            $query .= $db->quote($this->legend[$language->lang_id]) . ")";
+
+            $db->setQuery($query);
+            $db->query();
+        }
+        return $this->image_id > 0;
+    }
+
+    public function update(){
+        if ($this->position <= 0) {
+            $this->position = JeproshopImageModelImage::getHighestPosition($this->product_id) + 1;
+        }
+        $db = JFactory::getDBO();
+        $query = "UPDATE " . $db->quoteName("#__jeproshop_image") . " SET " . $db->quoteName("product_id") . " = " . (int)$this->product_id;
+        $query .= ", " . $db->quoteName("position") . " = " .(int)$this->position .= ", " . $db->quoteName("cover") ." = " . (($this->cover == 1) ? 1 : 0);
+        $query .= " WHERE " . $db->quoteName("image_id") . " = " . (int)$this->image_id ;
+
+        $db->setQuery($query);
+        $db->query();
+        $this->image_id = $db->insertid();
+
+        foreach(JeproshopShopModelShop::getContextListShopIds() as $shopId){
+            $query = "UPDATE " . $db->quoteName("#__jeproshop_image_shop") . " SET " . $db->quoteName("cover") . " = " . (($this->cover == 1) ? 1 : 0);
+            $query .= " WHERE " . $db->quoteName("image_id") . " = " . (int)$this->image_id  . " AND " . $db->quoteName("shop_id") . " = " . (int)$shopId ;
+
+            $db->setQuery($query);
+            $db->query();
+        }
+
+        foreach(JeproshopLanguageModelLanguage::getLanguages() as $language){
+            $query = "UPDATE " . $db->quoteName("#__jeproshop_image_lang") . " SET " . $db->quoteName("legend") . " = " . $db->quote($this->legend[$language->lang_id]);
+            $query .= " WHERE " . $db->quoteName("lang_id") . " = " .  (int)$language->lang_id . " AND " . $db->quoteName("image_id") . " = " . (int)$this->image_id;
+
+            $db->setQuery($query);
+            $db->query();
+        }
+    }
+
+    public function associateToShop($shopIds){
+        if($this->image_id){
+            if(!is_array($shopIds)){ $shopIds = array($shopIds); }
+
+            $db = JFactory::getDBO();
+
+            foreach($shopIds as $shopId) {
+                if (!$this->isAssociatedToShop($shopId)) {
+                    $query = "INSERT INTO " . $db->quoteName("#__jeproshop_image_shop") . " (" . $db->quoteName("image_id") . ", " . $db->quoteName("shop_id");
+                    $query .= ", " . $db->quoteName("cover") .") VALUES (" . (int)$this->product_id . ", " . (int)$shopId . ", ";
+                    $query .= (($this->cover == 1) ? 1 : 0) . ")";
+
+                    $db->setQuery($query);
+                    $db->query();
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns the path where a product image should be created (without file format)
+     *
+     * @return string path
+     */
+    public function getPathForCreation(){
+        if (!$this->image_id){ return false; }
+        if (JeproshopSettingModelSetting::getValue('legacy_images')){
+            if (!$this->product_id){ return false; }
+            $path = $this->product_id ; //.'/'.$this->image_id;
+        }else{
+            $path = $this->getImagePath();
+            $this->createImageFolder();
+        }
+        return COM_JEPROSHOP_PRODUCT_IMAGE_DIR . $path;
+    }
+
+    /**
+     * Create parent folders for the image in the new filesystem
+     *
+     * @return bool success
+     */
+    public function createImageFolder(){
+        if (!$this->image_id){ return false; }
+
+        if (!file_exists(COM_JEPROSHOP_PRODUCT_IMAGE_DIR .$this->getImageFolder())){
+            // Apparently sometimes mkdir cannot set the rights, and sometimes chmod can't. Trying both.
+            $success = @mkdir(COM_JEPROSHOP_PRODUCT_IMAGE_DIR.$this->getImageFolder(), self::$access_rights, true);
+            $chmod = @chmod(COM_JEPROSHOP_PRODUCT_IMAGE_DIR.$this->getImageFolder(), self::$access_rights);
+
+            // Create an index.php file in the new folder
+            if (($success || $chmod)
+                && !file_exists(COM_JEPROSHOP_PRODUCT_IMAGE_DIR.$this->getImageFolder().'index.php')
+                && file_exists($this->source_index))
+                return @copy($this->source_index, COM_JEPROSHOP_PRODUCT_IMAGE_DIR .$this->getImageFolder().'index.php');
+        }
+        return true;
     }
 
 }

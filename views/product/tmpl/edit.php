@@ -30,6 +30,7 @@ JHtml::_('jquery.ui');
 $app = JFactory::getApplication();
 $document = JFactory::getDocument();
 $themeDir = isset(JeproshopContext::getContext()->shop->theme->directory) ? JeproshopContext::getContext()->shop->theme->directory : 'default';
+$document->addScript(JURI::base(). 'components/com_jeproshop/assets/javascript/ckeditor/ckeditor.js');
 $document->addScript(JURI::base(). 'components/com_jeproshop/assets/javascript/jquery/plugins/jquery.tablednd.js');
 $document->addScript(JURI::base(). 'components/com_jeproshop/assets/javascript/jquery/ui/jquery.ui.datepicker.min.js');
 $document->addScript(JURI::base(). 'components/com_jeproshop/assets/themes/' . $themeDir. '/js/tools.js');
@@ -77,12 +78,17 @@ $script  .= ' jQuery("#jform_product_edit_form").JeproProduct({ ' .
     'eco_tax_tax_excluded : parseFloat(' . (isset($this->ecotax_tax_excluded) ? $this->ecotax_tax_excluded : 0.00) . '), ' .
     'price_display_precision : parseInt(' .  (int)JeproshopSettingModelSetting::getValue('price_display_precision') . '), ' .
     'currencies : ' . json_encode($currencies) . ', ' .
-    'taxes : taxesArray, ' .
-    'all_customers_label  : "' . JText::_('COM_JEPROSHOP_ALL_CUSTOMERS_LABEL') . '", ' .
-    'no_customers_label : "' . JText::_('COM_JEPROSHOP_NO_CUSTOMERS_LABEL') . '", ' .
-    'delete_price_rule_message : "' . JText::_('COM_JEPROSHOP_DO_YOU_REALLY_WANT_TO_REMOVE_THIS_PRICE_RULE_MESSAGE') . '", ' .
-    'product_images : productImages,' .
-    'product_token : "' . JeproshopTools::getProductToken() . '", ' .
+    'taxes : taxesArray, 
+    labels : {
+    all_customers : "' . JText::_('COM_JEPROSHOP_ALL_CUSTOMERS_LABEL') . '", 
+    delete_this_image : "' . JText::_('COM_JEPROSHOP_DELETE_THIS_IMAGE_LABEL') . '", 
+    no_customers : "' . JText::_('COM_JEPROSHOP_NO_CUSTOMERS_LABEL') . '", ' .
+    'delete_price_rule_message : "' . JText::_('COM_JEPROSHOP_DO_YOU_REALLY_WANT_TO_REMOVE_THIS_PRICE_RULE_MESSAGE') . '" }, ' .
+    'product_images : productImages,
+    image_uploader_id : "' . $this->image_uploader_id . '",
+    image_max_files : 5,
+    product_images_directory : "' . COM_JEPROSHOP_PRODUCT_IMAGE_DIR . '", 
+    product_token : "' . JeproshopTools::getProductToken() . '", ' .
     'customer_token : "' . JeproshopTools::getCustomerToken() . '" ' .
     '}) }); ';
 $document->addScriptDeclaration($script);

@@ -28,9 +28,13 @@
                 all_groups : '',
                 unlimited : '',
                 from : 'From',
-                to : 'To'
+                to : 'To',
+                delete_this_image : ''
             },
-
+            product_images_directory : '',
+            image_uploader_id : '',
+            image_max_files : undefined,
+            image_files : [],
             delete_price_rule_message : '',
             product_token :  '',
             customer_token : '',
@@ -752,6 +756,8 @@
             var originalOrder = false;
             var reOrder = "";
 
+            imageUploaderForm();
+
             options.product_images.forEach(function(element){
                 imageLine(element.image_id, element.path, element.position, element.icon_checked, element.assoc, element.legend);
             });
@@ -798,25 +804,22 @@
         }
 
         function imageLine(id, path, position, cover, shops, legend){
-            var imageType = jQuery("#jform_image_type").html();
-            imageType = imageType.replace(/image_id/g, id);
-            imageType = imageType.replace(/(\/) ?[a-z]{0,2}-default/g, function(jQuery0, jQuery1){ return jQuery1 ? jQuery1 + path : jQuery0; });
-            imageType = imageType.replace(/image_path/g, path);
-            imageType = imageType.replace(/\.jpg"\s/g,'.jpg?time=' + new Date().getTime() + '" ');
-            imageType = imageType.replace(/image_position/g, position);
-            imageType = imageType.replace(/legend/g, legend);
-            imageType = imageType.replace(/icon-check-empty/g, cover);
-            imageType = imageType.replace(/<tbody>/gi, "");
-            imageType = imageType.replace(/<\/tbody>/gi, "");
-
-            if(shops != false){
-                jQuery.each(shops, function(key, value){
-                    if(value == 1){
-                        imageType = imageType.replace('id="' + key + ' ' + id + '"', 'id="' + key + '' + id + '" checked=checked');
-                    }
+            var imageLineItem = '<tr id="jform_image_' + id + '" ><td><a href="' + options.product_images_directory  + options.product_id
+                + '/' + id + '_default_cart.jpg?time=' + new Date().getTime() + '" class="fancybox" ><img src="' + options.product_images_directory
+                + options.product_id + '/' + id + '_default_cart.jpg" title="'  + legend + '" alt="' + legend + '" class="img-thumbnail"'
+                + ' /></a></td><td >' + legend + '</td><td id="jform_td_image_id_' + id + '" class="pointer drag-handle center image-position" '
+                + 'style="vertical-align:middle; " ><div class="drag-group"><div class="positions" >' + position + '</div> </div> </td>';
+            if(typeof(shops) != 'undefined' && shops.length > 1){
+                shops.each(function(index, shop){
+                    imageLineItem += '<td style="vertical-align:middle; " ><input type="checkbox" class="image-shop" name="image_shop_' + id
+                        + '" id="jform_image_shop_'  + shop.shop_id + '" value="' + shop.shop_id + '" /></td>';
                 });
             }
-            jQuery("#jform_images_list").append(imageType);
+            imageLineItem += '<td class="cover center" style="vertical-align: middle;"><a href="#"><i class="' + cover + ' icon-2x cover" ></i> '
+                + '</a></td><td style="vertical-align: middle;" ><a href="#" class="delete-product-image pull-right btn btn-default" ><i class="'
+                + 'icon-trash" ></i> ' + options.labels.delete_this_image + '</a> </td> </tr>';
+
+            jQuery("#jform_images_list").append(imageLineItem);
         }
 
         /**
@@ -830,6 +833,157 @@
             });
         } */
 
+        function imageUploaderForm(){
+            var imageSelectionButton = jQuery('#jform_' + options.image_uploader_id + '_select_button');
+            var imageFileWrapper = jQuery('#jform_' + options.image_uploader_id);
+            var imageFileThumbNailsWrapper = jQuery('#jform_' + options.image_uploader_id + '_images_thumbnails');
+            var imageFileName = jQuery('#jform_' + options.image_uploader_id + '_name');
+
+            //var uploadLaddaButton = jQuery('#jform_' + options.image_uploader_id + '_upload_button');
+
+            if(typeof(options.image_files) !== 'undefined' && options.image_files.length > 0){
+                imageFileThumbNailsWrapper.show();
+            }
+
+            imageSelectionButton.on('click', function(evt){
+                evt.preventDefault();
+                imageFileWrapper.click();
+            });
+
+            imageFileName.on('click', function(evt){ imageFileWrapper.trigger('click'); });
+
+            imageFileName.on('dragenter', function(evt){ evt.stopPropagation(); evt.preventDefault(); });
+
+            imageFileName.on('dragover', function(evt){ evt.stopPropagation(); evt.preventDefault(); });
+
+            imageFileName.on('drop', function(evt){
+                evt.preventDefault();
+                var files = evt.originalEvent.dataTransfer.files;
+                imageFileWrapper[0].files = files;
+                jQuery(this).val(files[0].name);
+            });
+
+            imageFileName.on('change', function(evt){
+                if(jQuery(this)[0].files !== undefined){
+                    var files = jQuery(this)[0].files;
+                    var name = '';
+
+                    jQuery.each(files, function(index, value){ name += value.name + ', '; });
+
+                    imageFileName.val(name.slice(0, -2));
+                }else{
+                    var name = jQuery(this).val().split(/[\\/]/);
+                    imageFileName.val(name[name.length - 1]);
+                }
+            });
+
+            if(typeof(options.image_max_files) !== 'undefined'){
+                imageFileWrapper.closest('form').on('submit', function(evt){
+                    if(imageFileWrapper[0].files.length > options.image_max_files){
+                        evt.preventDefault();
+                        alert('You can upload a maximum of ' + options.image_max_files + ' files');
+                    }
+                });
+            }
+
+            var targetUrl = 'index.php?option=com_jeproshop&view=product&task=upload&tab=image&product_id=' + options.product_id
+                + '&use_ajax=1&field=' + options.image_uploader_id + '&' + options.product_token + '=1';
+/*
+            imageFileWrapper.on('change', function(evt){
+                var files = evt.originalEvent.target.files ||evt.originalEvent.dataTransfer.files;
+                evt.preventDefault();
+                evt.stopPropagation();
+
+                if(!files.length){ return; }
+
+                var inputData = new FormData();
+                var fileData = [];
+                jQuery.each(files, function (key, value){
+                    fileData.push(value);
+                });
+
+                inputData.append('"' + options.image_uploader_id + '"', fileData);
+
+                jQuery.ajax({
+                    url: targetUrl,
+                    type: 'post',
+                    processData: false,
+                    cache: false,
+                    contentType: false,
+                    data: inputData
+                }).done(function (result) {
+                    console.log(result);
+                }).error(function (result) {
+                    console.log(result);
+                });
+            });
+            /*imageFileWrapper.fileupload({
+                type : "POST",
+                url : targetUrl,
+                dataType : "json",
+                async : true,
+                autoLoad : false,
+                sequentialUploads: true,
+                formData: {script: true},
+                start : function(evt){
+                    /*uploadLaddaButton.start()
+                    uploadLaddaButton.unbind('click'); * /
+                },
+                fail :function(evt, data){
+                    Joomla.renderMessages({"errors" : [data.errorThrown.message]});
+                },
+                done : function(evt, data){ console.log(data);
+                    if(data.found){
+                        if (typeof data.result[options.image_uploader_id] !== 'undefined') {
+                            for (var i=0; i<data.result[options.image_uploader_id].length; i++) {
+                                if (data.result[options.image_uploader_id][i] !== null) {
+                                    if (typeof data.result[options.image_uploader_id][i].error !== 'undefined' && data.result[options.image_uploader_id][i].error != '') {
+                                        Joomla.renderMessages({'error' : ['<strong>'+data.result[options.image_uploader_id][i].name+'</strong> : ' +data.result[options.image_uploader_id][i].error]});
+                                    }
+                                else
+                                    {
+                                        //$(data.context).appendTo($('#{$id|escape:'html':'UTF-8'}-success'));
+                                        //$('#{$id|escape:'html':'UTF-8'}-success').parent().show();
+                                        Joomla.renderMessages({"success" : [data.context]});
+
+                                        if (typeof data.result[options.image_uploader_id][i].image !== 'undefined')
+                                        {
+                                            var template = '<div>';
+                                            template += data.result[options.image_uploader_id][i].image;
+
+                                            if (typeof data.result[options.image_uploader_id][i].delete_url !== 'undefined')
+                                            template += '<p><a class="btn btn-default" href="'+data.result[options.image_uploader_id][i].delete_url+'"><i class="icon-trash"></i> ' + options.labels.delete + '</a></p>';
+
+                                            template += '</div>';
+                                            imageFileThumbNailsWrapper.html(imageFileThumbNailsWrapper.html()+template);
+                                            imageFileThumbNailsWrapper.parent().show();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        $(data.context).find('button').remove();
+                    }
+                }
+            }); */
+        }
+
+        function humanizeSize(bytes){
+            if (typeof bytes !== 'number') {
+                return '';
+            }
+
+            if (bytes >= 1000000000) {
+                return (bytes / 1000000000).toFixed(2) + ' GB';
+            }
+
+            if (bytes >= 1000000) {
+                return (bytes / 1000000).toFixed(2) + ' MB';
+            }
+
+            return (bytes / 1000).toFixed(2) + ' KB';
+        }
 
     }
 })(jQuery);
