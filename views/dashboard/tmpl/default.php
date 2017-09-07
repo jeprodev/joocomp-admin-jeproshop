@@ -23,50 +23,51 @@
  */
 // no direct access
 defined('_JEXEC') or die('Restricted access');
-JHtml::_('bootstrap.tooltip');
-JHtml::_('behavior.multiselect');
-JHtml::_('formbehavior.chosen', 'select');
+
 ?>
 <?php if(!empty($this->side_bar)){ ?>
     <div id="j-sidebar-container" class="span2" ><?php echo $this->side_bar; ?></div>
 <?php } ?>
 <div id="j-main-container" <?php if(!empty($this->side_bar)){ echo 'class="span10"'; }?> >
     <div class="row" >
-        <div class="col-lg-12">
-            <div id="jeproshop-calendar" class="panel-content "  >
-                <form action="<?php echo JRoute::_('index.php?option=com_jeproshop') ?>" id="jeproshop-calendar-form" name="jeproshop-calendar-form" class="form-inline" >
-                    <div class="btn-group" >
-                        <button type="button" name="jeproshop_submit_date_day" class="btn btn-default" ><?php echo JText::_('COM_JEPROSHOP_DAY_LABEL'); ?></button>
-                        <button type="button" name="jeproshop_submit_date_month" class="btn btn-default" ><?php echo JText::_('COM_JEPROSHOP_MONTH_LABEL'); ?></button>
-                        <button type="button" name="jeproshop_submit_date_year" class="btn btn-default" ><?php echo JText::_('COM_JEPROSHOP_YEAR_LABEL'); ?></button>
-                        <button type="button" name="jeproshop_submit_date_previous_day" class="btn btn-default" ><?php echo JText::_('COM_JEPROSHOP_PREVIOUS_DAY_LABEL'); ?></button>
-                        <button type="button" name="jeproshop_submit_date_previous_month" class="btn btn-default" ><?php echo JText::_('COM_JEPROSHOP_PREVIOUS_MONTH_LABEL'); ?></button>
-                        <button type="button" name="jeproshop_submit_date_previous_year" class="btn btn-default" ><?php echo JText::_('COM_JEPROSHOP_PREVIOUS_YEAR_LABEL'); ?></button>
-                    </div>
-                    <div class="pull-right" >
-                        <button id="jeproshop-date-picker-expand" class="btn btn-default" type="button" >
-                            <i class="icon-calendar-empty" ></i>
-                            <span class="hidden-xs" >
-                                <?php echo JText::_('COM_JEPROSHOP_FROM_LABEL'); ?>
-                                <strong class="text-info" id="jeproshop-date-picker-from-info" ><?php echo JeproshopTools::escape($this->date_from); ?></strong>
-                                <?php echo JText::_('COM_JEPROSHOP_TO_LABEL'); ?>
-                                <strong class="text-info" id="jeproshop-date-picker-to-info" ><?php echo JeproshopTools::escape($this->date_to); ?></strong>
-                                <strong class="text-info" id="jeproshop-date-picker-diff-info" ></strong>
-                            </span>
-                        </button>
-                    </div>
-                    <?php echo $this->calendar; ?>
-                </form>
-            </div>
+        <div id="jeproshop-calendar" class="panel-content "  >
+            <form action="<?php echo JRoute::_('index.php?option=com_jeproshop') ?>" id="jeproshop-calendar-form" name="jeproshop-calendar-form" class="form-inline" >
+                <div class="btn-group" >
+                    <a id="jeproshop_submit_date_day" name="submit_date_day" class="btn btn-default <?php if(isset($this->preselect_date_range) && $this->preselect_date_range == 'day'){ ?> btn-success <?php } ?>" ><?php echo JText::_('COM_JEPROSHOP_DAY_LABEL'); ?></a>
+                    <button type="button" id="jeproshop_submit_date_month" name="submit_date_month" class="btn btn-default <?php if(isset($this->preselect_date_range) && $this->preselect_date_range == 'month'){ ?> btn-success <?php } ?>" ><?php echo JText::_('COM_JEPROSHOP_MONTH_LABEL'); ?></button>
+                    <button type="button" id="jeproshop_submit_date_year" name="submit_date_year" class="btn btn-default <?php if(isset($this->preselect_date_range) && $this->preselect_date_range == 'year'){ ?> btn-success <?php } ?>" ><?php echo JText::_('COM_JEPROSHOP_YEAR_LABEL'); ?></button>
+                    <button type="button" id="jeproshop_submit_date_previous_day" name="submit_date_previous_day" class="btn btn-default <?php if(isset($this->preselect_date_range) && $this->preselect_date_range == 'previous-day'){ ?> btn-success <?php } ?>" ><?php echo JText::_('COM_JEPROSHOP_PREVIOUS_DAY_LABEL'); ?></button>
+                    <button type="button" id="jeproshop_submit_date_previous_month" name="submit_date_previous_month" class="btn btn-default <?php if(isset($this->preselect_date_range) && $this->preselect_date_range == 'previous-month'){ ?> btn-success <?php } ?>" ><?php echo JText::_('COM_JEPROSHOP_PREVIOUS_MONTH_LABEL'); ?></button>
+                    <button type="button" id="jeproshop_submit_date_previous_year" name="submit_date_previous_year" class="btn btn-default <?php if(isset($this->preselect_date_range) && $this->preselect_date_range == 'previous-year'){ ?> btn-success <?php } ?>" ><?php echo JText::_('COM_JEPROSHOP_PREVIOUS_YEAR_LABEL'); ?></button>
+                </div>
+                <input type="hidden" name="datepicker_from" id="jeproshop_datepicker_from" value="<?php echo $this->date_from; ?>" class="controls">
+                <input type="hidden" name="datepicker_to" id="jeproshop_datepicker_to" value="<?php echo $this->date_to; ?>" class="controls">
+                <input type="hidden" name="preselect_date_range" id="jeproshop_preselect_date_range" value="<?php if(isset($this->preselect_date_range)){ echo $this->preselect_date_range; } ?>" class="controls">
+                <div class="pull-right" >
+                    <button id="jeproshop_date_picker_expand" class="btn btn-default" type="button" >
+                        <i class="icon-calendar-empty" ></i>
+                        <span class="hidden-xs" >
+                            <strong ><?php echo JText::_('COM_JEPROSHOP_FROM_LABEL'); ?>&nbsp;</strong>
+                            <strong class="text-info" id="jeproshop_date_picker_from_info" ><?php echo JeproshopTools::escape($this->date_from); ?></strong>
+                            <strong >&nbsp;<?php echo JText::_('COM_JEPROSHOP_TO_LABEL'); ?>&nbsp;</strong>
+                            <strong class="text-info" id="jeproshop_date_picker_to_info" ><?php echo JeproshopTools::escape($this->date_to); ?></strong>
+                            <strong class="text-info" id="jeproshop_date_picker_diff_info" ></strong>
+                        </span>
+                    </button>
+                </div>
+                <?php echo $this->calendar; ?>
+            </form>
         </div>
     </div>
     <div class="row" >
-        <div class="col-md-4 col-lg-3" id="jeproshop-dashboard-zone-one" ><?php echo $this->dashboard_zone_one; ?></div>
-        <div class="col-md-8 col-lg-7" id="jeproshop-dashboard-zone-two" >
-            <?php echo $this->dashboard_zone_two; ?>
-            <div id="jeproshop-dashboard-addons"></div>
+        <div class="span9"  >
+            <div class="col-md-4 col-lg-3" id="jeproshop_dashboard_zone_one" ><?php echo $this->dashboard_zone_one; ?></div>
+            <div class="col-md-8 col-lg-7" id="jeproshop_dashboard_zone_two" >
+                <?php echo $this->dashboard_zone_two; ?>
+                <div id="jeproshop-dashboard-addons"></div>
+            </div>
         </div>
-        <div class="col-md-12 col-lg-2" >
+        <div class="span3 pull-right" >
             <section class="jeproshop-dash-news panel" >
                 <h3><i class="icon-rss"></i> <?php echo JText::_('COM_JEPROSHOP_NEWS_LABEL'); ?></h3>
                 <div class="jeproshop-dash-news-content" ></div>

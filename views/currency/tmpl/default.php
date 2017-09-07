@@ -33,7 +33,7 @@ defined('_JEXEC') or die('Restricted access');
         <?php echo $this->renderLocalisationSubMenu('currency'); ?>
         <div class="separation"></div>
         <div class="panel" >
-            <div class="panel-content well" >
+            <div class="panel-content" >
                 <table class="table table-striped" id="currency-list" >
                     <thead>
                     <tr>
@@ -56,7 +56,7 @@ defined('_JEXEC') or die('Restricted access');
                     <?php } else {
                         foreach($this->currencies as $index => $currency){
                             $currency_link = JRoute::_('index.php?option=com_jeproshop&view=currency&task=edit&currency_id=' . $currency->currency_id . '&' . JeproshopTools::getCurrencyToken() . '=1'); ?>
-                            <tr class="row_<?php echo $index % 0; ?>" >
+                            <tr class="row_<?php echo $index % 2; ?>" >
                                 <td class="nowrap center hidden-phone"><?php echo $index + 1; ?></td>
                                 <td class=" nowrap center hidden-phone"><?php echo JHtml::_('grid.id', $index, $currency->currency_id); ?></td>
                                 <td class="nowrap" ><a href="<?php echo $currency_link; ?>" ><?php echo ucfirst($currency->name); ?></a></td>

@@ -91,9 +91,11 @@ class JeproshopCategoryViewCategory extends JeproshopViewLegacy{
 
 
     public function renderAddForm($tpl = null){
+        
         if(!isset($this->context)){ $this->context = JeproshopContext::getContext(); }
         $categories_tree = new JeproshopCategoriesTree('jform_categories_tree', JText::_('COM_JEPROSHOP_CATEGORIES_LABEL'), null, $this->context->language->lang_id);
         $categories_tree->setTreeTemplate('associated_categories')->setUseCheckBox(true)->setInputName('parent_id');
+
         $categories = $categories_tree->render();
         $this->assignRef('categories_tree', $categories);
         $groups = JeproshopGroupModelGroup::getGroups($this->context->language->lang_id);
@@ -127,7 +129,7 @@ class JeproshopCategoryViewCategory extends JeproshopViewLegacy{
         if(!isset($this->context)){ $this->context = JeproshopContext::getContext(); }
 
         $shop_id = JeproshopContext::getContext()->shop->shop_id;
-        $selected_categories = array((isset($this->context->controller->category->parent_id) && $this->context->controller->category->isParentCategoryAvailable($shop_id)) ? (int)$this->context->controller->category->parent_id : $app->input->get('parent_id', JeproshopCategoryModelCategory::getRootCategory()->category_id));
+        $selectedCategories = array((isset($this->context->controller->category->parent_id) && $this->context->controller->category->isParentCategoryAvailable($shop_id)) ? (int)$this->context->controller->category->parent_id : $app->input->get('parent_id', JeproshopCategoryModelCategory::getRootCategory()->category_id));
 
         $unidentified = new JeproshopGroupModelGroup(JeproshopSettingModelSetting::getValue('unidentified_group'));
         $guest = new JeproshopGroupModelGroup(JeproshopSettingModelSetting::getValue('guest_group'));
@@ -142,7 +144,7 @@ class JeproshopCategoryViewCategory extends JeproshopViewLegacy{
         $this->assignRef('default_group_information', $default_group_information);
 
         $image = COM_JEPROSHOP_CATEGORY_IMAGE_DIR . $this->context->controller->category->category_id . '.jpg';
-        $image_url = JeproshopImageManager::thumbnail($image, 'category_' . $this->context->controller->category->category_id . '.jpg' , 350, 'jpg', true, true);
+        $imageUrl = JeproshopImageManager::thumbnail($image, 'category_' . $this->context->controller->category->category_id . '.jpg' , 350, 'jpg', true, true);
         $imageSize = file_exists($image) ? filesize($image)/1000 : false;
 
         $shared_category = JeproshopTools::isLoadedObject($this->context->controller->category, 'category_id') && $this->context->controller->category->hasMultiShopEntries();
@@ -151,8 +153,9 @@ class JeproshopCategoryViewCategory extends JeproshopViewLegacy{
         $this->assignRef('allow_accented_chars_url', $allow_accented_chars_url);
         //$this->assignRef('selected_categories', $selected_categories);
 
-        $categories_tree = new JeproshopCategoriesTree('jform_categories_tree', JText::_('COM_JEPROSHOP_CATEGORIES_LABEL'), null, $this->context->language->lang_id);
-        $categories_tree->setTreeTemplate('associated_categories')->setSelectedCategories($selected_categories)->setUseCheckBox(true)->setInputName('parent_id');
+        $categories_tree = new JeproshopCategoriesTree('categories_tree', JText::_('COM_JEPROSHOP_CATEGORIES_LABEL'), null, $this->context->language->lang_id);
+        $categories_tree->setTreeTemplate('associated_categories')->setSelectedCategories($selectedCategories)->setUseCheckBox(true)->setInputName('parent_id');
+        $categories_tree->setUseCheckBox(true)->setNodeItemTemplate('tree_note_item_radio')->setNodeFolderTemplate('tree_node_folder_radio');
         $categories_data = $categories_tree->render();
         $this->assignRef('categories_tree', $categories_data);
 

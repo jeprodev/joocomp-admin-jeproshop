@@ -33,7 +33,7 @@ $app = JFactory::getApplication();
     <div id="j-main-container" <?php if(!empty($this->side_bar)){ echo 'class="span10"'; }?> >
         <?php echo  $this->setCatalogSubMenu('category'); ?>
         <div class="separation" ></div>
-        <div class="panel well">
+        <div class="panel">
             <div class="panel-content" >
                 <div class="control-group">
                     <div class="control-label"><label title="<?php echo JText::_('COM_JEPROSHOP_CATEGORY_NAME_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_CATEGORY_NAME_LABEL'); ?></label></div>

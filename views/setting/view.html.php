@@ -29,7 +29,7 @@ class JeproshopSettingViewSetting extends JeproshopViewLegacy {
 
     public function renderDetails($tpl = null){
         $improve_front_safety = JeproshopSettingModelSetting::getValue('improve_front_safety');
-        $allow_iframes_in_html_field = JeproshopSettingModelSetting::getValue('allow_iframes_in_html_field');
+        $allow_iframes_in_html_field = JeproshopSettingModelSetting::getValue('allow_iframes_in_html_fields');
         $use_purifier_library = JeproshopSettingModelSetting::getValue('use_purifier_library');
         $round_mode_type = JeproshopSettingModelSetting::getValue('round_mode_type');
         $price_round_mode = JeproshopSettingModelSetting::getValue('price_round_mode');

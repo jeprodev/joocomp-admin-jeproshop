@@ -33,7 +33,7 @@ defined('_JEXEC') or die('Restricted access');
         <?php echo $this->renderSettingSubMenu('customer'); ?>
         <div class="separation"></div>
         <div class="panel" >
-            <div class="panel-content well" >
+            <div class="panel-content" >
                 <div class="control-group" >
                     <div class="control-label" ><label><?php echo JText::_('COM_JEPROSHOP_REGISTRATION_PROCESS_TYPE_LABEL'); ?></label></div>
                     <div class="controls" >

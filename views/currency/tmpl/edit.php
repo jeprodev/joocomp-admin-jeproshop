@@ -34,7 +34,7 @@ defined('_JEXEC') or die('Restricted access');
         <div class="separation"></div>
         <div class="panel" >
             <div class="panel-title" ><i class="icon-currency" ></i> <?php echo JText::_('COM_JEPROSHOP_YOU_ARE_ABOUT_TO_EDIT_LABEL') . ' ' . JText::_('COM_JEPROSHOP_CURRENCY_LABEL'); ?></div>
-            <div class="panel-content well" >
+            <div class="panel-content " >
                 <div class="control-group" >
                     <div class="control-label" ><label for="jform_name" title="<?php echo JText::_('COM_JEPROSHOP_ONLY_LETTERS_AND_THE_MINUS_CHARACTER_ARE_ALLOWED_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_NAME_LABEL'); ?></label> </div>
                     <div class="controls" ><input type="text" id="jform_name" name="jform[name]" size="30" maxlength="32" required="required" value="<?php echo $this->currency->name; ?>"/> </div>
@@ -60,9 +60,9 @@ defined('_JEXEC') or die('Restricted access');
                     <div class="controls" >
                         <select id="jform_currency_format" name="jform[currency_format]" required="required">
                             <option value="1" <?php if($this->currency->format == 1){ ?> selected="selected" <?php } ?> >X 0,000.00 <?php echo JText::_('COM_JEPROSHOP_WITH_DOLLAR_LABEL'); ?></option>
-                            <option value="2" <?php if($this->currency->format == 2){ ?> selected="selected" <?php } ?> >0,000.00 x <?php echo JText::_('COM_JEPROSHOP_WITH_EURO_LABEL'); ?></option>
+                            <option value="2" <?php if($this->currency->format == 2){ ?> selected="selected" <?php } ?> >0,000.00 X <?php echo JText::_('COM_JEPROSHOP_WITH_EURO_LABEL'); ?></option>
                             <option value="3" <?php if($this->currency->format == 3){ ?> selected="selected" <?php } ?> >X 0,000.00 </option>
-                            <option value="4" <?php if($this->currency->format == 4){ ?> selected="selected" <?php } ?> >0,000.00 x</option>
+                            <option value="4" <?php if($this->currency->format == 4){ ?> selected="selected" <?php } ?> >0,000.00 X</option>
                             <option value="5" <?php if($this->currency->format == 5){ ?> selected="selected" <?php } ?> >X 0'000.00 </option>
                         </select>
                     </div>

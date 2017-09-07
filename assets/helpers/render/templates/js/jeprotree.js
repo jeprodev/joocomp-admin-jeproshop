@@ -31,8 +31,8 @@
             treeWrapper.find('label.tree-toggler, .icon-folder-close, .icon-folder-open').unbind('click');
             treeWrapper.find('label.tree-toggler, .icon-folder-close, .icon-folder-open').each(function(index, elt){
                 elt = jQuery(elt);
-                elt.on('click', function(){console.log(elt);
-                    if(elt.parent().children('ul.tree').is(':visible')){
+                elt.on('click', function(){
+                    if(elt.parent().children('ul.tree').is(':visible')){console.log(jQuery(this));
                         elt.parent().children('.icon-folder-open').removeClass('icon-folder-open').addClass('icon-folder-close');
                         treeObject.trigger('collapse');
                         elt.parent().parent().children('ul.tree').toggle(300);
@@ -94,7 +94,7 @@
                                 jQuery('#jform_no_default_category').show();
                             }
                         }
-                    })
+                    });
                 }
             }
         }
@@ -111,7 +111,7 @@
             treeWrapper.find(':input[type=checkbox]').each(function (index, elt){
                 elt = jQuery(elt);
                 elt.on('click', function(){
-                    var defaultCategory = jQuery('#jform_default_category_id'); console.log(defaultCategory.html());
+                    var defaultCategory = jQuery('#jform_default_category_id');
                     if(elt.prop('checked')){
                         var dataToAppend = ((elt.val() != 1) ? elt.parent().find('label').html() : options.default_label);
                         defaultCategory.append((jQuery('<option>', {value : elt.val()})).text(dataToAppend));
@@ -140,8 +140,8 @@
         function collapseTree(elt, speed){
             elt.find('label.tree-toggler').each(function(index, item){
                 item = jQuery(item);
-                elt.parent().children('.icon-folder-open').removeClass('icon-folder-open').addClass('icon-folder-close');
-                elt.parent().parent().children('ul.tree').hide(speed);
+                item.parent().children('.icon-folder-open').removeClass('icon-folder-open').addClass('icon-folder-close');
+                item.parent().parent().children('ul.tree').hide(speed);
             });
         }
 

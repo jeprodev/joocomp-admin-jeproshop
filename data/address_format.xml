@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<addresse_format>
+    <format >
+        <fields>
+            <field>firstname lastname</field>
+            <field>company</field>
+            <field>vat_number</field>
+            <field>address1</field>
+            <field>address2</field>
+            <field>postcode city</field>
+            <field>CountryName</field>
+            <field>phone</field>
+        </fields>
+    </format>
+    <format id="address_format_4" id_country="CA">
+        <fields>
+            <field>firstname lastname</field>
+            <field>company</field>
+            <field>address1</field>
+            <field>address2</field>
+            <field>city StateName postcode</field>
+            <field>CountryName</field>
+            <field>phone</field>
+        </fields>
+    </format>
+    <format id="address_format_10" countries="IT, JP, AR, ID, MX">
+        <fields>
+            <field>firstname lastname</field>
+            <field>company</field>
+            <field>vat_number</field>
+            <field>address1</field>
+            <field>address2</field>
+            <field>postcode city</field>
+            <field>State:name</field>
+            <field>CountryName</field>
+            <field>phone</field>
+        </fields>
+    </format>
+    <format id="address_format_17" id_country="GB">
+        <fields>
+            <field>firstname lastname</field>
+            <field>company</field>
+            <field>vat_number</field>
+            <field>address1</field>
+            <field>address2</field>
+            <field>city</field>
+            <field>postcode</field>
+            <field>Country:name</field>
+            <field>phone</field>
+        </fields>
+    </format>
+
+    <format id="address_format_21" countries="US">
+        <fields>
+            <field>firstname lastname</field>
+            <field>company</field>
+            <field>address1</field>
+            <field>address2</field>
+            <field>city, StateName</field>
+            <field>postcode</field>
+            <field>CountryName</field>
+            <field>phone</field>
+        </fields>
+    </format>
+
+    <format id="address_format_24" countries="AU">
+        <fields>
+            <field>firstname lastname</field>
+            <field>company</field>
+            <field>vat_number</field>
+            <field>address1</field>
+            <field>address2</field>
+            <field>city StateIsoCode postcode</field>
+            <field>Country:name</field>
+            <field>phone</field>
+        </fields>
+    </format>
+</addresse_format>

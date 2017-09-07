@@ -35,7 +35,7 @@ defined('_JEXEC') or die('Restricted access');
         <div class="half-wrapper left" >
             <div class="panel" >
                 <div class="panel-title" ></div>
-                <div class="panel-content well" >
+                <div class="panel-content " >
                     <div class="control-group" >
                         <div class="control-label" ><label for="jform_catalog_mode" id="jform_catalog_form-lbl" title="<?php echo JText::_('COM_JEPROSHOP_CATALOG_MODE_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_CATALOG_MODE_LABEL'); ?></label></div>
                         <div class="controls" >
@@ -88,7 +88,7 @@ defined('_JEXEC') or die('Restricted access');
             </div>
             <div class="panel" >
                 <div class="panel-title" ><i class="icon-" ></i><?php echo JText::_('COM_JEPROSHOP_GENERAL_PRODUCT_SETTING_TITLE'); ?></div>
-                <div class="panel-content well" >
+                <div class="panel-content " >
                     <div class="control-group" >
                         <div class="control-label" ><label title="<?php echo JText::_('COM_JEPROSHOP_PRODUCTS_PER_PAGE_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_PRODUCTS_PER_PAGE_LABEL'); ?></label></div>
                         <div class="controls" ><input type="text" value="<?php echo $this->products_per_page; ?>" id="jform_products_per_page" name="jform[products_per_page]" /></div>
@@ -123,7 +123,7 @@ defined('_JEXEC') or die('Restricted access');
         <div class="half-wrapper right" >
             <div class="panel" >
                 <div class="panel-title" ><i class="icon-" ></i><?php echo JText::_('COM_JEPROSHOP_PRODUCT_PAGE_SETTING_TITLE'); ?></div>
-                <div class="panel-content well" >
+                <div class="panel-content " >
                     <div class="control-group" >
                         <div class="control-label" ><label title="<?php echo JText::_('COM_JEPROSHOP_DISPLAY_AVAILABLE_QUANTITIES_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_DISPLAY_AVAILABLE_QUANTITIES_LABEL'); ?></label></div>
                         <div class="controls" >
@@ -177,7 +177,7 @@ defined('_JEXEC') or die('Restricted access');
             </div>
             <div class="panel" >
                 <div class="panel-title" ><i class="icon-" ></i><?php echo JText::_('COM_JEPROSHOP_GENERAL_PRODUCT_SETTING_TITLE'); ?></div>
-                <div class="panel-content well" >
+                <div class="panel-content " >
                     <div class="control-group" >
                         <div class="control-label" ><label title="<?php echo JText::_('COM_JEPROSHOP_ALLOW_OUT_OF_STOCK_ORDERING_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_ALLOW_OUT_OF_STOCK_ORDERING_LABEL'); ?></label></div>
                         <div class="controls" >

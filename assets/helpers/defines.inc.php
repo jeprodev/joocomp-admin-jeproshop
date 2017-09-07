@@ -48,7 +48,7 @@ if(!defined('COM_JEPROSHOP_IMAGE_DIR')){
 }
 
 if(!defined('COM_JEPROSHOP_CATEGORY_IMAGE_DIR')){
-    $categoryImageDirectory = JPATH_SITE . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR . 'com_jeproshop' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'categories' . DIRECTORY_SEPARATOR;
+    $categoryImageDirectory = JURI::root() . 'media/com_jeproshop/images/categories/';
     if(!JFolder::exists($categoryImageDirectory)){
         JFolder::create($categoryImageDirectory);
     }
@@ -56,8 +56,7 @@ if(!defined('COM_JEPROSHOP_CATEGORY_IMAGE_DIR')){
 }
 
 if(!defined('COM_JEPROSHOP_EMPLOYEE_IMAGE_DIR')){
-
-    $employeeImageDirectory = JPATH_SITE . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR . 'com_jeproshop' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'employee' . DIRECTORY_SEPARATOR;
+    $employeeImageDirectory = JURI::root() . 'media/com_jeproshop/images/employee/';
     if(!JFolder::exists($employeeImageDirectory)){ JFolder::create($employeeImageDirectory); }
     define('COM_JEPROSHOP_EMPLOYEE_IMAGE_DIR', $employeeImageDirectory);
 }

@@ -26,9 +26,6 @@ defined('_JEXEC') or die('Restricted access');
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'script.php';
 
-$data = new com_jeproshopInstallerScript();
-//$data->createDefaultShopData();
-
 
 
 if(!file_exists(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'load.php')){
@@ -36,6 +33,10 @@ if(!file_exists(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_S
 }
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'load.php';
 
+$data = new com_jeproshopInstallerScript();
+//$data->createDefaultShopData();
+
+//exit();
 $context = JeproshopContext::getContext();
 
 /** initialize the shop **/

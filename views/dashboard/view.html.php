@@ -28,7 +28,7 @@ class JeproshopViewDashboard extends JeproshopViewLegacy{
 
 
     public function display($tpl = null){
-
+        $app = JFactory::getApplication();
         $this->context = JeproshopContext::getContext();
 
         $testStatsDateUpdate = $this->context->cookie->__get('stats_date_update');
@@ -88,16 +88,13 @@ class JeproshopViewDashboard extends JeproshopViewLegacy{
         $calendarHelper->setCompareDateTo($statsCompareTo);
         $calendarHelper->setCompareOption(JeproshopTools::getValue('compare_date_option', $this->context->employee->stats_compare_option));
 
-        $params = array(
-            'date_from' => $this->context->employee->stats_date_from,
-            'date_to' => $this->context->employee->stats_date_to
-        );
-/*
+  /*
         $moduleManagerBuilder = ModuleManagerBuilder::getInstance();
         $moduleManager = $moduleManagerBuilder->build();
 
 
         $this->tpl_view_vars = array( */
+        $this->context->employee->preselect_date_range = (isset($this->context->employee->preselect_date_range) ? $this->context->employee->preselect_date_range : 'month');
         $this->assignRef('date_from', $this->context->employee->stats_date_from);
         $this->assignRef('date_to', $this->context->employee->stats_date_to);
         $dashboardZoneOne = '';
@@ -115,26 +112,32 @@ class JeproshopViewDashboard extends JeproshopViewLegacy{
         $this->assignRef('calendar', $calendar);
             /*'PS_DASHBOARD_SIMULATION' => Configuration::get('PS_DASHBOARD_SIMULATION'),
             'datepickerFrom' => Tools::getValue('datepickerFrom', $this->context->employee->stats_date_from),
-            'datepickerTo' => Tools::getValue('datepickerTo', $this->context->employee->stats_date_to),
-            'preselect_date_range' => Tools::getValue('preselectDateRange', $this->context->employee->preselect_date_range)
-        );*/
+            'datepickerTo' => Tools::getValue('datepickerTo', $this->context->employee->stats_date_to), */
+        $preselectDateRange  = $app->input->get('preselect_date_range', $this->context->employee->preselect_date_range);
+        $this->assignRef('preselect_date_range', $preselectDateRange);
+        //);*/
         $this->addToolBar();
         parent::display($tpl);
     }
 
     private function addToolBar(){
+        $document = JFactory::getDocument();
         switch ($this->getLayout()){
             case 'add':
                 JToolBarHelper::title(JText::_('COM_JEPROSHOP_ADD_NEW_CATEGORY_TITLE'), 'jeproshop-dashboard');
                 JToolBarHelper::apply('save');
                 JToolBarHelper::cancel('cancel');
+
                 break;
             default:
                 JToolBarHelper::title(JText::_('COM_JEPROSHOP_DASHBOARD_LABEL'), 'jeproshop-dashboard');
                 //JToolBarHelper::addNew('add');
                 break;
         }
+        JHtml::_('bootstrap.framework');
         $this->addSideBar('dashboard');
+        $themeDirectory = 'default';
+        $document->addStyleSheet('components/com_jeproshop/assets/themes/' . $themeDirectory . '/css/dashboard.css');
     }
     
     

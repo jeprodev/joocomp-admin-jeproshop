@@ -359,9 +359,11 @@ CREATE TABLE IF NOT EXISTS `#__jeproshop_stock_available` (
 
 CREATE TABLE IF NOT EXISTS `#__jeproshop_image_shop` (
     `image_id` INT( 11 ) UNSIGNED NOT NULL,
+    `product_id` INT( 11 ) UNSIGNED NOT NULL,
     `shop_id` INT( 11 ) UNSIGNED NOT NULL,
     `cover` tinyint(1) NOT NULL,
-    KEY (`image_id`, `shop_id`, `cover`),
+    PRIMARY KEY (`image_id`, `shop_id`),
+    UNIQUE KEY `product_id` (`product_id`, `shop_id`, `cover`),
     KEY `shop_id` (`shop_id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8;
 

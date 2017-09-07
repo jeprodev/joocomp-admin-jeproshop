@@ -193,6 +193,7 @@ class JeproshopCategoriesTree extends JeproshopTree {
     }
 
     public function renderNodes($data){
+        
         ob_start();
         include (dirname(__DIR__) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . $this->template . '_nodes.php');
         $var=ob_get_contents();

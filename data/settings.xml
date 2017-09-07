@@ -30,7 +30,7 @@
     <setting name="shop_activity" value="0" group="generals" />
     <setting name="allow_iframes_on_html_fields" value="1" group="generals" />
     <setting name="increase_front_office_security" value="0" group="generals" />
-    <setting name="round_mode" value="1" group="generals" />
+    <setting name="round_mode_type" value="1" group="generals" />
     <setting name="products_per_page" value="20" group="layout" />
     <setting name="display_quantities" value="1" group="layout" />
     <setting name="help_box" value="1" group="layout" />
@@ -38,7 +38,7 @@
     <setting name="product_picture_max_size" value="8388608" group="layout" />
     <setting name="enable_jqzoom" value="0" group="layout" />
     <setting name="product_picture_height" value="64" group="layout" />
-    <setting name="display_bestsellers_block" value="0" group="layout" />
+    <setting name="display_best_sales_block" value="0" group="layout" />
     <setting name="display_new_products_block" value="0" group="layout" />
     <setting name="display_specials_block" value="0" group="layout" />
     <setting name="show_all_modules" value="0" group="layout" />
@@ -79,6 +79,7 @@
     <setting name="shipping_free_price" value="0" group="shipping" />
     <setting name="shipping_free_method" value="1" group="shipping" />
     <setting name="shipping_free_weight" value="0" group="shipping" />
+    <setting name="shipping_method" value="0" group="shipping" />
     <setting name="improve_front_safety" value="0" group="system" />
     <setting name="number_of_decimals" value="2" group="shipping" />
     <setting name="stock_management" value="1" group="stock" />
@@ -91,7 +92,7 @@
     <setting name="cipher_algorithm" value="1" group="system" /> 
     <setting name="search_min_word_length" value="3" group="system" />
     <setting name="search_ajax" value="1" group="system" />
-    <setting name="price_round_mode" value="1" group="system" />
+    <setting name="" value="1" group="system" />
     <setting name="bo_life_time" value="360" group="system" />
     <setting name="enable_ssl" value="1" group="system" />
     <setting name="fo_life_time" value="360" group="system" />
@@ -106,7 +107,7 @@
     <setting name="allowed_countries" value="AF;ZA;AX;AL;DZ;DE;AD;AO;AI;AQ;AG;AN;SA;AR;AM;AW;AU;AT;AZ;BS;BH;BD;BB;BY;BE;BZ;BJ;BM;BT;BO;BA;BW;BV;BR;BN;BG;BF;MM;BI;KY;KH;CM;CA;CV;CF;CL;CN;CX;CY;CC;CO;KM;CG;CD;CK;KR;KP;CR;CI;HR;CU;DK;DJ;DM;EG;IE;SV;AE;EC;ER;ES;EE;ET;FK;FO;FJ;FI;FR;GA;GM;GE;GS;GH;GI;GR;GD;GL;GP;GU;GT;GG;GN;GQ;GW;GY;GF;HT;HM;HN;HK;HU;IM;MU;VG;VI;IN;ID;IR;IQ;IS;IL;IT;JM;JP;JE;JO;KZ;KE;KG;KI;KW;LA;LS;LV;LB;LR;LY;LI;LT;LU;MO;MK;MG;MY;MW;MV;ML;MT;MP;MA;MH;MQ;MR;YT;MX;FM;MD;MC;MN;ME;MS;MZ;NA;NR;NP;NI;NE;NG;NU;NF;NO;NC;NZ;IO;OM;UG;UZ;PK;PW;PS;PA;PG;PY;NL;PE;PH;PN;PL;PF;PR;PT;QA;DO;CZ;RE;RO;GB;RU;RW;EH;BL;KN;SM;MF;PM;VA;VC;LC;SB;WS;AS;ST;SN;RS;SC;SL;SG;SK;SI;SO;SD;LK;SE;CH;SR;SJ;SZ;SY;TJ;TW;TZ;TD;TF;TH;TL;TG;TK;TO;TT;TN;TM;TC;TR;TV;UA;UY;US;VU;VE;VN;WF;YE;ZM;ZW" group="system" />
     <setting name="force_update_of_friendly_url" value="1" group="system" />
     <setting name="enable_guest_checkout" value="0" group="system" />
-    <setting name="delayed_shipping" value="0" group="system" />
+    <setting name="display_shipping" value="1" group="system" />
     <setting name="terms_of_services" value="" group="system" />
     <setting name="conditions_of_use" value="" group="system" />
     <setting name="registration_process_type" value="" group="system" />
@@ -144,11 +145,25 @@
     <setting name="order_status_out_of_stock_unpaid" value="13" group="order" />
     <setting name="order_status_out_of_stock_paid" value="9" group="order" />
     <setting name="order_status_on_validation" value="14" group="order" />
-    <setting name="detect_country" value="1" group="ceolocation" />
+    <setting name="detect_country" value="1" group="geolocation" />
     <setting name="search_indexation" value="0" group="system" />
-    <setting name="" value="" group="" />
+    <setting name="allow_employee_form_lang" value="0" group="system" />
     <setting name="image_quality" value="" group="image" />
-    <setting name="qty_discount_on_combination" value="0" group="order" />
+    <setting name="use_purifier_library" value="0" group="system" />
+    <setting name="allow_order_with_unregistered_customer" value="1" group="system" />
+    <setting name="deactivate_reordering_option" value="1" group="system" />
+    <setting name="general_selling_condition" value="" group="system" />
+    <setting name="minimum_amount_required_for_order" value="0" group="order" />
+    <setting name="display_product_image_on_invoice" value="1" group="order" />
+    <setting name="display_product_image_on_delivery_file" value="1" group="order" />
+    <setting name="catalog_mode" value="1" group="product" />
+    <setting name="require_phone_number" value="1" group="system" />
+    <setting name="refresh_cart_after_identification" value="1" group="system" />
+    <setting name="email_on_registration" value="1" group="system" />
+    <setting name="password_regeneration_delay" value="24" group="system" />
+    <setting name="activate_newsletter_subscription" value="1" group="system" />
+    <setting name="root_category" value="1" group="system" />
+    <setting name="" value="" group="" />
 </settings>
 
 

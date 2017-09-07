@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zones lang="en" >
+        <zone name="Europe" >
+            <country name="Germany" iso_code="DE" call_prefix="49" iso_code_num="276" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1" />
+            <country name="Austria" iso_code="AT" call_prefix="43" iso_code_num="40" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1" />
+            <country name="Belgium" iso_code="BE" call_prefix="32" iso_code_num="56" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1" />
+            <country name="Spain" iso_code="ES" call_prefix="34" iso_code_num="724" published="1" contains_states="0" need_identification_number="1" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country name="Finland" iso_code="FI" call_prefix="358" iso_code_num="246" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country name="France" iso_code="FR" call_prefix="33" iso_code_num="250" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country name="Greece" iso_code="GR" call_prefix="30" iso_code_num="300" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country name="Italy" iso_code="IT" call_prefix="39" iso_code_num="380" published="1" contains_states="1" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1" >
+
+                    <state name="Agrigento" iso_code="AG" tax_behavior="0" published="1" />
+                    <state name="Alessandria" iso_code="AL" tax_behavior="0" published="1" />
+                    <state name="Ancona" iso_code="AN" tax_behavior="0" published="1" />
+                    <state name="Aosta" iso_code="AO" tax_behavior="0" published="1" />
+                    <state name="Arezzo" iso_code="AR" tax_behavior="0" published="1" />
+                    <state name="Ascoli Piceno" iso_code="AP" tax_behavior="0" published="1" />
+                    <state name="Asti" iso_code="AT" tax_behavior="0" published="1" />
+                    <state name="Avellino" iso_code="AV" tax_behavior="0" published="1" />
+                    <state name="BariBA" iso_code="BA" tax_behavior="0" published="1" />
+                    <state name="Barletta-Andria-Trani" iso_code="BT" tax_behavior="0" published="1" />
+                    <state name="Belluno" iso_code="BL" tax_behavior="0" published="1" />
+                    <state name="Benevento" iso_code="BN" tax_behavior="0" published="1" />
+                    <state name="Bergamo" iso_code="BG" tax_behavior="0" published="1" />
+                    <state name="Biella" iso_code="BI" tax_behavior="0" published="1" />
+                    <state name="Bologna" iso_code="BO" tax_behavior="0" published="1" />
+                    <state name="Bolzano" iso_code="BZ" tax_behavior="0" published="1" />
+                    <state name="Brescia" iso_code="BS" tax_behavior="0" published="1" />
+                    <state name="Brindisi" iso_code="BR" tax_behavior="0" published="1" />
+                    <state name="Cagliari" iso_code="CA" tax_behavior="0" published="1" />
+                    <state name="Caltanissetta" iso_code="CL" tax_behavior="0" published="1" />
+                    <state name="Campobasso" iso_code="CB" tax_behavior="0" published="1" />
+                    <state name="Carbonia-Iglesias" iso_code="CI" tax_behavior="0" published="1" />
+                    <state name="Caserta" iso_code="CE" tax_behavior="0" published="1" />
+                    <state name="Catania" iso_code="CT" tax_behavior="0" published="1" />
+                    <state name="Catanzaro" iso_code="CZ" tax_behavior="0" published="1" />
+                    <state name="Chieti" iso_code="CH" tax_behavior="0" published="1" />
+                    <state name="Como" iso_code="CO" tax_behavior="0" published="1" />
+                    <state name="Cosenza" iso_code="CS" tax_behavior="0" published="1" />
+                    <state name="Cremona" iso_code="CR" tax_behavior="0" published="1" />
+                    <state name="Crotone" iso_code="KR" tax_behavior="0" published="1" />
+                    <state name="Cuneo" iso_code="CN" tax_behavior="0" published="1" />
+                    <state name="Enna" iso_code="EN" tax_behavior="0" published="1" />
+                    <state name="Fermo" iso_code="FM" tax_behavior="0" published="1" />
+                    <state name="Ferrara" iso_code="FE" tax_behavior="0" published="1" />
+                    <state name="Firenze" iso_code="FI" tax_behavior="0" published="1" />
+                    <state name="Foggia" iso_code="FG" tax_behavior="0" published="1" />
+                    <state name="Forlì-Cesena" iso_code="FC" tax_behavior="0" published="1" />
+                    <state name="Frosinone" iso_code="FR" tax_behavior="0" published="1" />
+                    <state name="Genova" iso_code="GE" tax_behavior="0" published="1" />
+                    <state name="Gorizia" iso_code="GO" tax_behavior="0" published="1" />
+                    <state name="Grosseto" iso_code="GR" tax_behavior="0" published="1" />
+                    <state name="Imperia" iso_code="IM" tax_behavior="0" published="1" />
+                    <state name="Isernia" iso_code="IS" tax_behavior="0" published="1" />
+                    <state name="L'Aquila" iso_code="AQ" tax_behavior="0" published="1" />
+                    <state name="La Spezia" iso_code="SP" tax_behavior="0" published="1" />
+                    <state name="Latina" iso_code="LT" tax_behavior="0" published="1" />
+                    <state name="Lecce" iso_code="LE" tax_behavior="0" published="1" />
+                    <state name="Lecco" iso_code="LC" tax_behavior="0" published="1" />
+                    <state name="Livorno" iso_code="LI" tax_behavior="0" published="1" />
+                    <state name="Lodi" iso_code="LO" tax_behavior="0" published="1" />
+                    <state name="Lucca" iso_code="LU" tax_behavior="0" published="1" />
+                    <state name="Macerata" iso_code="MC" tax_behavior="0" published="1" />
+                    <state name="Mantova" iso_code="MN" tax_behavior="0" published="1" />
+                    <state name="Massa" iso_code="MS" tax_behavior="0" published="1" />
+                    <state name="Matera" iso_code="MT" tax_behavior="0" published="1" />
+                    <state name="Medio Campidano" iso_code="VS" tax_behavior="0" published="1" />
+                    <state name="Messina" iso_code="ME" tax_behavior="0" published="1" />
+                    <state name="Milano" iso_code="MI" tax_behavior="0" published="1" />
+                    <state name="Modena" iso_code="MO" tax_behavior="0" published="1" />
+                    <state name="Monza e della Brianza" iso_code="MB" tax_behavior="0" published="1" />
+                    <state name="Napoli" iso_code="NA" tax_behavior="0" published="1" />
+                    <state name="Novara" iso_code="NO" tax_behavior="0" published="1" />
+                    <state name="Nuoro" iso_code="NU" tax_behavior="0" published="1" />
+                    <state name="Ogliastra" iso_code="OG" tax_behavior="0" published="1" />
+                    <state name="Olbia-Tempio" iso_code="OT" tax_behavior="0" published="1" />
+                    <state name="Oristano" iso_code="OR" tax_behavior="0" published="1" />
+                    <state name="Padova" iso_code="PD" tax_behavior="0" published="1" />
+                    <state name="Palermo" iso_code="PA" tax_behavior="0" published="1" />
+                    <state name="Parma" iso_code="PR" tax_behavior="0" published="1" />
+                    <state name="Pavia" iso_code="PV" tax_behavior="0" published="1" />
+                    <state name="Perugia" iso_code="PG" tax_behavior="0" published="1" />
+                    <state name="Pesaro-Urbino" iso_code="PU" tax_behavior="0" published="1" />
+                    <state name="Pescara" iso_code="PE" tax_behavior="0" published="1" />
+                    <state name="Piacenza" iso_code="PC" tax_behavior="0" published="1" />
+                    <state name="Pisa" iso_code="PI" tax_behavior="0" published="1" />
+                    <state name="Pistoia" iso_code="PT" tax_behavior="0" published="1" />
+                    <state name="Pordenone" iso_code="PN" tax_behavior="0" published="1" />
+                    <state name="Potenza" iso_code="PZ" tax_behavior="0" published="1" />
+                    <state name="Prato" iso_code="PO" tax_behavior="0" published="1" />
+                    <state name="Ragusa" iso_code="RG" tax_behavior="0" published="1" />
+                    <state name="Ravenna" iso_code="RA" tax_behavior="0" published="1" />
+                    <state name="Reggio Calabria" iso_code="RC" tax_behavior="0" published="1" />
+                    <state name="Reggio Emilia" iso_code="RE" tax_behavior="0" published="1" />
+                    <state name="Rieti" iso_code="RI" tax_behavior="0" published="1" />
+                    <state name="Rimini" iso_code="RN" tax_behavior="0" published="1" />
+                    <state name="Roma" iso_code="RM" tax_behavior="0" published="1" />
+                    <state name="Rovigo" iso_code="RO" tax_behavior="0" published="1" />
+                    <state name="Salerno" iso_code="SA" tax_behavior="0" published="1" />
+                    <state name="Sassari" iso_code="SS" tax_behavior="0" published="1" />
+                    <state name="Savona" iso_code="SV" tax_behavior="0" published="1" />
+                    <state name="Siena" iso_code="SI" tax_behavior="0" published="1" />
+                    <state name="Siracusa" iso_code="SR" tax_behavior="0" published="1" />
+                    <state name="Sondrio" iso_code="SO" tax_behavior="0" published="1" />
+                    <state name="Taranto" iso_code="TA" tax_behavior="0" published="1" />
+                    <state name="Teramo" iso_code="TE" tax_behavior="0" published="1" />
+                    <state name="Terni" iso_code="TR" tax_behavior="0" published="1" />
+                    <state name="Torino" iso_code="TO" tax_behavior="0" published="1" />
+                    <state name="Trapani" iso_code="TP" tax_behavior="0" published="1" />
+                    <state name="Trento" iso_code="TN" tax_behavior="0" published="1" />
+                    <state name="Treviso" iso_code="TV" tax_behavior="0" published="1" />
+                    <state name="Trieste" iso_code="TS" tax_behavior="0" published="1" />
+                    <state name="Udine" iso_code="UD" tax_behavior="0" published="1" />
+                    <state name="Varese" iso_code="VA" tax_behavior="0" published="1" />
+                    <state name="Venezia" iso_code="VE" tax_behavior="0" published="1" />
+                    <state name="Verbano-Cusio-Ossola" iso_code="VB" tax_behavior="0" published="1" />
+                    <state name="Vercelli" iso_code="VC" tax_behavior="0" published="1" />
+                    <state name="Verona" iso_code="VR" tax_behavior="0" published="1" />
+                    <state name="Vibo Valentia" iso_code="VV" tax_behavior="0" published="1" />
+                    <state name="Vicenza" iso_code="VI" tax_behavior="0" published="1" />
+                    <state name="Viterbo" iso_code="VT" tax_behavior="0" published="1" />
+
+            </country>
+            <country name="Luxembourg" iso_code="LU" call_prefix="352" iso_code_num="442" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+            <country name="Netherlands" iso_code="NL" call_prefix="31" iso_code_num="528" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN LL" display_tax_label="1"/>
+            <country name="Poland" iso_code="PL" call_prefix="48" iso_code_num="616" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NN-NNN" display_tax_label="1"/>
+            <country iso_code_num="620" name="Portugal"  iso_code="PT" call_prefix="351" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN-NNN" display_tax_label="1"/>
+            <country iso_code_num="203" name="Czech Republic"  iso_code="CZ" call_prefix="420" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNN NN" display_tax_label="1"/>
+            <country name="United Kingdom" iso_code="GB" call_prefix="44" iso_code_num="826" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country name="Sweden" iso_code="SE" call_prefix="46" iso_code_num="752" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNN NN" display_tax_label="1"/>
+            <country name="Denmark" iso_code="DK" call_prefix="45" iso_code_num="208" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+            <country iso_code_num="372" name="Ireland" iso_code="IE" call_prefix="353" published="1" contains_states="0" need_identification_number="0" need_zip_code="0" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="642" name="Romania" iso_code="RO" call_prefix="40" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNNN" display_tax_label="1"/>
+            <country iso_code_num="703" name="Slovakia (Slovak Republic)" iso_code="SK" call_prefix="421" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNN NN" display_tax_label="1"/>
+            <country iso_code_num="196" name="Cyprus" iso_code="CY" call_prefix="357" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+            <country iso_code_num="233" name="Estonia" iso_code="EE" call_prefix="372" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="438" name="Liechtenstein" iso_code="LI" call_prefix="423" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+            <country iso_code_num="440" name="Lithuania"  iso_code="LT" call_prefix="370" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="428" name="Latvia" iso_code="LV" call_prefix="371" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="C-NNNN" display_tax_label="1"/>
+            <country iso_code_num="470" name="Malta" iso_code="MT" call_prefix="356" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="LLL NNNN" display_tax_label="1"/>
+            <country iso_code_num="348" name="Hungary" iso_code="HU" call_prefix="36" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+            <country iso_code_num="705" name="Slovenia" iso_code="SI" call_prefix="386" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="C-NNNN" display_tax_label="1"/>
+            <country iso_code_num="804" name="Ukraine" iso_code="UA" call_prefix="380" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="70" name="Bosnia And Herzegovina" iso_code="BA" call_prefix="387" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="100" name="Bulgaria" iso_code="BG" call_prefix="359" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+        </zone>
+        <zone name="North America" >
+            <country name="Canada" iso_code="CA" call_prefix="1" iso_code_num="124" published="1" contains_states="1" need_identification_number="0" need_zip_code="1" zip_code_format="LNL NLN" display_tax_label="0" >
+
+                    <state name="Ontario" iso_code="ON" tax_behavior="0" published="1" />
+                    <state name="Quebec" iso_code="QC" tax_behavior="0" published="1" />
+                    <state name="British Columbia" iso_code="BC" tax_behavior="0" published="1" />
+                    <state name="Alberta" iso_code="AB" tax_behavior="0" published="1" />
+                    <state name="Manitoba" iso_code="MB" tax_behavior="0" published="1" />
+                    <state name="Saskatchewan" iso_code="SK" tax_behavior="0" published="1" />
+                    <state name="Nova Scotia" iso_code="NS" tax_behavior="0" published="1" />
+                    <state name="New Brunswick" iso_code="NB" tax_behavior="0" published="1" />
+                    <state name="Newfoundland and Labrador" iso_code="NL" tax_behavior="0" published="1" />
+                    <state name="Prince Edward Island" iso_code="PE" tax_behavior="0" published="1" />
+                    <state name="Northwest Territories" iso_code="NT" tax_behavior="0" published="1" />
+                    <state name="Yukon" iso_code="YT" tax_behavior="0" published="1" />
+                    <state name="Nunavut" iso_code="NU" tax_behavior="0" published="1" />
+
+            </country>
+            <country iso_code_num="840" name="United States" iso_code="US" call_prefix="1" published="1" contains_states="1" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="0" >
+
+                    <state name="AA" iso_code="AA" tax_behavior="0" published="1" />
+                    <state name="AE" iso_code="AE" tax_behavior="0" published="1" />
+                    <state name="AP" iso_code="AP" tax_behavior="0" published="1" />
+                    <state name="Alabama" iso_code="AL" tax_behavior="0" published="1" />
+                    <state name="Alaska"  iso_code="AK" tax_behavior="0" published="1" />
+                    <state name="Arizona"  iso_code="AZ" tax_behavior="0" published="1" />
+                    <state name="Arkansas"  iso_code="AR" tax_behavior="0" published="1" />
+                    <state name="California"  iso_code="CA" tax_behavior="0" published="1" />
+                    <state name="Colorado"  iso_code="CO" tax_behavior="0" published="1" />
+                    <state name="Connecticut"  iso_code="CT" tax_behavior="0" published="1" />
+                    <state name="Delaware"  iso_code="DE" tax_behavior="0" published="1" />
+                    <state name="Florida"  iso_code="FL" tax_behavior="0" published="1" />
+                    <state name="Georgia"  iso_code="GA" tax_behavior="0" published="1" />
+                    <state name="Hawaii"  iso_code="HI" tax_behavior="0" published="1" />
+                    <state name="Idahoid" iso_code="ID" tax_behavior="0" published="1" />
+                    <state name="Illinois" iso_code="IL" tax_behavior="0" published="1" />
+                    <state name="Indiana"  iso_code="IN" tax_behavior="0" published="1" />
+                    <state name="Iowa"  iso_code="IA" tax_behavior="0" published="1" />
+                    <state name="Kansas"  iso_code="KS" tax_behavior="0" published="1" />
+                    <state name="Kentucky"  iso_code="KY" tax_behavior="0" published="1" />
+                    <state name="Louisiana"  iso_code="LA" tax_behavior="0" published="1" />
+                    <state name="Maine"  iso_code="ME" tax_behavior="0" published="1" />
+                    <state name="Maryland"  iso_code="MD" tax_behavior="0" published="1" />
+                    <state name="Massachusetts"  iso_code="MA" tax_behavior="0" published="1" />
+                    <state name="Michigan"  iso_code="MI" tax_behavior="0" published="1" />
+                    <state name="Minnesota"  iso_code="MN" tax_behavior="0" published="1" />
+                    <state name="Mississippi"  iso_code="MS" tax_behavior="0" published="1" />
+                    <state name="Missouri"  iso_code="MO" tax_behavior="0" published="1" />
+                    <state name="Montana"  iso_code="MT" tax_behavior="0" published="1" />
+                    <state name="Nebraska"  iso_code="NE" tax_behavior="0" published="1" />>
+                    <state name="Nevada"  iso_code="NV" tax_behavior="0" published="1" />
+                    <state name="New Hampshire"  iso_code="NH" tax_behavior="0" published="1" />
+                    <state name="New Jersey"  iso_code="NJ" tax_behavior="0" published="1" />
+                    <state name="New Mexico"  iso_code="NM" tax_behavior="0" published="1" />>
+                    <state name="New York"  iso_code="NY" tax_behavior="0" published="1" />
+                    <state name="North Carolina"  iso_code="NC" tax_behavior="0" published="1" />
+                    <state name="North Dakota"  iso_code="ND" tax_behavior="0" published="1" />
+                    <state name="Ohio"  iso_code="OH" tax_behavior="0" published="1" />
+                    <state name="Oklahoma"  iso_code="OK" tax_behavior="0" published="1" />
+                    <state name="Oregon"  iso_code="OR" tax_behavior="0" published="1" />
+                    <state name="Pennsylvania"  iso_code="PA" tax_behavior="0" published="1" />
+                    <state name="Rhode IslandRI"  iso_code="RI" tax_behavior="0" published="1" />
+                    <state name="South Carolina"  iso_code="SC" tax_behavior="0" published="1" />
+                    <state name="South Dakota"  iso_code="SD" tax_behavior="0" published="1" />
+                    <state name="Tennessee"  iso_code="TN" tax_behavior="0" published="1" />
+                    <state name="Texas"  iso_code="TX" tax_behavior="0" published="1" />
+                    <state name="Utah"  iso_code="UT" tax_behavior="0" published="1" />
+                    <state name="Vermont"  iso_code="VT" tax_behavior="0" published="1" />
+                    <state name="Virginia"  iso_code="VA" tax_behavior="0" published="1"/>
+                    <state name="Washington"  iso_code="WA" tax_behavior="0" published="1" />
+                    <state name="West Virginia" iso_code="WV" tax_behavior="0" published="1" />
+                    <state name="Wisconsin" iso_code="WI" tax_behavior="0" published="1" />
+                    <state name="Wyoming"  iso_code="WY" tax_behavior="0" published="1" />
+                    <state name="Puerto Rico" iso_code="PR" tax_behavior="0" published="1" />
+                    <state name="US Virgin Islands"  iso_code="VI" tax_behavior="0" published="1" />
+                    <state name="District of Columbia" iso_code="DC" tax_behavior="0" published="1" />
+
+            </country>
+            <country iso_code_num="16" name="American Samoa" iso_code="AS" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="28" name="Antigua And Barbuda" iso_code="AG" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="44" name="Bahamas" iso_code="BS" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="52" name="Barbados" iso_code="BB" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="CNNNNN" display_tax_label="1"/>
+            <country iso_code_num="60" name="Bermuda" iso_code="BM" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="92" name="Virgin Islands (British)" iso_code="VG" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="CNNNN" display_tax_label="1"/>
+            <country iso_code_num="850" name="Virgin Islands (U.S.)" iso_code="VI" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="484" name="Mexico" iso_code="MX" call_prefix="52" published="1" contains_states="1" need_identification_number="1" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1" >
+
+                    <state name="Aguascalientes" iso_code="AGS" tax_behavior="0" published="1" />
+                    <state name="Baja California" iso_code="BCN" tax_behavior="0" published="1" />
+                    <state name="Baja California Sur" iso_code="BCS" tax_behavior="0" published="1" />
+                    <state name="Campeche" iso_code="CAM" tax_behavior="0" published="1" />
+                    <state name="Chiapas" iso_code="CHP" tax_behavior="0" published="1" />
+                    <state name="Chihuahua" iso_code="CHH" tax_behavior="0" published="1" />
+                    <state name="Coahuila" iso_code="COA" tax_behavior="0" published="1" />
+                    <state name="Colima" iso_code="COL" tax_behavior="0" published="1" />
+                    <state name="Distrito Federal" iso_code="DIF" tax_behavior="0" published="1" />
+                    <state name="Durango" iso_code="DUR" tax_behavior="0" published="1" />
+                    <state name="Guanajuato" iso_code="GUA" tax_behavior="0" published="1" />
+                    <state name="Guerrero" iso_code="GRO" tax_behavior="0" published="1" />
+                    <state name="Hidalgo" iso_code="HID" tax_behavior="0" published="1" />
+                    <state name="Jalisco" iso_code="JAL" tax_behavior="0" published="1" />
+                    <state name="Estado de México" iso_code="MEX" tax_behavior="0" published="1" />
+                    <state name="Michoacán" iso_code="MIC" tax_behavior="0" published="1" />
+                    <state name="Morelos" iso_code="MOR" tax_behavior="0" published="1" />
+                    <state name="Nayarit" iso_code="NAY" tax_behavior="0" published="1" />
+                    <state name="Nuevo León" iso_code="NLE" tax_behavior="0" published="1" />
+                    <state name="Oaxaca" iso_code="OAX" tax_behavior="0" published="1" />
+                    <state name="Puebla" iso_code="PUE" tax_behavior="0" published="1" />
+                    <state name="Querétaro" iso_code="QUE" tax_behavior="0" published="1" />
+                    <state name="Quintana Roo" iso_code="ROO" tax_behavior="0" published="1" />
+                    <state name="San Luis Potosí" iso_code="SLP" tax_behavior="0" published="1" />
+                    <state name="Sinaloa" iso_code="SIN" tax_behavior="0" published="1" />
+                    <state name="Sonora" iso_code="SON" tax_behavior="0" published="1" />
+                    <state name="Tabasco" iso_code="TAB" tax_behavior="0" published="1" />
+                    <state name="Tamaulipas" iso_code="TAM" tax_behavior="0" published="1" />
+                    <state name="Tlaxcala" iso_code="TLA" tax_behavior="0" published="1" />
+                    <state name="Veracruz" iso_code="VER" tax_behavior="0" published="1" />
+                    <state name="Yucatán" iso_code="YUC" tax_behavior="0" published="1" />
+                    <state name="Zacatecas" iso_code="ZAC" tax_behavior="0" published="1" />
+
+            </country>
+        </zone>
+        <zone name="Asia" >
+            <country iso_code_num="156" name="China" iso_code="CN" call_prefix="86" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNNN" display_tax_label="1"/>
+            <country iso_code_num="392" name="Japan" iso_code="JP" call_prefix="81" published="1" contains_states="1" need_identification_number="0" need_zip_code="1" zip_code_format="NNN-NNNN" display_tax_label="1" >
+
+                    <state name="Aichi" iso_code="23" tax_behavior="0" published="1" />
+                    <state name="Akita" iso_code="05" tax_behavior="0" published="1" />
+                    <state name="Aomori" iso_code="02" tax_behavior="0" published="1" />
+                    <state name="Chiba" iso_code="12" tax_behavior="0" published="1" />
+                    <state name="Ehime" iso_code="38" tax_behavior="0" published="1" />
+                    <state name="Fukui" iso_code="18" tax_behavior="0" published="1" />
+                    <state name="Fukuoka" iso_code="40" tax_behavior="0" published="1" />
+                    <state name="Fukushima" iso_code="07" tax_behavior="0" published="1" />
+                    <state name="Gifu" iso_code="21" tax_behavior="0" published="1" />
+                    <state name="Gunma" iso_code="10" tax_behavior="0" published="1" />
+                    <state name="Hiroshima" iso_code="34" tax_behavior="0" published="1" />
+                    <state name="Hokkaido" iso_code="01" tax_behavior="0" published="1" />
+                    <state name="Hyogo" iso_code="28" tax_behavior="0" published="1" />
+                    <state name="Ibaraki" iso_code="08" tax_behavior="0" published="1" />
+                    <state name="Ishikawa" iso_code="17" tax_behavior="0" published="1" />
+                    <state name="Iwate" iso_code="03" tax_behavior="0" published="1" />
+                    <state name="Kagawa" iso_code="37" tax_behavior="0" published="1" />
+                    <state name="Kagoshima" iso_code="46" tax_behavior="0" published="1" />
+                    <state name="Kanagawa" iso_code="14" tax_behavior="0" published="1" />
+                    <state name="Kochi" iso_code="39" tax_behavior="0" published="1" />
+                    <state name="KumamotoJ" iso_code="43" tax_behavior="0" published="1" />
+                    <state name="Kyoto" iso_code="26" tax_behavior="0" published="1" />
+                    <state name="Mie" iso_code="24" tax_behavior="0" published="1" />
+                    <state name="Miyagi" iso_code="04" tax_behavior="0" published="1" />
+                    <state name="Miyazaki" iso_code="45" tax_behavior="0" published="1" />
+                    <state name="Nagano" iso_code="20" tax_behavior="0" published="1" />
+                    <state name="Nagasaki" iso_code="42" tax_behavior="0" published="1" />
+                    <state name="Nara" iso_code="29" tax_behavior="0" published="1" />
+                    <state name="Niigata" iso_code="15" tax_behavior="0" published="1" />
+                    <state name="Oita" iso_code="44" tax_behavior="0" published="1" />
+                    <state name="Okayama" iso_code="33" tax_behavior="0" published="1" />
+                    <state name="Okinawa" iso_code="47" tax_behavior="0" published="1" />
+                    <state name="Osaka" iso_code="27" tax_behavior="0" published="1" />
+                    <state name="Saga" iso_code="41" tax_behavior="0" published="1" />
+                    <state name="Saitama" iso_code="11" tax_behavior="0" published="1" />
+                    <state name="Shiga" iso_code="25" tax_behavior="0" published="1" />
+                    <state name="Shimane" iso_code="32" tax_behavior="0" published="1" />
+                    <state name="Shizuoka" iso_code="22" tax_behavior="0" published="1" />
+                    <state name="Tochigi" iso_code="09" tax_behavior="0" published="1" />
+                    <state name="Tokushima" iso_code="36" tax_behavior="0" published="1" />
+                    <state name="Tokyo" iso_code="13" tax_behavior="0" published="1" />
+                    <state name="Tottori" iso_code="31" tax_behavior="0" published="1" />
+                    <state name="Toyama" iso_code="16" tax_behavior="0" published="1" />
+                    <state name="Wakayama" iso_code="30" tax_behavior="0" published="1" />
+                    <state name="Yamagata" iso_code="06" tax_behavior="0" published="1" />
+                    <state name="Yamaguchi" iso_code="35" tax_behavior="0" published="1" />
+                    <state name="Yamanashi" iso_code="19" tax_behavior="0" published="1" />
+
+            </country>
+            <country iso_code_num="344" name="Hong Kong" iso_code="HK" call_prefix="852" published="1" contains_states="0" need_identification_number="0" need_zip_code="0" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="410" name="Korea, Republic Of" iso_code="KR" call_prefix="82" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNN-NNN" display_tax_label="1"/>
+            <country iso_code_num="376" name="Israel" iso_code="IL" call_prefix="972" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNNNN" display_tax_label="1"/>
+            <country iso_code_num="702" name="Singapore" iso_code="SG" call_prefix="65" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNNN" display_tax_label="1"/>
+            <country iso_code_num="51" name="Armenia" iso_code="AM" call_prefix="374" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+            <country iso_code_num="31" name="Azerbaijan" iso_code="AZ" call_prefix="994" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="CNNNN" display_tax_label="1"/>
+            <country iso_code_num="48" name="Bahrain" iso_code="BH" call_prefix="973" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="50" name="Bangladesh" iso_code="BD" call_prefix="880" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+            <country iso_code_num="64" name="Bhutan" iso_code="BT" call_prefix="975" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="96" name="Brunei Darussalam" iso_code="BN" call_prefix="673" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="LLNNNN" display_tax_label="1"/>
+            <country iso_code_num="104" name="Myanmar" iso_code="MM" call_prefix="95" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="116" name="Cambodia" iso_code="KH" call_prefix="855" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="626" name="Timor-Leste" iso_code="TL" call_prefix="670" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="268" name="Georgia" iso_code="GE" call_prefix="995" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+            <country iso_code_num="356" name="India" iso_code="IN" call_prefix="91" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNN NNN" display_tax_label="1"/>
+            <country iso_code_num="360" name="Indonesia" iso_code="ID" call_prefix="62" published="1" contains_states="1" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1" >
+                <state name="Aceh" iso_code="ID-AC" tax_behavior="0" published="1" />
+                    <state name="Bali" iso_code="ID-BA" tax_behavior="0" published="1" />
+                    <state name="Banten" iso_code="ID-BT" tax_behavior="0" published="1" />
+                    <state name="Bengkulu" iso_code="ID-BE" tax_behavior="0" published="1" />
+                    <state name="Gorontalo" iso_code="ID-GO" tax_behavior="0" published="1" />
+                    <state name="Jakarta" iso_code="ID-JK" tax_behavior="0" published="1" />
+                    <state name="Jambi" iso_code="ID-JA" tax_behavior="0" published="1" />
+                    <state name="Jawa Barat" iso_code="ID-JB" tax_behavior="0" published="1" />
+                    <state name="Jawa Tengah" iso_code="ID-JT" tax_behavior="0" published="1" />
+                    <state name="Jawa Timur" iso_code="ID-JI" tax_behavior="0" published="1" />
+                    <state name="Kalimantan Barat" iso_code="ID-KB" tax_behavior="0" published="1" />
+                    <state name="Kalimantan Selatan" iso_code="ID-KS" tax_behavior="0" published="1" />
+                    <state name="Kalimantan Tengah" iso_code="ID-KT" tax_behavior="0" published="1" />
+                    <state name="Kalimantan Timur" iso_code="ID-KI" tax_behavior="0" published="1" />
+                    <state name="Kalimantan Utara" iso_code="ID-KU" tax_behavior="0" published="1" />
+                    <state name="Kepulauan Bangka Belitug" iso_code="ID-BB" tax_behavior="0" published="1" />
+                    <state name="Kepulauan Riau" iso_code="ID-KR" tax_behavior="0" published="1" />
+                    <state name="Lampung" iso_code="ID-LA" tax_behavior="0" published="1" />>
+                    <state name="Maluku" iso_code="ID-MA" tax_behavior="0" published="1" />
+                    <state name="Maluku Utara" iso_code="ID-MU" tax_behavior="0" published="1" />
+                    <state name="Nusa Tengara Barat" iso_code="ID-NB" tax_behavior="0" published="1" />
+                    <state name="Nusa Tenggara Timur" iso_code="ID-NT" tax_behavior="0" published="1" />
+                    <state name="Papua" iso_code="ID-PA" tax_behavior="0" published="1" />
+                    <state name="Papua Barat" iso_code="ID-PB" tax_behavior="0" published="1" />
+                    <state name="Riau" iso_code="ID-RI" tax_behavior="0" published="1" />
+                    <state name="Sulawesi Barat" iso_code="ID-SR" tax_behavior="0" published="1" />
+                    <state name="Sulawesi Selatan" iso_code="ID-SN" tax_behavior="0" published="1" />
+                    <state name="Sulawesi Tengah" iso_code="ID-ST" tax_behavior="0" published="1" />
+                    <state name="Sulawesi Tenggara" iso_code="ID-SG" tax_behavior="0" published="1" />
+                    <state name="Sulawesi Utara" iso_code="ID-SA" tax_behavior="0" published="1" />
+                    <state name="Sumatera Barat" iso_code="ID-SB" tax_behavior="0" published="1" />
+                    <state name="Sumatera Selatan" iso_code="ID-SS" tax_behavior="0" published="1" />
+                    <state name="Sumatera Utara" iso_code="ID-SU" tax_behavior="0" published="1" />
+                    <state name="Yogyakarta" iso_code="ID-YO" tax_behavior="0" published="1" />
+
+            </country>
+            <country iso_code_num="364" name="Iran, Islamic Republic Of" iso_code="IR" call_prefix="98" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN-NNNNN" display_tax_label="1"/>
+            <country iso_code_num="368" name="Iraq" iso_code="IQ" call_prefix="964" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="400" name="Jordan" iso_code="JO" call_prefix="962" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="398" name="Kazakhstan" iso_code="KZ" call_prefix="7" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNNN" display_tax_label="1"/>
+            <country iso_code_num="408" name="Korea, Democratic People'S Republic Of" iso_code="KP" call_prefix="850" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="414" name="Kuwait" iso_code="KW" call_prefix="965" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="417" name="Kyrgyzstan" iso_code="KG" call_prefix="996" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="418" name="Lao People'S Democratic Republic" iso_code="LA" call_prefix="856" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="422" name="Lebanon" iso_code="LB" call_prefix="961" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="446" name="Macau" iso_code="MO" call_prefix="853" published="1" contains_states="0" need_identification_number="0" need_zip_code="0" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="458" name="Malaysia" iso_code="MY" call_prefix="60" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="462" name="Maldives" iso_code="MV" call_prefix="960" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="760" name="Syrian Arab Republic" iso_code="SY" call_prefix="963" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="158" name="Taiwan, Province Of China" iso_code="TW" call_prefix="886" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="762" name="Tajikistan" iso_code="TJ" call_prefix="992" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="496" name="Mongolia" iso_code="MN" call_prefix="976" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="524" name="Nepal" iso_code="NP" call_prefix="977" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="512" name="Oman" iso_code="OM" call_prefix="968" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="586" name="Pakistan" iso_code="PK" call_prefix="92" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="275" name="Palestinian Territory" iso_code="PS" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="608" name="Philippines" iso_code="PH" call_prefix="63" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+            <country iso_code_num="634" name="Qatar" iso_code="QA" call_prefix="974" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="682" name="Saudi Arabia" iso_code="SA" call_prefix="966" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="144" name="Sri Lanka" iso_code="LK" call_prefix="94" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="764" name="Thailand" iso_code="TH" call_prefix="66" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="795" name="Turkmenistan" iso_code="TM" call_prefix="993" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="784" name="United Arab Emirates" iso_code="AE" call_prefix="971" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="860" name="Uzbekistan" iso_code="UZ" call_prefix="998" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="704" name="Viet Nam" iso_code="VN" call_prefix="84" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNNN" display_tax_label="1"/>
+            <country iso_code_num="887" name="Yemen" iso_code="YE" call_prefix="967" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="4" name="Afghanistan" iso_code="AF" call_prefix="93" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+            <country iso_code_num="162" name="Christmas Island" iso_code="CX" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="166" name="Cocos (Keeling) Islands" iso_code="CC" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+        </zone>
+        <zone name="Africa" >
+            <country iso_code_num="710" name="South Africa" iso_code="ZA" call_prefix="27" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+            <country iso_code_num="566" name="Nigeria" iso_code="NG" call_prefix="234" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="384" name="Ivory Coast" iso_code="CI" call_prefix="225" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="768" name="Togo"  iso_code="TG" call_prefix="228" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="480" name="Mauritius" iso_code="MU" call_prefix="230" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="12" name="Algeria" iso_code="DZ" call_prefix="213" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="24" name="Angola" iso_code="AO" call_prefix="244" published="1" contains_states="0" need_identification_number="0" need_zip_code="0" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="854" name="Burkina Faso" iso_code="BF" call_prefix="226" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="108" name="Burundi" iso_code="BI" call_prefix="257" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="120" name="Cameroon" iso_code="CM" call_prefix="237" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="132" name="Cape Verde" iso_code="CV" call_prefix="238" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+            <country iso_code_num="140" name="Central African Republic" iso_code="CF" call_prefix="236" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="148" name="Chad" iso_code="TD" call_prefix="235" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="204" name="Benin" iso_code="BJ" call_prefix="229" published="1" contains_states="0" need_identification_number="0" need_zip_code="0" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="72" name="Botswana" iso_code="BW" call_prefix="267" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="174" name="Comoros" iso_code="KM" call_prefix="269" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="178" name="Congo" iso_code="CG" call_prefix="242" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="180" name="Democratic Republic Of Congo" iso_code="CD" call_prefix="243" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="262" name="Djibouti" iso_code="DJ" call_prefix="253" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="818" name="Egypt" iso_code="EG" call_prefix="20" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="226" name="Equatorial Guinea" iso_code="GQ" call_prefix="240" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="232" name="Eritrea" iso_code="ER" call_prefix="291" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="210" name="Ethiopia" iso_code="ET" call_prefix="251" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="266" name="Gabon" iso_code="GA" call_prefix="241" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="270" name="Gambia" iso_code="GM" call_prefix="220" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="288" name="Ghana" iso_code="GH" call_prefix="233" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="324" name="Guinea" iso_code="GN" call_prefix="224" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="624" name="Guinea-Bissau" iso_code="GW" call_prefix="245" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="404" name="Kenya" iso_code="KE" call_prefix="254" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="426" name="Lesotho" iso_code="LS" call_prefix="266" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="430" name="Liberia" iso_code="LR" call_prefix="231" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="434" name="Libyan Arab Jamahiriya" iso_code="LY" call_prefix="218" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="450" name="Madagascar" iso_code="MG" call_prefix="261" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="454" name="Malawi" iso_code="MW" call_prefix="265" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="466" name="Mali" iso_code="ML" call_prefix="223" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="478" name="Mauritania" iso_code="MR" call_prefix="222" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="175" name="Mayotte" iso_code="YT" call_prefix="262" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="504" name="Morocco" iso_code="MA" call_prefix="212" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="508" name="Mozambique" iso_code="MZ" call_prefix="258" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="516" name="Namibia" iso_code="NA" call_prefix="264" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="562" name="Niger" iso_code="NE" call_prefix="227" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="638" name="Reunion" iso_code="RE" call_prefix="262" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="646" name="Rwanda" iso_code="RW" call_prefix="250" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="678" name="Sao Tome And Principe" iso_code="ST" call_prefix="239" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="686" name="Senegal" iso_code="SN" call_prefix="221" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="690" name="Seychelles" iso_code="SC" call_prefix="248" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="694" name="Sierra Leone" iso_code="SL" call_prefix="232" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="736" name="Sudan" iso_code="SD" call_prefix="249" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="748" name="Swaziland" iso_code="SZ" call_prefix="268" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="834" name="Tanzania, United Republic Of" iso_code="TZ" call_prefix="255" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="788" name="Tunisia" iso_code="TN" call_prefix="216" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="706" name="Somalia" iso_code="SO" call_prefix="252" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="800" name="Uganda" iso_code="UG" call_prefix="256" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="732" name="Western Sahara" iso_code="EH" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="894" name="Zambia" iso_code="ZM" call_prefix="260" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1" />
+            <country iso_code_num="716" name="Zimbabwe" iso_code="ZW" call_prefix="263" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1" />
+        </zone>
+        <zone name="Oceania" >
+            <country iso_code_num="36" name="Australia" iso_code="AU" call_prefix="61" published="1" contains_states="1" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1" >
+                <state name="Australian Capital Territory" iso_code="ACT" tax_behavior="0" published="1" />
+                <state name="New South Wales" iso_code="NSW" tax_behavior="0" published="1" />
+                    <state name="Northern Territory" iso_code="NT" tax_behavior="0" published="1" />
+                    <state name="Queensland" iso_code="QLD" tax_behavior="0" published="1" />
+                    <state name="South Australia" iso_code="SA" tax_behavior="0" published="1" />
+                    <state name="Tasmania" iso_code="TAS" tax_behavior="0" published="1" />
+                    <state name="Victoria" iso_code="VIC" tax_behavior="0" published="1" />
+                    <state name="Western Australia" iso_code="WA" tax_behavior="0" published="1" />
+
+            </country>
+            <country iso_code_num="554" name="New Zealand" iso_code="NZ" call_prefix="64" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+            <country iso_code_num="258" name="French Polynesia" iso_code="PF" call_prefix="689" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="260" name="French Southern Territories" iso_code="TF" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="242" name="Fiji" iso_code="FJ" call_prefix="679" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="316" name="Guam" iso_code="GU" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="334" name="Heard Island &amp; Mcdonald Islands" iso_code="HM" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="296" name="Kiribati" iso_code="KI" call_prefix="686" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="584" name="Marshall Islands" iso_code="MH" call_prefix="692" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="583" name="Micronesia, Federated States Of" iso_code="FM" call_prefix="691" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="520" name="Nauru" iso_code="NR" call_prefix="674" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="540" name="New Caledonia" iso_code="NC" call_prefix="687" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="612" name="Pitcairn" iso_code="PN" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="LLLL NLL" display_tax_label="1"/>
+            <country iso_code_num="570" name="Niue" iso_code="NU" call_prefix="683" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="574" name="Norfolk Island" iso_code="NF" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="580" name="Northern Mariana Islands" iso_code="MP" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="585" name="Palau" iso_code="PW" call_prefix="680" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="598" name="Papua New Guinea" iso_code="PG" call_prefix="675" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="882" name="Samoa" iso_code="WS" call_prefix="685" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="90" name="Solomon Islands" iso_code="SB" call_prefix="677" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="772" name="Tokelau" iso_code="TK" call_prefix="690" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="776" name="Tonga" iso_code="TO" call_prefix="676" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="798" name="Tuvalu" iso_code="TV" call_prefix="688" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="548" name="Vanuatu" iso_code="VU" call_prefix="678" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="876" name="Wallis And Futuna Islands" iso_code="WF" call_prefix="681" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="10" name="Antarctica" iso_code="AQ" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="74" name="Bouvet Island" iso_code="BV" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="86" name="British Indian Ocean Territory" iso_code="IO" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="LLLL NLL" display_tax_label="1"/>
+            <country iso_code_num="184" name="Cook Islands" iso_code="CK" call_prefix="682" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+        </zone>
+        <zone name="Europe_out_E_U" >
+            <country iso_code_num="756" name="Switzerland" iso_code="CH" call_prefix="41" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+            <country iso_code_num="20" name="Andorra" iso_code="AD" call_prefix="376" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="CNNN" display_tax_label="1"/>
+            <country iso_code_num="578" name="Norway" iso_code="NO" call_prefix="47" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+            <country iso_code_num="112" name="Belarus" iso_code="BY" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNNN" display_tax_label="1"/>
+            <country iso_code_num="191" name="Croatia (Local Name: Hrvatska)" iso_code="HR" call_prefix="385" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="234" name="Faroe Islands" iso_code="FO" call_prefix="298" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="304" name="Greenland" iso_code="GL" call_prefix="299" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="292" name="Gibraltar" iso_code="GI" call_prefix="350" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="831" name="Gersnsey" iso_code="GG" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="LLN NLL" display_tax_label="1"/>
+            <country iso_code_num="807" name="Macedonia, The Former Yugoslav Republic Of" iso_code="MK" call_prefix="389" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="336" name="Vatican City State (Holy See)" iso_code="VA" call_prefix="379" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="352" name="Iceland" iso_code="IS" call_prefix="354" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNN" display_tax_label="1"/>
+            <country iso_code_num="833" name="Isle Of Man" iso_code="IM" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="CN NLL" display_tax_label="1"/>
+            <country iso_code_num="832" name="Jersey" iso_code="JE" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="CN NLL" display_tax_label="1"/>
+            <country iso_code_num="498" name="Moldova, Republic Of" iso_code="MD" call_prefix="373" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="C-NNNN" display_tax_label="1"/>
+            <country iso_code_num="492" name="Monaco"  iso_code="MC" call_prefix="377" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="980NN" display_tax_label="1"/>
+            <country iso_code_num="499" name="Montenegro" iso_code="ME" call_prefix="382" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="643" name="Russian Federation" iso_code="RU" call_prefix="7" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNNN" display_tax_label="1"/>
+            <country iso_code_num="674" name="San Marino" iso_code="SM" call_prefix="378" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="688" name="Serbia" iso_code="RS" call_prefix="381" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="744" name="Svalbard And Jan Mayen Islands" iso_code="SJ" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="792" name="Turkey" iso_code="TR" call_prefix="90" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="8" name="Albania" iso_code="AL" call_prefix="355" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNN" display_tax_label="1"/>
+            <country iso_code_num="248" name="Aland Islands" iso_code="AX" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+        </zone>
+        <zone name="Central America Antilla" >
+            <country iso_code_num="660" name="Anguilla" iso_code="AI" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="533" name="Aruba" iso_code="AW" call_prefix="297" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="84" name="Belize" iso_code="BZ" call_prefix="501" published="1" contains_states="0" need_identification_number="0" need_zip_code="0" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="188" name="Costa Rica" iso_code="CR" call_prefix="506" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="192" name="Cuba" iso_code="CU" call_prefix="53" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="212" name="Dominica" iso_code="DM" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="214" name="Dominican Republic" iso_code="DO" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="222" name="El Salvador" iso_code="SV" call_prefix="503" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="238" name="Falkland Islands (Malvinas)" iso_code="FK" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="LLLL NLL" display_tax_label="1"/>
+            <country iso_code_num="308" name="Grenada" iso_code="GD" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="312" name="Guadeloupe" iso_code="GP" call_prefix="590" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="320" name="Guatemala" iso_code="GT" call_prefix="502" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="332" name="Haiti" iso_code="HT" call_prefix="509" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="340" name="Honduras"  iso_code="HN" call_prefix="504" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="388" name="Jamaica" iso_code="JM" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="474" name="Martinique" iso_code="MQ" call_prefix="596" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="500" name="Montserrat" iso_code="MS" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="530" name="Netherlands Antilles" iso_code="AN" call_prefix="599" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="558" name="Nicaragua" iso_code="NI" call_prefix="505" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNNN" display_tax_label="1"/>
+            <country iso_code_num="591" name="Panama" iso_code="PA" call_prefix="507" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNNN" display_tax_label="1"/>
+            <country iso_code_num="630" name="Puerto Rico" iso_code="PR" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN" display_tax_label="1"/>
+            <country iso_code_num="652" name="Saint Barthelemy" iso_code="BL" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="659" name="Saint Kitts And Nevis" iso_code="KN" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="662" name="Saint Lucia" iso_code="LC" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="663" name="Saint-Martin" iso_code="MF" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="666" name="Saint Pierre And Miquelon" iso_code="PM" call_prefix="508" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="670" name="Saint Vincent And The Grenadines" iso_code="VC" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="239" name="South Georgia And The South Sandwich Islands" iso_code="GS" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="LLLL NLL" display_tax_label="1"/>
+            <country iso_code_num="740" name="Suriname" iso_code="SR" call_prefix="597" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="796" name="Turks And Caicos Islands" iso_code="TC" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="LLLL NLL" display_tax_label="1"/>
+            <country iso_code_num="136" name="Cayman Islands" iso_code="KY" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+        </zone>
+    <zone name="South America" >
+        <country iso_code_num="68" name="Bolivia" iso_code="BO" call_prefix="591" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+        <country iso_code_num="32" name="Argentina" iso_code="AR" call_prefix="54" published="1" contains_states="1" need_identification_number="0" need_zip_code="1" zip_code_format="LNNNNLLL" display_tax_label="1" >
+            <state name="Buenos Aires" iso_code="B" tax_behavior="0" published="1" />
+            <state name="Catamarca" iso_code="K" tax_behavior="0" published="1" />
+                    <state name="Chaco" iso_code="H" tax_behavior="0" published="1" />
+                    <state name="Chubut" iso_code="U" tax_behavior="0" published="1" />
+                    <state name="Ciudad de Buenos Aires" iso_code="C" tax_behavior="0" published="1" />
+                    <state name="Córdoba" iso_code="X" tax_behavior="0" published="1" />
+                    <state name="Corrientes" iso_code="W" tax_behavior="0" published="1" />
+                    <state name="Entre Ríos" iso_code="E" tax_behavior="0" published="1" />
+                    <state name="Formosa" iso_code="P" tax_behavior="0" published="1" />
+                    <state name="Jujuy" iso_code="Y" tax_behavior="0" published="1" />
+                    <state name="La Pampa" iso_code="L" tax_behavior="0" published="1" />
+                    <state name="La Rioja" iso_code="F" tax_behavior="0" published="1" />
+                    <state name="Mendoza" iso_code="M" tax_behavior="0" published="1" />
+                    <state name="Misiones" iso_code="N" tax_behavior="0" published="1" />
+                    <state name="Neuquén" iso_code="Q" tax_behavior="0" published="1" />
+                    <state name="Río Negro" iso_code="R" tax_behavior="0" published="1" />
+                    <state name="Salta" iso_code="A" tax_behavior="0" published="1" />
+                    <state name="San Juan" iso_code="J" tax_behavior="0" published="1" />
+                    <state name="San Luis" iso_code="D" tax_behavior="0" published="1" />
+                    <state name="Santa Cruz" iso_code="Z" tax_behavior="0" published="1" />
+                    <state name="Santa Fe" iso_code="S" tax_behavior="0" published="1" />
+                    <state name="Santiago del Estero" iso_code="G" tax_behavior="0" published="1" />
+                    <state name="Tierra del Fuego" iso_code="V" tax_behavior="0" published="1" />
+                    <state name="Tucumán" iso_code="T" tax_behavior="0" published="1" />
+            </country>
+            <country iso_code_num="76" name="Brazil" iso_code="BR" call_prefix="55" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNN-NNN" display_tax_label="1"/>
+            <country iso_code_num="152" name="Chile" iso_code="CL" call_prefix="56" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNN-NNNN" display_tax_label="1"/>
+            <country iso_code_num="170" name="Colombia" iso_code="CO" call_prefix="57" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="NNNNNN" display_tax_label="1"/>
+            <country iso_code_num="218" name="Ecuador" iso_code="EC" call_prefix="593" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="CNNNNNN" display_tax_label="1"/>
+            <country iso_code_num="328" name="Guyana" iso_code="GY" call_prefix="592" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="600" name="Paraguay" iso_code="PY" call_prefix="595" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="604" name="Peru" iso_code="PE" call_prefix="51" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="858" name="Uruguay" iso_code="UY" call_prefix="598" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="780" name="Trinidad And Tobago" iso_code="TT" call_prefix="0" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="862" name="Venezuela" iso_code="VE" call_prefix="58" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+            <country iso_code_num="254" name="French Guiana" iso_code="GF" call_prefix="594" published="1" contains_states="0" need_identification_number="0" need_zip_code="1" zip_code_format="" display_tax_label="1"/>
+    </zone>
+</zones>

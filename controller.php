@@ -191,7 +191,7 @@ class JeproshopController extends JControllerLegacy
         if(is_array($name)){ $name = $name[JeproshopContext::getContext()->language->lang_id]; }
 
         // legacy mode or default image
-        $theme = ((JeproshopShopModelShop::isFeaturePublished() && file_exists(COM_JEPROSHOP_PRODUCT_IMAGE_DIR . $ids . ($type ? '_'.$type : '').'_'. JeproshopContext::getContext()->shop->theme_name .'.jpg')) ? '_'.JeproshopContext::getContext()->shop->theme->name : '');
+        $theme = ((JeproshopShopModelShop::isFeaturePublished() && file_exists(COM_JEPROSHOP_PRODUCT_IMAGE_DIR . $ids . ($type ? '_'.$type : '').'_'. JeproshopContext::getContext()->shop->theme->name .'.jpg')) ? '_'.JeproshopContext::getContext()->shop->theme->name : '');
 
         if ((JeproshopSettingModelSetting::getValue('legacy_images') && (file_exists(COM_JEPROSHOP_PRODUCT_IMAGE_DIR . $ids . ($type ? '_'.$type : '').$theme.'.jpg'))) || ($notDefault = strpos($ids, 'default') !== false)) {
             if ($this->allow_link_rewrite == 1 && !$notDefault){
@@ -328,6 +328,62 @@ class JeproshopController extends JControllerLegacy
     public function script(){
         $script = new com_jeproshopInstallerScript();
         $script->createDefaultShopData();
+    }
+
+
+    //TODO correct it
+    protected function geolocationManagement($defaultCountry) {
+        /*$context = JeproshopContext::getContext();
+        if (!in_array($_SERVER['SERVER_NAME'], array('localhost', '127.0.0.1'))){
+            /* Check if Max mind Database exists * /
+            if (file_exists(COM_JEPROSHOP_GEOIP_DIR . 'GeoLiteCity.dat')){
+                if (!isset($context->cookie->iso_code_country) || (isset($context->cookie->iso_code_country) && !in_array(strtoupper($context->cookie->iso_code_country), explode(';', JeproshopSettingModelSetting::getValue('allowed_countries'))))){
+                    include_once(COM_JEPROSHOP_GEOIP_DIR .'geoipcity.inc');
+
+                    $gi = geoip_open(realpath(COM_JEPROSHOP_GEOIP_DIR .'GeoLiteCity.dat'), COM_JEPROSHOP_GEOIP_STANDARD);
+                    $record = geoip_record_by_addr($gi, Tools::getRemoteAddr());
+
+                    if (is_object($record)){
+                        if (!in_array(strtoupper($record->country_code), explode(';', JeproshopSettingModelSetting::getValue('allowed_countries'))) && !self::isInWhiteListForGeolocation()){
+                            if (JeproshopSettingModelSetting::getValue('geolocation_behavior') == COM_JEPROSHOP_GEOLOCATION_NO_CATALOG)
+                                $this->restricted_country = true;
+                            elseif (JeproshopSettingModelSetting::getValue('geolocation_behavior') == COM_JEPROSHOP_GEOLOCATION_NO_ORDER)
+                                $context->smarty->assign(array(
+                                    'restricted_country_mode' => true,
+                                    'geolocation_country' => $record->country_name
+                                ));
+                        }else {
+                            $has_been_set = !isset($context->cookie->iso_code_country);
+                            $context->cookie->iso_code_country = strtoupper($record->country_code);
+                        }
+                    }
+                }
+
+                if (isset($context->cookie->iso_code_country) && $context->cookie->iso_code_country && !JeproShopTools::isLanguageIsoCode($this->context->cookie->iso_code_country))
+                    $this->context->cookie->iso_code_country = JeproshopCountryModelCountry::getIsoById(JeproshopSettingModelSetting::getValue('default_currency'));
+                if (isset($this->context->cookie->iso_code_country) && ($countryId = JeproshopCountryModelCountry::getByIso(strtoupper($this->context->cookie->iso_code_country))))
+                {
+                    /* Update defaultCountry * /
+                    if ($default_country->iso_code != $this->context->cookie->iso_code_country)
+                        $default_country = new JeproshopCountryModelCountry($countryId);
+                    if (isset($has_been_set) && $has_been_set)
+                        $this->context->cookie->id_currency = (int)(JeproshopCurrencyModelCurrency::getCurrencyInstance($default_country->currency_id ? (int)$default_country->currency_id : JeproshopSettingModelSetting::get('default_currency'))->id);
+                    return $default_country;
+                }elseif (JeproshopSettingModelSetting::get('un_allowed_country_geolocation_behavior') == COM_JEPROSHOP_GEOLOCATION_NO_CATALOG && !JeproShopController::isInWhiteListForGeolocation()){
+                    $this->restricted_country = true;
+                }elseif (JeproshopSettingModelSetting::get('un_allowed_country_geolocation_behavior') == COM_JEPROSHOP_GEOLOCATION_NO_ORDER && !JeproShopController::isInWhiteListForGeolocation()){
+                    /*$this->context->smarty->assign(array(
+                        'restricted_country_mode' => true,
+                        'geolocation_country' => 'Undefined'
+                    )); * /
+                }
+            }
+            /* If not exists we disabled the geolocation feature * /
+            else
+                JeproshopSettingModelSetting::updateValue('enable_geolocation', 0); * /
+        }
+        return false;
+            */
     }
 
 }

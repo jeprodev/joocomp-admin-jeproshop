@@ -24,6 +24,7 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
+JHtml::_('jquery.framework');
 $document = JFactory::getDocument();
 $document->addScript('components/com_jeproshop/assets/helpers/render/templates/js/jeprotree.js');
 

@@ -35,7 +35,7 @@ defined('_JEXEC') or die('Restricted access');
         <div class="half-wrapper left" >
             <div class="panel" >
                 <div class="panel-title" ><i class="icon-tools" ></i> <?php echo JText::_('COM_JEPROSHOP_GENERAL_SETTINGS_LABEL'); ?></div>
-                <div class="panel-content well" >
+                <div class="panel-content" >
                     <div class="control-group" >
                         <div class="control-label" ><label id="jform_order_process_type-lbl" for="jform_order_process_type" title="<?php echo JText::_('COM_JEPROSHOP_ORDER_PROCESS_TYPE_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_ORDER_PROCESS_TYPE_LABEL'); ?></label></div>
                         <div class="controls">
@@ -97,7 +97,7 @@ defined('_JEXEC') or die('Restricted access');
         <div class="half-wrapper right" >
             <div class="panel" >
                 <div class="panel-title" ><i class="icon-file" ></i> <?php echo JText::_('COM_JEPROSHOP_PDF_SETTINGS_LABEL'); ?></div>
-                <div class="panel-content well" >
+                <div class="panel-content" >
                     <div class="control-group" >
                         <div class="control-label" ><label for="" title="<?php echo JText::_('COM_JEPROSHOP_DISPLAY_PRODUCT_IMAGE_ON_INVOICE_DISPLAY_PRODUCT_IMAGE_ON_INVOICE_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_DISPLAY_PRODUCT_IMAGE_ON_INVOICE_LABEL'); ?></label> </div>
                         <div class="controls" >
@@ -120,7 +120,7 @@ defined('_JEXEC') or die('Restricted access');
             </div>
             <div class="panel" >
                 <div class="panel-title" ><i class="icon-" ></i> <?php echo JText::_('COM_JEPROSHOP_GIFT_WRAPPING_SETTINGS_LABEL'); ?></div>
-                <div class="panel-content well" >
+                <div class="panel-content" >
                     <div class="control-group" >
                         <div class="control-label" ><label id="jform_offer_gift_wrapping-lbl" for="jform_offer_gift_wrapping" title="<?php echo JText::_('COM_JEPROSHOP_OFFER_GIFT_WRAPPING_TITLE_DESC'); ?>" ><?php echo JText::_('COM_JEPROSHOP_OFFER_GIFT_WRAPPING_LABEL'); ?></label></div>
                         <div class="controls">

@@ -225,7 +225,7 @@ print_r($toUpload);
 
             clearstatcache(true, $filePath);
             $fileSize = filesize($filePath);
-echo $filePath;
+
             if($fileSize === $file['size']){
                 $file['save_path'] = $filePath;
             }else{

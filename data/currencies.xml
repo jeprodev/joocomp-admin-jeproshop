@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<currencies>
+    <currency name="Afghani" iso_code="AFN" iso_code_num="971" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Euro" iso_code="EUR" iso_code_num="978" sign="€" blank="" format="" decimals="1" deletted="0" published="1" />
+    <currency name="Lek" iso_code="ALL" iso_code_num="008" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Algerian Dinar" iso_code="DZD" iso_code_num="012" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="US Dollar" iso_code="USD" iso_code_num="840" sign="" blank="" format="" decimals="" deletted="0" published="1" />
+    <currency name="Kwanza" iso_code="AOA" iso_code_num="973" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="East Caribbean Dollar" iso_code="XCD" iso_code_num="951" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Argentine Peso" iso_code="ARS" iso_code_num="032" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Armenian Dram" iso_code="AMD" iso_code_num="051" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Aruban Florin" iso_code="AWG" iso_code_num="533" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Australian Dollar" iso_code="AUD" iso_code_num="036" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Azerbaijan Manat" iso_code="AZN" iso_code_num="944" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Bahamian Dollar" iso_code="BSD" iso_code_num="044" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Bahraini Dinar" iso_code="BHD" iso_code_num="048" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Taka" iso_code="BDT" iso_code_num="050" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Barbados Dollar" iso_code="BBD" iso_code_num="052" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Belarusian Ruble" iso_code="BYN" iso_code_num="933" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Belize Dollar" iso_code="BZD" iso_code_num="084" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="CFA Franc BCEAO" iso_code="XOF" iso_code_num="952" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Bermudian Dollar" iso_code="BMD" iso_code_num="060" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Indian Rupee" iso_code="INR" iso_code_num="356" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Ngultrum" iso_code="BTN" iso_code_num="064" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Boliviano" iso_code="BOB" iso_code_num="068" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Mvdol" iso_code="BOV" iso_code_num="984" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Convertible Mark" iso_code="BAM" iso_code_num="977" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Pula" iso_code="BWP" iso_code_num="072" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Norwegian Krone" iso_code="NOK" iso_code_num="578" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Brazilian Real" iso_code="BRL" iso_code_num="986" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Brunei Dollar" iso_code="BND" iso_code_num="096" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Bulgarian Lev" iso_code="BGN" iso_code_num="975" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Burundi Franc" iso_code="BIF" iso_code_num="108" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Cabo Verde Escudo" iso_code="CVE" iso_code_num="132" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Riel" iso_code="KHR" iso_code_num="116" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="CFA Franc BEAC" iso_code="XAF" iso_code_num="950" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Canadian Dollar" iso_code="CAD" iso_code_num="124" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Cayman Islands Dollar" iso_code="KYD" iso_code_num="136" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Chilean Peso" iso_code="CLP" iso_code_num="152" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Unidad de Fomento" iso_code="CLF" iso_code_num="990" sign="" blank="" format="4" decimals="1" deletted="0" published="0" />
+    <currency name="Yuan Renminbi" iso_code="CNY" iso_code_num="156" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Colombian Peso" iso_code="COP" iso_code_num="170" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Unidad de Valor Real" iso_code="COU" iso_code_num="970" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Comorian Franc" iso_code="KMF" iso_code_num="174" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Congolese Franc" iso_code="CDF" iso_code_num="976" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="New Zealand Dollar" iso_code="NZD" iso_code_num="554" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Costa Rican Colon" iso_code="CRC" iso_code_num="188" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Kuna" iso_code="HRK" iso_code_num="191" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Cuban Peso" iso_code="CUP" iso_code_num="192" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Peso Convertible" iso_code="CUC" iso_code_num="931" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Netherlands Antillean Guilder" iso_code="ANG" iso_code_num="532" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Czech Koruna" iso_code="CZK" iso_code_num="203" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Danish Krone" iso_code="DKK" iso_code_num="208" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Djibouti Franc" iso_code="DJF" iso_code_num="262" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Dominican Peso" iso_code="DOP" iso_code_num="214" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Egyptian Pound" iso_code="EGP" iso_code_num="818" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="El Salvador Colon" iso_code="SVC" iso_code_num="222" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Nakfa" iso_code="ERN" iso_code_num="232" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Ethiopian Birr" iso_code="ETB" iso_code_num="230" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Falkland Islands Pound" iso_code="FKP" iso_code_num="238" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Fiji Dollar" iso_code="FJD" iso_code_num="242" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="CFP Franc" iso_code="XPF" iso_code_num="953" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Dalasi" iso_code="GMD" iso_code_num="270" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Lari" iso_code="GEL" iso_code_num="981" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Ghana Cedi" iso_code="GHS" iso_code_num="936" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Gibraltar Pound" iso_code="GIP" iso_code_num="292" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Quetzal" iso_code="GTQ" iso_code_num="320" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Pound Sterling" iso_code="GBP" iso_code_num="826" sign="" blank="" format="" decimals="1" deletted="0" published="1" />
+    <currency name="Guinean Franc" iso_code="GNF" iso_code_num="324" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Guyana Dollar" iso_code="GYD" iso_code_num="328" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Gourde" iso_code="HTG" iso_code_num="332" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Lempira" iso_code="HNL" iso_code_num="340" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Hong Kong Dollar" iso_code="HKD" iso_code_num="344" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Forint" iso_code="HUF" iso_code_num="348" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Iceland Krona" iso_code="ISK" iso_code_num="352" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="SDR (Special Drawing Right)" iso_code="XDR" iso_code_num="960" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Iranian Rial" iso_code="IRR" iso_code_num="364" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Iraqi Dinar" iso_code="IQD" iso_code_num="368" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="New Israeli Sheqel" iso_code="ILS" iso_code_num="376" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Jamaican Dollar" iso_code="JMD" iso_code_num="388" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Yen" iso_code="JPY" iso_code_num="392" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Jordanian Dinar" iso_code="JOD" iso_code_num="400" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Tenge" iso_code="KZT" iso_code_num="398" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Kenyan Shilling" iso_code="KES" iso_code_num="404" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="North Korean Won" iso_code="KPW" iso_code_num="408" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Won" iso_code="KRW" iso_code_num="410" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Kuwaiti Dinar" iso_code="KWD" iso_code_num="414" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Som" iso_code="KGS" iso_code_num="417" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Lao Kip" iso_code="LAK" iso_code_num="418" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Lebanese Pound" iso_code="LBP" iso_code_num="422" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Loti" iso_code="LSL" iso_code_num="426" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Rand" iso_code="ZAR" iso_code_num="710" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Liberian Dollar" iso_code="LRD" iso_code_num="430" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Libyan Dinar" iso_code="LYD" iso_code_num="434" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Swiss Franc" iso_code="CHF" iso_code_num="756" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Pataca" iso_code="MOP" iso_code_num="446" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Denar" iso_code="MKD" iso_code_num="807" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Malagasy Ariary" iso_code="MGA" iso_code_num="969" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Malawi Kwacha" iso_code="MWK" iso_code_num="454" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Malaysian Ringgit" iso_code="MYR" iso_code_num="458" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Rufiyaa" iso_code="MVR" iso_code_num="462" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Ouguiya" iso_code="MRO" iso_code_num="478" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Mauritius Rupee" iso_code="MUR" iso_code_num="480" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="ADB Unit of Account" iso_code="XUA" iso_code_num="965" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Mexican Peso" iso_code="MXN" iso_code_num="484" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Mexican Unidad de Inversion (UDI)" iso_code="MXV" iso_code_num="979" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Moldovan Leu" iso_code="MDL" iso_code_num="498" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Tugrik" iso_code="MNT" iso_code_num="496" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Moroccan Dirham" iso_code="MAD" iso_code_num="504" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Mozambique Metical" iso_code="MZN" iso_code_num="943" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Kyat" iso_code="MMK" iso_code_num="104" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Namibia Dollar" iso_code="NAD" iso_code_num="516" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Nepalese Rupee" iso_code="NPR" iso_code_num="524" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Cordoba Oro" iso_code="NIO" iso_code_num="558" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Naira" iso_code="NGN" iso_code_num="566" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Norwegian Krone" iso_code="NOK" iso_code_num="578" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Rial Omani" iso_code="OMR" iso_code_num="512" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Pakistan Rupee" iso_code="PKR" iso_code_num="586" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Balboa" iso_code="PAB" iso_code_num="590" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Kina" iso_code="PGK" iso_code_num="598" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Guarani" iso_code="" iso_code_num="" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="" iso_code="PYG" iso_code_num="600" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Sol" iso_code="PEN" iso_code_num="604" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Philippine Peso" iso_code="PHP" iso_code_num="608" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Zloty" iso_code="PLN" iso_code_num="985" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Qatari Rial" iso_code="QAR" iso_code_num="634" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Romanian Leu" iso_code="RON" iso_code_num="946" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Russian Ruble" iso_code="RUB" iso_code_num="643" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Rwanda Franc" iso_code="RWF" iso_code_num="646" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Saint Helena Pound" iso_code="SHP" iso_code_num="654" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Tala" iso_code="WST" iso_code_num="882" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Dobra" iso_code="STD" iso_code_num="678" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Saudi Riyal" iso_code="SAR" iso_code_num="682" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Serbian Dinar" iso_code="RSD" iso_code_num="941" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Seychelles Rupee" iso_code="SCR" iso_code_num="690" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Leone" iso_code="SLL" iso_code_num="694" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Singapore Dollar" iso_code="SGD" iso_code_num="702" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Netherlands Antillean Guilder" iso_code="ANG" iso_code_num="532" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Sucre" iso_code="XSU" iso_code_num="994" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Solomon Islands Dollar" iso_code="SBD" iso_code_num="090" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Somali Shilling" iso_code="SOS" iso_code_num="706" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="South Sudanese Pound" iso_code="SSP" iso_code_num="728" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Sri Lanka Rupee" iso_code="LKR" iso_code_num="144" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Sudanese Pound" iso_code="SDG" iso_code_num="938" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Surinam Dollar" iso_code="SRD" iso_code_num="968" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Norwegian Krone" iso_code="NOK" iso_code_num="578" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Lilangeni" iso_code="SZL" iso_code_num="748" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Swedish Krona" iso_code="SEK" iso_code_num="752" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Swiss Franc" iso_code="CHF" iso_code_num="756" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="WIR Euro" iso_code="CHE" iso_code_num="947" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="WIR Franc" iso_code="CHW" iso_code_num="948" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Syrian Pound" iso_code="SYP" iso_code_num="760" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="New Taiwan Dollar" iso_code="TWD" iso_code_num="901" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Somoni" iso_code="TJS" iso_code_num="972" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Tanzanian Shilling" iso_code="TZS" iso_code_num="834" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Baht" iso_code="THB" iso_code_num="764" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Pa’anga" iso_code="TOP" iso_code_num="776" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Trinidad and Tobago Dollar" iso_code="TTD" iso_code_num="780" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Tunisian Dinar" iso_code="TND" iso_code_num="788" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Turkish Lira" iso_code="TRY" iso_code_num="949" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Turkmenistan New Manat" iso_code="TMT" iso_code_num="934" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Uganda Shilling" iso_code="UGX" iso_code_num="800" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Hryvnia" iso_code="UAH" iso_code_num="980" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="UAE Dirham" iso_code="AED" iso_code_num="784" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="US Dollar (Next day)" iso_code="USN" iso_code_num="997" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Peso Uruguayo" iso_code="UYU" iso_code_num="858" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Uruguay Peso en Unidades Indexadas (URUIURUI)" iso_code="UYI" iso_code_num="940" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Uzbekistan Sum" iso_code="UZS" iso_code_num="860" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Vatu" iso_code="VUV" iso_code_num="548" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Bolívar" iso_code="VEF" iso_code_num="937" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Dong" iso_code="VND" iso_code_num="704" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Yemeni Rial" iso_code="YER" iso_code_num="886" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Zambian Kwacha" iso_code="ZMW" iso_code_num="967" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Zimbabwe Dollar" iso_code="ZWL" iso_code_num="932" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Bond Markets Unit European Composite Unit (EURCO)" iso_code="XBA" iso_code_num="955" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Bond Markets Unit European Monetary Unit (E.M.U.-6)" iso_code="XBB" iso_code_num="956" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Bond Markets Unit European Unit of Account 9 (E.U.A.-9)" iso_code="XBC" iso_code_num="957" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Bond Markets Unit European Unit of Account 17 (E.U.A.-17)" iso_code="XBD" iso_code_num="958" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Codes specifically reserved for testing purposes" iso_code="XTS" iso_code_num="963" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="The codes assigned for transactions where no currency is involved" iso_code="XXX" iso_code_num="999" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Gold" iso_code="XAU" iso_code_num="959" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Palladium" iso_code="XPD" iso_code_num="964" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Platinum" iso_code="XPT" iso_code_num="962" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+    <currency name="Silver" iso_code="XAG" iso_code_num="961" sign="" blank="" format="" decimals="1" deletted="0" published="0" />
+</currencies>
